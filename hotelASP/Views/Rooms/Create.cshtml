@@ -1,0 +1,109 @@
+﻿@model hotelASP.Models.Room
+
+@{
+	ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Room</h4>
+<hr />
+<div class="row">
+	<div class="col-md-4">
+
+		<form asp-action="Create">
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+			<div class="form-group">
+				<label asp-for="RoomNumber" class="control-label"></label>
+				<input asp-for="RoomNumber" class="form-control" />
+				<span asp-validation-for="RoomNumber" class="text-danger"></span>
+			</div>
+
+			<div class="form-group">
+				<label class="control-label">Podaj standard:</label>
+
+				<select asp-for="IdStandard" class="form-control" asp-items="@(new SelectList(ViewBag.Standards, "IdStandard", "StandardName"))">
+					<option value="" readonly >Wybierz standard</option>
+				</select>
+				<span asp-validation-for="IdStandard" class="text-danger"></span>
+			</div>
+
+			<div class="form-group">
+				<label class="control-label">Wybierz typ:</label>
+
+				<select asp-for="IdType" class="form-control">
+					<option value="" >Wybierz typ</option>
+					@foreach (var type in ViewBag.Types)
+					{
+						<option value="@type.IdType">Dla @type.PeopleNumber osób, @type.BedNumber łóżek</option>
+					}
+				</select>
+
+				<span asp-validation-for="IdType" class="text-danger"></span>
+			</div>
+
+			<div class="form-group">
+				<label asp-for="FloorNumber" class="control-label"></label>
+				<input asp-for="FloorNumber" class="form-control" />
+				<span asp-validation-for="FloorNumber" class="text-danger"></span>
+			</div>
+
+			<div class="form-group">
+				<label class="control-label">Opis pokoju</label>
+
+				<div>
+					<input type="checkbox" id="balcony" value="Z balkonem" class="desc-checkbox" /> Z balkonem
+				</div>
+				<div>
+					<input type="checkbox" id="lakeView" value="Z widokiem na jezioro" class="desc-checkbox" /> Z widokiem na jezioro
+				</div>
+				<div>
+					<input type="checkbox" id="jacuzzi" value="Z jacuzzi" class="desc-checkbox" /> Z jacuzzi
+				</div>
+
+				<input type="hidden" asp-for="Description" id="Description" class="form-control" />
+
+				<span asp-validation-for="Description" class="text-danger"></span>
+			</div>
+
+
+			<div class="form-group">
+				<input type="submit" value="Create" class="btn btn-primary" />
+			</div>
+		</form>
+	</div>
+</div>
+
+<div>
+	<a asp-action="Index">Back to List</a>
+</div>
+
+<script>
+
+
+		document.addEventListener("DOMContentLoaded", function () {
+		const checkboxes = document.querySelectorAll(".desc-checkbox");
+		const descriptionInput = document.getElementById("Description");
+
+		checkboxes.forEach(checkbox => {
+			checkbox.addEventListener("change", function () {
+				let selectedOptions = [];
+				checkboxes.forEach(cb => {
+					if (cb.checked) {
+						selectedOptions.push(cb.value);
+					}
+				});
+
+				descriptionInput.value = selectedOptions.join(", ");
+			});
+		});
+	});
+
+</script>
+
+@section Scripts {
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+}

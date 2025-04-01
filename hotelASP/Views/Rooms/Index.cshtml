@@ -1,0 +1,74 @@
+﻿@model IEnumerable<hotelASP.Models.Room>
+
+@{
+	ViewData["Title"] = "Pokoje";
+}
+
+<div class="mainPage">
+
+	<div class="nav-bar">
+
+	@if (User.IsInRole("manager"))
+	{
+		<a asp-controller="Rooms" asp-action="Create" class="loginBtn"> Dodaj pokój </a>
+		<a asp-controller="Rooms" asp-action="CreateStandard" class="loginBtn"> Dodaj standard </a>
+		<a asp-controller="Rooms" asp-action="CreateType" class="loginBtn"> Dodaj typ </a>
+	}
+	</div>
+
+	<div class="roomsTable">
+		<table class="table">
+			<thead>
+				<tr>
+					<th>
+						Numer pokoju
+					</th>
+					<th>
+						Opis pokoju
+					</th>
+					<th>
+						Cena
+					</th>
+					<th>
+						Czy zajęty
+					</th>
+					<th>Opcje</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var item in Model)
+				{
+					<tr>
+						<td>
+							@Html.DisplayFor(modelItem => item.RoomNumber)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.Description)
+						</td>
+						<td>
+							@Html.DisplayFor(modelItem => item.Price) zł
+						</td>
+						<td>
+							@{
+								if (item.IsTaken == 0)
+								{
+									<span style="color:green;">Wolny</span>
+								}
+								else
+								{
+									<span style="color:red;">Zajęty</span>
+								}
+							}
+						</td>
+
+						<td>
+							<a asp-action="Edit" asp-route-id="@item.IdRoom">Edit</a> |
+							<a asp-action="Details" asp-route-id="@item.IdRoom">Details</a> |
+							<a asp-action="Delete" asp-route-id="@item.IdRoom">Delete</a>
+						</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+</div>

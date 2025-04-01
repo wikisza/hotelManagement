@@ -1,0 +1,53 @@
+﻿@model hotelASP.Entities.UserAccount
+
+@{
+	ViewData["Title"] = "Details";
+}
+
+<div class="detailsContainer">
+
+	<h1>Szczegóły</h1>
+	<dl class="userDetails">
+		<dt class="detailsHead">
+			Imię i nazwisko:
+		</dt>
+		<dd class="detailsBody">
+			@Html.DisplayFor(model => model.FirstName) @Html.DisplayFor(model => model.LastName)
+		</dd>
+
+		<dt class="detailsHead">
+			Email:
+		</dt>
+		<dd class="detailsBody">
+			@Html.DisplayFor(model => model.Email)
+		</dd>
+
+		<dt class="detailsHead">
+			Username:
+		</dt>
+		<dd class="detailsBody">
+			@Html.DisplayFor(model => model.Username)
+		</dd>
+
+		<dt class="detailsHead">
+			Stanowisko:
+		</dt>
+		<dd class="detailsBody">
+			@Html.DisplayFor(model => model.Role.Name)
+		</dd>
+
+		<dt class="detailsHead">
+			Data założenia konta:
+		</dt>
+		<dd class="detailsBody">
+			@Html.DisplayFor(model => model.CreateDate)
+		</dd>
+
+	</dl>
+
+	<div>
+		<a class="loginBtn" asp-action="Edit" asp-route-id="@Model?.Id">Edytuj</a> |
+		<a class="loginBtn" asp-action="Index">Wróć do listy</a>
+	</div>
+
+</div>

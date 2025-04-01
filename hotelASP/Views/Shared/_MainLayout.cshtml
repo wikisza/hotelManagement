@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<title>@ViewData["Title"] - hotelASP</title>
+	<link href="~/css/style.css" rel="stylesheet" />
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
+
+</head>
+
+<body>
+	@if (Context.User.Identity.Name != null)
+	{
+		<div class="header">
+			<div class="head-center">
+				<a asp-controller="Home" asp-action="Index">
+					<h1>HOTEL TROPICAL</h1>
+				</a>
+			</div>
+
+			<div class="head-side">
+				@await Html.PartialAsync("_LoginPartial")
+			</div>
+		</div>
+
+		@await Html.PartialAsync("_navigationBar")
+	}
+
+	<div class="layoutContainer">
+		<div class="options">
+			@if (Context.User.Identity.Name != null)
+			{
+				@await Html.PartialAsync("_optionsPanel")
+			}
+		</div>
+		@RenderBody()
+	</div>
+
+
+
+
+	<script src="~/lib/jquery/dist/jquery.min.js"></script>
+	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+	<script src="~/js/site.js" asp-append-version="true"></script>
+
+
+
+	@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

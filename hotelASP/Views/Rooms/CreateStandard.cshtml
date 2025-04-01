@@ -1,0 +1,42 @@
+﻿@model hotelASP.Models.Standard
+
+@{
+    ViewData["Title"] = "CreateStandard";
+}
+
+<div class="mainPage">
+
+<h1>CreateStandard</h1>
+
+<h4>Standard</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="CreateStandard">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="StandardName" class="control-label"></label>
+                <input asp-for="StandardName" class="form-control" />
+                <span asp-validation-for="StandardName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="StandardValue" class="control-label"></label>
+                <input asp-for="StandardValue" class="form-control" />
+                <span asp-validation-for="StandardValue" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

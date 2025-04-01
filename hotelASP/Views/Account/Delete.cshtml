@@ -1,0 +1,32 @@
+﻿@model hotelASP.Entities.UserAccount
+
+@{
+	ViewData["Title"] = "Delete";
+}
+
+<div class="deleteWindow">
+
+	<h3>Czy jesteś pewny, że chcesz usunąć to konto?</h3>
+	<div>
+		<dl class="row">
+			<dt class="detailsHead">
+				Imię i nazwisko:
+			</dt>
+			<dd class="detailsBody">
+				@Html.DisplayFor(model => model.FirstName) @Html.DisplayFor(model => model.LastName)
+			</dd>
+			<dt class="detailsHead">
+				Stanowisko:
+			</dt>
+			<dd class="detailsBody">
+				@Html.DisplayFor(model=> model.Role.Name)
+			</dd>
+		</dl>
+
+		<form asp-action="Delete">
+			<input type="hidden" asp-for="Id" />
+			<input type="submit" value="Usuń" class="loginBtn" /> |
+			<button type="button" class="loginBtn" onclick="location.href='@Url.Action("Index", "Account")'">Wróć do listy</button>
+		</form>
+	</div>
+</div>

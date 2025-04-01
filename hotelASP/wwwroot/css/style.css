@@ -1,0 +1,407 @@
+﻿@import url('https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&family=Oswald:wght@200..700&display=swap');
+
+:root {
+    --sand: #eecab4ff;
+    --violet: #7b668dff;
+    --brown: #3f2814ff;
+    --blue: #89acd5ff;
+    --green: #2e8784ff;
+    --darkBeige: #d4b199ff;
+    --lightViolet: #a48fbfff;
+    --warmCaramel: #ad7c50ff;
+    --deepBlue: #2f3b5eff;
+    --paleOlive: #8a9a5bff;
+    --dirtyPink: #c48a90ff;
+    --bodyColor: var(--brown);
+    --backgroundColor: var(--sand);
+    --bodyFont: "Nunito Sans", sans-serif;
+    --headerFont: "Oswald", sans-serif;
+    --specialFont: "Kanit", sans-serif;
+}
+
+body {
+    color: var(--bodyColor);
+    background-color: var(--backgroundColor);
+    font-family: var(--bodyFont);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--headerFont);
+    margin: 0px;
+}
+
+.header {
+    display: flex;
+    align-content: flex-end;
+    justify-content: space-between;
+    border-bottom: 10px solid var(--bodyColor);
+    padding-bottom: 5px;
+}
+
+.head-center a {
+    text-decoration: none;
+    color: var(--bodyColor);
+}
+
+    .head-center a:hover {
+        color: var(--violet);
+    }
+
+.head-side {
+    display: flex;
+    font-size: 20px;
+    margin: 0;
+    text-decoration: none;
+    color: black;
+    font-size: 20px;
+    padding-right: 20px;
+    justify-content: flex-end;
+}
+
+    .head-side button {
+        margin-left: 10px;
+        background-color: var(--backgroundColor);
+        border: 3px solid var(--brown);
+        border-radius: 5px;
+        font-family: var(--headerFont);
+        font-size: large;
+    }
+
+        .head-side button:hover {
+            background-color: var(--violet);
+        }
+
+.head-welcome {
+    margin: 0;
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+
+.head-log-reg {
+    display: flex;
+    justify-content: flex-end;
+    align-items: flex-end;
+}
+
+.nav-bar {
+    display: flex;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+    .nav-bar a {
+        text-decoration: none;
+        color: var(--bodyColor);
+        padding: 5px;
+    }
+
+        .nav-bar a:hover {
+            color: var(--violet);
+        }
+
+.container {
+    text-align: center;
+    background-image: url('../assets/graphics/login_background.jpg');
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    min-height: 90vh;
+}
+
+section {
+    backdrop-filter: blur(30px);
+    border-radius: 30px;
+    width: 50%;
+    margin-top: 30px;
+    padding: 20px;
+    box-shadow: 0px 0px 20px rgba(26, 25, 25, 0.658);
+}
+
+h1 {
+    color: white;
+    font-size: 40px;
+    font-weight: 450;
+    margin: 0;
+}
+
+form {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-top: 10px;
+    color: white;
+}
+
+input, .loginBtn {
+    margin-top: 5px;
+    background-color: var(--sand);
+    color: #000000;
+    border: 2px solid #6A704C;
+    border-radius: 5px;
+    padding: 10px;
+}
+
+input {
+    cursor: pointer;
+}
+
+.loginBtn {
+    cursor: pointer;
+    text-decoration: none;
+    transition: 0.2s;
+    margin-top: 10px;
+}
+
+    .loginBtn:hover {
+        background-color: var(--darkBeige);
+        transition: linear 0.2s;
+    }
+
+img {
+    width: 160px;
+    background-color: var(--sand);
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px #3E2723;
+}
+
+.usersTable {
+    width: 60vw;
+    border-collapse: collapse;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+    .usersTable th, td {
+        padding: 15px;
+        background-color: rgba(255,255,255,0.2);
+        color: #fff;
+    }
+
+    .usersTable th {
+        text-align: left;
+    }
+
+    .usersTable thead th {
+        background-color: #7b668dff;
+    }
+
+    .usersTable tbody td {
+        color: black;
+    }
+
+    .usersTable tbody {
+        background-color: white;
+    }
+
+        .usersTable tbody tr:hover {
+            background-color: #89acd5ff;
+        }
+
+.table {
+    width: 60vw;
+    border-collapse: collapse;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+th, td {
+    padding: 15px;
+    background-color: rgba(255,255,255,0.2);
+    color: #fff;
+}
+
+th {
+    text-align: left;
+}
+
+thead th {
+    background-color: #7b668dff;
+}
+
+tbody td {
+    color: black;
+}
+
+tbody {
+    background-color: white;
+}
+
+    tbody tr:hover {
+        background-color: #89acd5ff;
+    }
+
+.roomsTable {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.partialView {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mainView {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.reservationBar {
+    display: flex;
+}
+
+    .reservationBar a, #btn {
+        margin-left: 10px;
+        background-color: var(--backgroundColor);
+        border: 3px solid var(--brown);
+        border-radius: 5px;
+        font-family: var(--headerFont);
+        font-size: large;
+        text-decoration: none;
+        color: var(--brown);
+        margin-bottom: 1rem;
+        padding-left: 5px;
+        padding-right: 5px;
+    }
+
+        .reservationBar a:hover {
+            background-color: var(--violet);
+        }
+
+.currentBar {
+    display: flex;
+    justify-content: space-between;
+}
+
+#labelCurrent {
+    color: var(--brown);
+    font-family: var(--headerFont);
+    font-size: large;
+}
+
+#calendar {
+    width: 60vw;
+}
+
+.mainPage {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.usersContainer {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+.usersIndexBar {
+    display: flex;
+    width: 60vw;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    margin-bottom: 2rem;
+}
+
+    .usersIndexBar a {
+        margin: 0;
+    }
+
+.control-label {
+    color: var(--brown);
+    font-family: var(--headerFont);
+}
+
+.form-control {
+    background-color: var(--sand);
+    color: var(--brown);
+    border-color: var(--brown);
+    font-family: var(--bodyFont);
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.fieldsetForm {
+    padding: 1rem;
+    margin: 0.5rem;
+    border-color: var(--brown);
+    border-radius: 0.5rem;
+    background-color: var(--dirtyPink);
+}
+
+.form-group option {
+    border-color: var(--brown);
+}
+
+.select-selected {
+    background-color: white;
+}
+
+.editTitle {
+    color: white;
+    font-size: x-large;
+}
+
+.form-group select {
+    border-radius: 0.3rem;
+    padding: 0.5rem;
+}
+
+.usersIndexBar select {
+    border-radius: 0.3rem;
+    padding: 0.5rem;
+}
+
+select:hover {
+    cursor: pointer;
+}
+
+.detailsContainer {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+.detailsHead{
+    font-style:italic;
+    font-weight:900;
+}
+
+.deleteWindow{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+}
+
+.layoutContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;   
+}

@@ -1,0 +1,58 @@
+﻿@model IEnumerable<hotelASP.Models.Reservation>
+
+@{
+	ViewData["Title"] = "Aktualne rezerwacje";
+}
+
+
+<div class="mainView">
+	<div class="currentBar">
+		<label id="labelCurrent">Aktualne rezerwacje</label>
+		<a id="btn" name="btn" asp-action="Index">Wróć</a>
+	</div>
+
+	<table class="table">
+		<thead>
+			<tr>
+				<th>
+					Data rozpoczęcia pobytu
+				</th>
+				<th>
+					Data zakończenia pobytu
+				</th>
+				<th>
+					Imię i nazwisko
+				</th>
+				<th>
+					Numer pokoju
+				</th>
+				<th>Opcje</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var item in Model)
+			{
+				<tr>
+					<td>
+						@Html.DisplayFor(modelItem => item.Date_from)
+					</td>
+					<td>
+						@Html.DisplayFor(modelItem => item.Date_to)
+					</td>
+					<td>
+						@Html.DisplayFor(modelItem => item.First_name) @Html.DisplayFor(modelItem => item.Last_name)
+					</td>
+					<td>
+						@Html.DisplayFor(modelItem => item.IdRoom)
+					</td>
+					<td>
+						<a asp-action="Edit" asp-route-id="@item.Id_reservation">Edit</a> |
+						<a asp-action="Details" asp-route-id="@item.Id_reservation">Details</a> |
+						<a asp-action="Delete" asp-route-id="@item.Id_reservation">Delete</a>
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+
+</div>

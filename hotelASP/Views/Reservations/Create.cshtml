@@ -1,0 +1,57 @@
+﻿@model hotelASP.Models.Reservation
+
+@{
+	ViewData["Title"] = "Create";
+}
+
+<div class="mainView">
+
+	<h1>Utwórz rezerwację</h1>
+
+	<div class="row">
+		<div class="col-md-4">
+			<form asp-action="Create">
+				<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+				<div class="form-group">
+					<label class="control-label">Data rozpoczęcia pobytu:</label>
+					<input type="datetime-local" id="dateFrom" asp-for="Date_from" class="form-control"
+						   value="@DateTime.Now.Date.AddHours(14).ToString("yyyy-MM-ddTHH:mm")" />
+					<span asp-validation-for="Date_from" class="text-danger"></span>
+				</div>
+				<div class="form-group">
+					<label class="control-label">Data zakończenia pobytu:</label>
+					<input type="datetime-local" id="dateTo" asp-for="Date_to" class="form-control"
+						   value="@DateTime.Now.Date.AddDays(1).AddHours(10).ToString("yyyy-MM-ddTHH:mm")" />
+					<span asp-validation-for="Date_to" class="text-danger"></span>
+				</div>
+				<div class="form-group">
+					<label class="control-label">Imię:</label>
+					<input asp-for="First_name" class="form-control" />
+					<span asp-validation-for="First_name" class="text-danger"></span>
+				</div>
+				<div class="form-group">
+					<label class="control-label">Nazwisko:</label>
+					<input asp-for="Last_name" class="form-control" />
+					<span asp-validation-for="Last_name" class="text-danger"></span>
+				</div>
+				<div class="form-group">
+					<label class="control-label">Wybierz pokój:</label>
+					<select id="roomSelect" asp-for="IdRoom" class="form-control">
+						<option value="">-- Wybierz pokój --</option>
+					</select>
+					<span asp-validation-for="IdRoom" class="text-danger"></span>
+				</div>
+				<div class="form-group">
+					<input type="submit" value="Create" class="btn btn-primary" />
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+
+@section Scripts {
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+}
