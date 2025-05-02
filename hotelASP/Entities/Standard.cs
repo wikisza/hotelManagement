@@ -1,7 +1,6 @@
-﻿using hotelASP.Entities;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace hotelASP.Models
+namespace hotelASP.Entities
 {
     public class Standard
     {

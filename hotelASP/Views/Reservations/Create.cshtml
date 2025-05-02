@@ -1,4 +1,4 @@
-﻿@model hotelASP.Models.Reservation
+﻿@model hotelASP.Entities.Reservation
 
 @{
 	ViewData["Title"] = "Create";
@@ -40,6 +40,11 @@
 						<option value="">-- Wybierz pokój --</option>
 					</select>
 					<span asp-validation-for="IdRoom" class="text-danger"></span>
+				</div>
+
+				<div class="form-group">
+					<label>Przypisz kartę</label>
+					<input type="password" asp-for="KeyCode"/>
 				</div>
 				<div class="form-group">
 					<input type="submit" value="Create" class="btn btn-primary" />

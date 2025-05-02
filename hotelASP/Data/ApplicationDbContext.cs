@@ -1,5 +1,4 @@
 ﻿using hotelASP.Entities;
-using hotelASP.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace hotelASP.Data

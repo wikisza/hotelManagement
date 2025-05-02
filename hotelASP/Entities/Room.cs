@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace hotelASP.Models
+namespace hotelASP.Entities
 {
     public class Room
     {
@@ -16,6 +16,7 @@ namespace hotelASP.Models
         [Required]
         public required string Description { get; set; }
         public int IsTaken { get; set; }
+        public bool IsEmpty { get; set; }
 
         public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
     }

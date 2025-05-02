@@ -9,6 +9,7 @@ using hotelASP.Data;
 using hotelASP.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using hotelASP.Entities;
 
 namespace hotelASP.Controllers
 {
@@ -21,12 +22,12 @@ namespace hotelASP.Controllers
             _context = context;
         }
 
-        // GET: Rooms
         [Authorize]
         public async Task<IActionResult> Index()
         {
             await UpdateRoomStatuses();
-            return View(await _context.Rooms.ToListAsync());
+            var rooms = await _context.Rooms.ToListAsync();
+            return View(rooms);
         }
 
         public async Task<IActionResult> UpdateRoomStatuses()
@@ -58,7 +59,6 @@ namespace hotelASP.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Rooms/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -112,7 +112,6 @@ namespace hotelASP.Controllers
             return View(type);
         }
 
-        // GET: Rooms/Create
         public IActionResult Create()
         {
             ViewBag.Types = _context.Types.ToList();
@@ -173,7 +172,6 @@ namespace hotelASP.Controllers
             return View(room);
         }
 
-        // GET: Rooms/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -189,7 +187,6 @@ namespace hotelASP.Controllers
             return View(room);
         }
 
-        // POST: Rooms/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("IdRoom,Description, Is_taken, Price")] Room room)
@@ -222,7 +219,6 @@ namespace hotelASP.Controllers
             return View(room);
         }
 
-        // GET: Rooms/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -240,7 +236,6 @@ namespace hotelASP.Controllers
             return View(room);
         }
 
-        // POST: Rooms/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -258,6 +253,18 @@ namespace hotelASP.Controllers
         private bool RoomExists(int id)
         {
             return _context.Rooms.Any(e => e.IdRoom == id);
+        }
+
+        public IActionResult CheckRoomStatus()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CheckRoomStatus(string KeyCode)
+        {
+
+            return View();
         }
     }
 }

@@ -3,6 +3,7 @@
 	<a asp-controller="Reservations" asp-action="Index"> <h4>Rezerwacje</h4> </a>|
 	<a asp-controller="Reservations" asp-action="Create"> <h4>Zakwaterowanie</h4> </a>|
 	<a asp-controller="Orders" asp-action="Index"> <h4>Zamówienia</h4></a>|
+	<a asp-controller="Rooms" asp-action="CheckRoomStatus"> <h4>Stan pokojów</h4></a>
 	
 	@if (User.IsInRole("admin"))
 	{
