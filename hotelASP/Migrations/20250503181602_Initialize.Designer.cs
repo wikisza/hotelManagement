@@ -12,8 +12,8 @@ using hotelASP.Data;
 namespace hotelASP.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250217221138_accountCreateDate")]
-    partial class accountCreateDate
+    [Migration("20250503181602_Initialize")]
+    partial class Initialize
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,6 +25,144 @@ namespace hotelASP.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("hotelASP.Entities.Reservation", b =>
+                {
+                    b.Property<int>("Id_reservation")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id_reservation"));
+
+                    b.Property<DateTime>("Date_from")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime>("Date_to")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("First_name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("IdRoom")
+                        .HasColumnType("int");
+
+                    b.Property<string>("KeyCode")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Last_name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Id_reservation");
+
+                    b.HasIndex("IdRoom");
+
+                    b.ToTable("Reservations");
+                });
+
+            modelBuilder.Entity("hotelASP.Entities.Role", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("hotelASP.Entities.Room", b =>
+                {
+                    b.Property<int>("IdRoom")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("IdRoom"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<int>("FloorNumber")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IdStandard")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IdType")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsEmpty")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("IsTaken")
+                        .HasColumnType("int");
+
+                    b.Property<float>("Price")
+                        .HasColumnType("float");
+
+                    b.Property<int>("RoomNumber")
+                        .HasColumnType("int");
+
+                    b.HasKey("IdRoom");
+
+                    b.HasIndex("IdStandard");
+
+                    b.HasIndex("IdType");
+
+                    b.ToTable("Rooms");
+                });
+
+            modelBuilder.Entity("hotelASP.Entities.RoomType", b =>
+                {
+                    b.Property<int>("IdType")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("IdType"));
+
+                    b.Property<float>("BasePrice")
+                        .HasColumnType("float");
+
+                    b.Property<int>("BedNumber")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PeopleNumber")
+                        .HasColumnType("int");
+
+                    b.HasKey("IdType");
+
+                    b.ToTable("Types");
+                });
+
+            modelBuilder.Entity("hotelASP.Entities.Standard", b =>
+                {
+                    b.Property<int>("IdStandard")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("IdStandard"));
+
+                    b.Property<string>("StandardName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<float>("StandardValue")
+                        .HasColumnType("float");
+
+                    b.HasKey("IdStandard");
+
+                    b.ToTable("Standards");
+                });
+
             modelBuilder.Entity("hotelASP.Entities.UserAccount", b =>
                 {
                     b.Property<int>("Id")
@@ -33,7 +171,7 @@ namespace hotelASP.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateOnly?>("CreateDate")
+                    b.Property<DateOnly>("CreateDate")
                         .HasColumnType("date");
 
                     b.Property<string>("Email")
@@ -75,134 +213,39 @@ namespace hotelASP.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("hotelASP.Models.Reservation", b =>
+            modelBuilder.Entity("hotelASP.Entities.Reservation", b =>
                 {
-                    b.Property<int>("Id_reservation")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.HasOne("hotelASP.Entities.Room", "Room")
+                        .WithMany("Reservations")
+                        .HasForeignKey("IdRoom")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id_reservation"));
-
-                    b.Property<DateTime>("Date_from")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<DateTime>("Date_to")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("First_name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("Id_room")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Last_name")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id_reservation");
-
-                    b.ToTable("Reservations");
+                    b.Navigation("Room");
                 });
 
-            modelBuilder.Entity("hotelASP.Models.Role", b =>
+            modelBuilder.Entity("hotelASP.Entities.Room", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                    b.HasOne("hotelASP.Entities.Standard", "Standard")
+                        .WithMany("Rooms")
+                        .HasForeignKey("IdStandard")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+                    b.HasOne("hotelASP.Entities.RoomType", "RoomType")
+                        .WithMany("Rooms")
+                        .HasForeignKey("IdType")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
+                    b.Navigation("RoomType");
 
-                    b.HasKey("Id");
-
-                    b.ToTable("Roles");
-                });
-
-            modelBuilder.Entity("hotelASP.Models.Room", b =>
-                {
-                    b.Property<int>("IdRoom")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("IdRoom"));
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<int>("FloorNumber")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IdStandard")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IdType")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IsTaken")
-                        .HasColumnType("int");
-
-                    b.Property<float>("Price")
-                        .HasColumnType("float");
-
-                    b.Property<int>("RoomNumber")
-                        .HasColumnType("int");
-
-                    b.HasKey("IdRoom");
-
-                    b.ToTable("Room");
-                });
-
-            modelBuilder.Entity("hotelASP.Models.RoomType", b =>
-                {
-                    b.Property<int>("IdType")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("IdType"));
-
-                    b.Property<float>("BasePrice")
-                        .HasColumnType("float");
-
-                    b.Property<int>("BedNumber")
-                        .HasColumnType("int");
-
-                    b.Property<int>("PeopleNumber")
-                        .HasColumnType("int");
-
-                    b.HasKey("IdType");
-
-                    b.ToTable("Types");
-                });
-
-            modelBuilder.Entity("hotelASP.Models.Standard", b =>
-                {
-                    b.Property<int>("IdStandard")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("IdStandard"));
-
-                    b.Property<string>("StandardName")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.Property<float>("StandardValue")
-                        .HasColumnType("float");
-
-                    b.HasKey("IdStandard");
-
-                    b.ToTable("Standards");
+                    b.Navigation("Standard");
                 });
 
             modelBuilder.Entity("hotelASP.Entities.UserAccount", b =>
                 {
-                    b.HasOne("hotelASP.Models.Role", "Role")
+                    b.HasOne("hotelASP.Entities.Role", "Role")
                         .WithMany("Users")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -211,9 +254,24 @@ namespace hotelASP.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("hotelASP.Models.Role", b =>
+            modelBuilder.Entity("hotelASP.Entities.Role", b =>
                 {
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("hotelASP.Entities.Room", b =>
+                {
+                    b.Navigation("Reservations");
+                });
+
+            modelBuilder.Entity("hotelASP.Entities.RoomType", b =>
+                {
+                    b.Navigation("Rooms");
+                });
+
+            modelBuilder.Entity("hotelASP.Entities.Standard", b =>
+                {
+                    b.Navigation("Rooms");
                 });
 #pragma warning restore 612, 618
         }
