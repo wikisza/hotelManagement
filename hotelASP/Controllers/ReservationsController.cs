@@ -8,13 +8,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace hotelASP.Controllers
 {
-    public class ReservationsController : Controller, IReservationsController
+    public class ReservationsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IReservationService _reservationService;
 
-        public ReservationsController(ApplicationDbContext context)
+        public ReservationsController(ApplicationDbContext context, IReservationService reservationService)
         {
             _context = context;
+            _reservationService = reservationService;
         }
 
 
@@ -155,39 +157,20 @@ namespace hotelASP.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id_reservation,Date_from, Date_to, First_name, Last_name, IdRoom, KeyCode")] Reservation reservation)
         {
-            if (reservation.Date_from.TimeOfDay != new TimeSpan(14, 0, 0))
-            {
-                reservation.Date_from = reservation.Date_from.Date.AddHours(14); 
-            }
-
-            if (reservation.Date_to.TimeOfDay != new TimeSpan(10, 0, 0))
-            {
-                reservation.Date_to = reservation.Date_to.Date.AddHours(10);
-            }
-
             if (ModelState.IsValid)
             {
-                var overlappingReservations = await _context.Reservations
-                    .Where(r => r.IdRoom == reservation.IdRoom &&
-                                r.Date_from < reservation.Date_to &&
-                                r.Date_to > reservation.Date_from)
-                    .ToListAsync();
+                var result = await _reservationService.CreateAsync(reservation);
 
-                if (overlappingReservations.Any())
+                if (!result.Success)
                 {
-                    ModelState.AddModelError(string.Empty, "Pokój jest już zajęty w wybranym terminie.");
+                    ModelState.AddModelError(string.Empty, result.ErrorMessage);
                     return View(reservation);
                 }
 
-                _context.Add(reservation);
-
-                var thisRoom = await _context.Rooms.FindAsync(reservation.IdRoom);
-
-                thisRoom.IsEmpty=true;
-
-                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
+
             }
+
             return View(reservation);
         }
 
@@ -208,7 +191,7 @@ namespace hotelASP.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id_reservation,Date_from, Date_to, First_name, Last_name, IdRoom")] Reservation reservation)
+        public async Task<IActionResult> Edit(int id, [Bind("Id_reservation,Date_from, Date_to, First_name, Last_name, IdRoom, KeyCode")] Reservation reservation)
         {
             if (id != reservation.Id_reservation)
             {
