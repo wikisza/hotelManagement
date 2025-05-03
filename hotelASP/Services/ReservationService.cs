@@ -13,7 +13,17 @@ namespace hotelASP.Services
         {
             _context = context;
         }
-        
+        public async Task<(bool Success, string ErrorMessage)> FindReservation(int id)
+        {
+            var reservation = await _context.Reservations.FindAsync(id);
+            if (reservation == null)
+            {
+                return (false, "Rezerwacja nie została znaleziona.");
+            }
+            
+            return (true, string.Empty);
+        }
+
         public async Task<(bool Success, string ErrorMessage)> CreateAsync(Reservation reservation)
         {
             if (reservation.Date_from.TimeOfDay != new TimeSpan(14, 0, 0))
@@ -41,11 +51,66 @@ namespace hotelASP.Services
             _context.Reservations.Add(reservation);
 
             var thisRoom = await _context.Rooms.FindAsync(reservation.IdRoom);
-            if(thisRoom != null)
+            if (thisRoom != null)
             {
                 thisRoom.IsEmpty = true;
             }
 
+            await _context.SaveChangesAsync();
+            return (true, string.Empty);
+        }
+
+
+        public async Task<(bool Success, string ErrorMessage)> EditAsync(Reservation reservation)
+        {
+            try
+            {
+                var existingReservation = await _context.Reservations.FindAsync(reservation.Id_reservation);
+
+                if (existingReservation == null)
+                {
+                    return (false, "Rezerwacja nie została znaleziona.");
+                }
+
+                existingReservation.Date_from = reservation.Date_from;
+                existingReservation.Date_to = reservation.Date_to;
+                existingReservation.First_name = reservation.First_name;
+                existingReservation.Last_name = reservation.Last_name;
+                existingReservation.IdRoom = reservation.IdRoom;
+                existingReservation.KeyCode = reservation.KeyCode;
+
+                _context.Reservations.Update(existingReservation);
+                await _context.SaveChangesAsync();
+
+                return (true, string.Empty);
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if(!_context.Reservations.Any(r => r.Id_reservation == reservation.Id_reservation))
+                {
+                    return (false, "Rezerwacja nie została znaleziona.");
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+        }
+
+
+        public async Task<(bool Success, string ErrorMessage)> DeleteConfirmed(int id)
+        {
+            var reservation = await _context.Reservations.FindAsync(id);
+            if (reservation != null)
+            {
+                _context.Reservations.Remove(reservation);
+            }
+            var thisRoom = await _context.Rooms.FindAsync(reservation.IdRoom);
+            if (thisRoom != null)
+            {
+                thisRoom.IsEmpty = false;
+            }
             await _context.SaveChangesAsync();
             return (true, string.Empty);
         }

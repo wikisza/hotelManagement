@@ -120,31 +120,15 @@ namespace hotelASP.Controllers
 
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
+            var result = await _reservationService.FindReservation(id ?? 0);
+
+            if (!result.Success)
             {
-                return NotFound();
+                ModelState.AddModelError(string.Empty, result.ErrorMessage);
+                return RedirectToAction(nameof(Index));
             }
 
-            var reservation = await _context.Reservations
-                .Select(r => new
-                {
-                    r.Id_reservation,
-                    r.Date_from,
-                    r.Date_to,
-                    CheckIn = r.Date_from.Date.AddHours(14),
-                    CheckOut = r.Date_to.Date.AddHours(10),
-                    r.First_name,
-                    r.Last_name,
-                    r.IdRoom
-                })
-                .FirstOrDefaultAsync(m => m.Id_reservation == id);
-
-            if (reservation == null)
-            {
-                return NotFound();
-            }
-
-            return View(reservation);
+            return View(await _context.Reservations.FindAsync(id));
         }
 
         public IActionResult Create()
@@ -176,17 +160,15 @@ namespace hotelASP.Controllers
 
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
+            var result = await _reservationService.FindReservation(id ?? 0);
+
+            if (!result.Success)
             {
-                return NotFound();
+                ModelState.AddModelError(string.Empty, result.ErrorMessage);
+                return RedirectToAction(nameof(Index));
             }
 
-            var reservation = await _context.Reservations.FindAsync(id);
-            if (reservation == null)
-            {
-                return NotFound();
-            }
-            return View(reservation);
+            return View(await _context.Reservations.FindAsync(id));
         }
 
         [HttpPost]
@@ -200,21 +182,12 @@ namespace hotelASP.Controllers
 
             if (ModelState.IsValid)
             {
-                try
+                var result = await _reservationService.EditAsync(reservation);
+
+                if (!result.Success)
                 {
-                    _context.Update(reservation);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ReservationExists(reservation.Id_reservation))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    ModelState.AddModelError(string.Empty, result.ErrorMessage);
+                    return View(reservation);
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -223,39 +196,32 @@ namespace hotelASP.Controllers
 
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
+            var result = await _reservationService.FindReservation(id ?? 0);
+
+            if (!result.Success)
             {
-                return NotFound();
+                ModelState.AddModelError(string.Empty, result.ErrorMessage);
+                return RedirectToAction(nameof(Index));
             }
 
-            var reservation = await _context.Reservations
-                .FirstOrDefaultAsync(m => m.Id_reservation == id);
-            if (reservation == null)
-            {
-                return NotFound();
-            }
-
-            return View(reservation);
+            return View(await _context.Reservations.FindAsync(id));
         }
 
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var reservation = await _context.Reservations.FindAsync(id);
-            if (reservation != null)
+            var result = await _reservationService.DeleteConfirmed(id);
+            if (!result.Success)
             {
-                _context.Reservations.Remove(reservation);
+                ModelState.AddModelError(string.Empty, result.ErrorMessage);
+                return RedirectToAction(nameof(Index));
             }
-
-            await _context.SaveChangesAsync();
+            
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ReservationExists(int id)
-        {
-            return _context.Reservations.Any(e => e.Id_reservation == id);
-        }
+        
     }
 }
 
