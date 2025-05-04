@@ -189,7 +189,7 @@ namespace hotelASP.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IdRoom,Description, Is_taken, Price")] Room room)
+        public async Task<IActionResult> Edit(int id, [Bind("IdRoom,RoomNumber,IdStandard,IdType,FloorNumber, Description, IsTaken, Price, Description, IsEmpty")] Room room)
         {
             if (id != room.IdRoom)
             {

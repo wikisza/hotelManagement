@@ -8,73 +8,37 @@ using Microsoft.EntityFrameworkCore;
 
 namespace hotelASP.Controllers
 {
-    public class ReservationsController : Controller, IReservationsController
+    public class ReservationsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IReservationService _reservationService;
 
-        public ReservationsController(ApplicationDbContext context)
+        public ReservationsController(ApplicationDbContext context, IReservationService reservationService)
         {
             _context = context;
+            _reservationService = reservationService;
         }
 
 
 
         [HttpGet("/get_current_reservations")]
-        public JsonResult GetReservations()
+        public async Task<JsonResult> GetReservations()
         {
-            var now = DateTime.Now;
-            var reservations = _context.Reservations
-                .Where(r => r.Date_to > now)
-                .Include(r => r.Room)
-                .Select(r => new
-                {
-                    start = r.Date_from.Date.AddHours(14).ToString("yyyy-MM-ddTHH:mm:ss"),
-                    end = r.Date_to.Date.AddHours(10).ToString("yyyy-MM-ddTHH:mm:ss"),
-                    title = r.First_name + ' ' + r.Last_name + ", pokój: " + r.Room.RoomNumber,
-                    description = $"Pokój: {r.Room.RoomNumber}",
-                    IdRoom = r.IdRoom
-                })
-                .ToList();
-
+            var reservations = await _reservationService.GetReservations();
             return Json(reservations);
         }
 
         [HttpGet("/get_old_reservations")]
-        public JsonResult GetOldReservations()
+        public async Task<JsonResult> GetOldReservations()
         {
-            var now = DateTime.Now;
-            var oldReservations = _context.Reservations
-                .Where(r => r.Date_to <= now)
-                .Select(r => new
-                {
-                    start = r.Date_from.Date.AddHours(14).ToString("yyyy-MM-ddTHH:mm:ss"),
-                    end = r.Date_to.Date.AddHours(10).ToString("yyyy-MM-ddTHH:mm:ss"),
-                    title = r.First_name + ' ' + r.Last_name + ", pokój: " + r.IdRoom,
-                    description = $"Pokój: {r.IdRoom}",
-                    IdRoom = r.IdRoom
-                })
-                .ToList();
-
-            return Json(oldReservations);
+            var reservations = await _reservationService.GetOldReservations();
+            return Json(reservations);
         }
 
         [HttpGet]
         public async Task<JsonResult> GetAvailableRooms(DateTime dateFrom, DateTime dateTo)
         {
-            var availableRooms = await _context.Rooms
-                .Where(room => !_context.Reservations
-                    .Any(reservation =>
-                        reservation.IdRoom == room.IdRoom &&
-                        reservation.Date_from < dateTo &&
-                        reservation.Date_to > dateFrom))
-                .Select(room => new
-                {
-                    room.IdRoom,
-                    room.RoomNumber,
-                    room.Description
-                })
-                .ToListAsync();
-
+            var availableRooms = await _reservationService.GetAvailableRooms(dateFrom, dateTo);
             return Json(availableRooms);
         }
 
@@ -93,51 +57,23 @@ namespace hotelASP.Controllers
 
 
 
-        public async Task<IActionResult> CurrentReservations()
+        public IActionResult CurrentReservations()
         {
-            var today = DateTime.Now;
-
-            var reservations = await _context.Reservations
-                .Where(r => r.Date_to >= today)
-                .OrderBy(r => r.Date_from)
-                .ToListAsync();
-
+            var reservations = _reservationService.CurrentReservations();
             return View(reservations);
         }
 
-        public async Task<IActionResult> HistoryReservations()
+        public IActionResult HistoryReservations()
         {
-            var yesterday = DateTime.Now;
-
-            var reservations = await _context.Reservations
-                .Where(r => r.Date_to <= yesterday)
-                .OrderByDescending(r => r.Date_from)
-                .ToListAsync();
+            var reservations = _reservationService.HistoryReservations();
             return View(reservations);
         }
 
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var reservation = await _reservationService.FindReservation(id ?? 0);
 
-            var reservation = await _context.Reservations
-                .Select(r => new
-                {
-                    r.Id_reservation,
-                    r.Date_from,
-                    r.Date_to,
-                    CheckIn = r.Date_from.Date.AddHours(14),
-                    CheckOut = r.Date_to.Date.AddHours(10),
-                    r.First_name,
-                    r.Last_name,
-                    r.IdRoom
-                })
-                .FirstOrDefaultAsync(m => m.Id_reservation == id);
-
-            if (reservation == null)
+            if (reservation==null)
             {
                 return NotFound();
             }
@@ -155,60 +91,38 @@ namespace hotelASP.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id_reservation,Date_from, Date_to, First_name, Last_name, IdRoom, KeyCode")] Reservation reservation)
         {
-            if (reservation.Date_from.TimeOfDay != new TimeSpan(14, 0, 0))
-            {
-                reservation.Date_from = reservation.Date_from.Date.AddHours(14); 
-            }
-
-            if (reservation.Date_to.TimeOfDay != new TimeSpan(10, 0, 0))
-            {
-                reservation.Date_to = reservation.Date_to.Date.AddHours(10);
-            }
-
             if (ModelState.IsValid)
             {
-                var overlappingReservations = await _context.Reservations
-                    .Where(r => r.IdRoom == reservation.IdRoom &&
-                                r.Date_from < reservation.Date_to &&
-                                r.Date_to > reservation.Date_from)
-                    .ToListAsync();
+                var result = await _reservationService.CreateAsync(reservation);
 
-                if (overlappingReservations.Any())
+                if (!result.Success)
                 {
-                    ModelState.AddModelError(string.Empty, "Pokój jest już zajęty w wybranym terminie.");
+                    ModelState.AddModelError(string.Empty, result.ErrorMessage);
                     return View(reservation);
                 }
 
-                _context.Add(reservation);
-
-                var thisRoom = await _context.Rooms.FindAsync(reservation.IdRoom);
-
-                thisRoom.IsEmpty=true;
-
-                await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
+
             }
+
             return View(reservation);
         }
 
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var reservation = await _reservationService.FindReservation(id ?? 0);
 
-            var reservation = await _context.Reservations.FindAsync(id);
             if (reservation == null)
             {
                 return NotFound();
             }
+
             return View(reservation);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id_reservation,Date_from, Date_to, First_name, Last_name, IdRoom")] Reservation reservation)
+        public async Task<IActionResult> Edit(int id, [Bind("Id_reservation,Date_from, Date_to, First_name, Last_name, IdRoom, KeyCode")] Reservation reservation)
         {
             if (id != reservation.Id_reservation)
             {
@@ -217,21 +131,12 @@ namespace hotelASP.Controllers
 
             if (ModelState.IsValid)
             {
-                try
+                var result = await _reservationService.EditAsync(reservation);
+
+                if (!result.Success)
                 {
-                    _context.Update(reservation);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ReservationExists(reservation.Id_reservation))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    ModelState.AddModelError(string.Empty, result.ErrorMessage);
+                    return View(reservation);
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -240,13 +145,8 @@ namespace hotelASP.Controllers
 
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var reservation = await _reservationService.FindReservation(id ?? 0);
 
-            var reservation = await _context.Reservations
-                .FirstOrDefaultAsync(m => m.Id_reservation == id);
             if (reservation == null)
             {
                 return NotFound();
@@ -255,24 +155,21 @@ namespace hotelASP.Controllers
             return View(reservation);
         }
 
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var reservation = await _context.Reservations.FindAsync(id);
-            if (reservation != null)
+            var result = await _reservationService.DeleteConfirmed(id);
+            if (!result.Success)
             {
-                _context.Reservations.Remove(reservation);
+                ModelState.AddModelError(string.Empty, result.ErrorMessage);
+                return RedirectToAction(nameof(Index));
             }
-
-            await _context.SaveChangesAsync();
+            
             return RedirectToAction(nameof(Index));
         }
 
-        private bool ReservationExists(int id)
-        {
-            return _context.Reservations.Any(e => e.Id_reservation == id);
-        }
+        
     }
 }
 

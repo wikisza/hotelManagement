@@ -1,4 +1,6 @@
 using hotelASP.Data;
+using hotelASP.Interfaces;
+using hotelASP.Services;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +14,8 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 string _GetConnStringName = builder.Configuration.GetConnectionString("Default");
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseMySql(_GetConnStringName, ServerVersion.AutoDetect(_GetConnStringName)));
+
+builder.Services.AddScoped<IReservationService, ReservationService>();
 
 var app = builder.Build();
 

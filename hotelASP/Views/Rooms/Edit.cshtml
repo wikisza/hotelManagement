@@ -18,7 +18,30 @@
     <div class="col-md-4">
         <form asp-action="Edit">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
             <input type="hidden" asp-for="IdRoom" />
+            
+            <div class="form-group">
+                <label asp-for="RoomNumber" class="control-label"></label>
+                <input asp-for="RoomNumber" class="form-control" />
+                <span asp-validation-for="RoomNumber" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="IdStandard"></label>
+                <input asp-for="IdStandard" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="IdType"></label>
+                <input asp-for="IdType" />
+            </div>
+
+            <div class="form-group">
+                <label asp-for="FloorNumber"></label>
+                <input asp-for="FloorNumber" />
+            </div>
+
             <div class="form-group">
                 <label asp-for="Description" class="control-label"></label>
                 <input asp-for="Description" class="form-control" />
@@ -49,6 +72,11 @@
                 <label asp-for="Price"  class="control-label"></label>
                 <input asp-for="Price" class="form-control" />
                 <span asp-validation-for="Price" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="IsEmpty"></label>
+                <input asp-for="IsEmpty" />
             </div>
 
             <div class="form-group">
