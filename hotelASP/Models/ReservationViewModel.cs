@@ -11,6 +11,7 @@ namespace hotelASP.Models
         public required string First_name { get; set; }
         public required string Last_name { get; set; }
         public int IdRoom { get; set; }
+        public Room? Room { get; set; }
         public string KeyCode { get; set; }
     }
 }

@@ -22,61 +22,23 @@ namespace hotelASP.Controllers
 
 
         [HttpGet("/get_current_reservations")]
-        public JsonResult GetReservations()
+        public async Task<JsonResult> GetReservations()
         {
-            var now = DateTime.Now;
-            var reservations = _context.Reservations
-                .Where(r => r.Date_to > now)
-                .Include(r => r.Room)
-                .Select(r => new
-                {
-                    start = r.Date_from.Date.AddHours(14).ToString("yyyy-MM-ddTHH:mm:ss"),
-                    end = r.Date_to.Date.AddHours(10).ToString("yyyy-MM-ddTHH:mm:ss"),
-                    title = r.First_name + ' ' + r.Last_name + ", pokój: " + r.Room.RoomNumber,
-                    description = $"Pokój: {r.Room.RoomNumber}",
-                    IdRoom = r.IdRoom
-                })
-                .ToList();
-
+            var reservations = await _reservationService.GetReservations();
             return Json(reservations);
         }
 
         [HttpGet("/get_old_reservations")]
-        public JsonResult GetOldReservations()
+        public async Task<JsonResult> GetOldReservations()
         {
-            var now = DateTime.Now;
-            var oldReservations = _context.Reservations
-                .Where(r => r.Date_to <= now)
-                .Select(r => new
-                {
-                    start = r.Date_from.Date.AddHours(14).ToString("yyyy-MM-ddTHH:mm:ss"),
-                    end = r.Date_to.Date.AddHours(10).ToString("yyyy-MM-ddTHH:mm:ss"),
-                    title = r.First_name + ' ' + r.Last_name + ", pokój: " + r.IdRoom,
-                    description = $"Pokój: {r.IdRoom}",
-                    IdRoom = r.IdRoom
-                })
-                .ToList();
-
-            return Json(oldReservations);
+            var reservations = await _reservationService.GetOldReservations();
+            return Json(reservations);
         }
 
         [HttpGet]
         public async Task<JsonResult> GetAvailableRooms(DateTime dateFrom, DateTime dateTo)
         {
-            var availableRooms = await _context.Rooms
-                .Where(room => !_context.Reservations
-                    .Any(reservation =>
-                        reservation.IdRoom == room.IdRoom &&
-                        reservation.Date_from < dateTo &&
-                        reservation.Date_to > dateFrom))
-                .Select(room => new
-                {
-                    room.IdRoom,
-                    room.RoomNumber,
-                    room.Description
-                })
-                .ToListAsync();
-
+            var availableRooms = await _reservationService.GetAvailableRooms(dateFrom, dateTo);
             return Json(availableRooms);
         }
 
@@ -95,40 +57,28 @@ namespace hotelASP.Controllers
 
 
 
-        public async Task<IActionResult> CurrentReservations()
+        public IActionResult CurrentReservations()
         {
-            var today = DateTime.Now;
-
-            var reservations = await _context.Reservations
-                .Where(r => r.Date_to >= today)
-                .OrderBy(r => r.Date_from)
-                .ToListAsync();
-
+            var reservations = _reservationService.CurrentReservations();
             return View(reservations);
         }
 
-        public async Task<IActionResult> HistoryReservations()
+        public IActionResult HistoryReservations()
         {
-            var yesterday = DateTime.Now;
-
-            var reservations = await _context.Reservations
-                .Where(r => r.Date_to <= yesterday)
-                .OrderByDescending(r => r.Date_from)
-                .ToListAsync();
+            var reservations = _reservationService.HistoryReservations();
             return View(reservations);
         }
 
         public async Task<IActionResult> Details(int? id)
         {
-            var result = await _reservationService.FindReservation(id ?? 0);
+            var reservation = await _reservationService.FindReservation(id ?? 0);
 
-            if (!result.Success)
+            if (reservation==null)
             {
-                ModelState.AddModelError(string.Empty, result.ErrorMessage);
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
 
-            return View(await _context.Reservations.FindAsync(id));
+            return View(reservation);
         }
 
         public IActionResult Create()
@@ -160,15 +110,14 @@ namespace hotelASP.Controllers
 
         public async Task<IActionResult> Edit(int? id)
         {
-            var result = await _reservationService.FindReservation(id ?? 0);
+            var reservation = await _reservationService.FindReservation(id ?? 0);
 
-            if (!result.Success)
+            if (reservation == null)
             {
-                ModelState.AddModelError(string.Empty, result.ErrorMessage);
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
 
-            return View(await _context.Reservations.FindAsync(id));
+            return View(reservation);
         }
 
         [HttpPost]
@@ -196,15 +145,14 @@ namespace hotelASP.Controllers
 
         public async Task<IActionResult> Delete(int? id)
         {
-            var result = await _reservationService.FindReservation(id ?? 0);
+            var reservation = await _reservationService.FindReservation(id ?? 0);
 
-            if (!result.Success)
+            if (reservation == null)
             {
-                ModelState.AddModelError(string.Empty, result.ErrorMessage);
-                return RedirectToAction(nameof(Index));
+                return NotFound();
             }
 
-            return View(await _context.Reservations.FindAsync(id));
+            return View(reservation);
         }
 
         [HttpPost]
