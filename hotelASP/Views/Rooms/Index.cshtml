@@ -7,7 +7,7 @@
 
 	<div class="nav-bar">
 
-	@if (User.IsInRole("manager"))
+		@if (User.IsInRole("manager") || User.IsInRole("admin"))
 	{
 		<a asp-controller="Rooms" asp-action="Create" class="loginBtn"> Dodaj pokój </a>
 		<a asp-controller="Rooms" asp-action="CreateStandard" class="loginBtn"> Dodaj standard </a>

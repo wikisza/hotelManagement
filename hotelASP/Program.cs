@@ -12,7 +12,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<ApplicationDbContext>();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
 
-string _GetConnStringName = builder.Configuration.GetConnectionString("Default");
+string _GetConnStringName = builder.Configuration.GetConnectionString("MySqlConnection");
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseMySql(_GetConnStringName, ServerVersion.AutoDetect(_GetConnStringName)));
 
 builder.Services.AddScoped<IReservationService, ReservationService>();
