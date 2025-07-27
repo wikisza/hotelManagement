@@ -1,45 +1,151 @@
 ﻿<!DOCTYPE html>
-<html>
+<html data-theme="warm">
 <head>
-	<title>@ViewData["Title"] - hotelASP</title>
-	<link href="~/css/style.css" rel="stylesheet" />
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
-
+    <title>@ViewData["Title"] - hotelASP</title>
+    <link href="~/css/style.css" rel="stylesheet" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'></script>
 </head>
-
 <body>
-	@if (Context.User.Identity.Name != null)
-	{
-		<div class="header">
-			<div class="head-center">
-				<a asp-controller="Home" asp-action="Index">
-					<h1>HOTEL TROPICAL</h1>
-				</a>
-			</div>
+    @if (Context.User.Identity.Name != null)
+    {
+        <div class="header">
+            <div class="head-center">
+                <a asp-controller="Home" asp-action="Index">
+                    <h1>HOTEL TROPICAL</h1>
+                </a>
+            </div>
+            <div class="head-side">
+                <button id="openThemeModal" class="theme-toggle-btn">Zmień motyw</button>
 
-			<div class="head-side">
-				@await Html.PartialAsync("_LoginPartial")
-			</div>
-		</div>
-
-		@await Html.PartialAsync("_navigationBar")
-	}
-
-
-	@RenderBody()
-
-
-
-
-
-	<script src="~/lib/jquery/dist/jquery.min.js"></script>
-	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-	<script src="~/js/site.js" asp-append-version="true"></script>
+                <div id="themeModal" class="theme-modal hidden">
+                    <div class="theme-modal-content">
+                        <span id="closeThemeModal" class="close-btn">&times;</span>
+                        <h3>Wybierz motyw</h3>
+                        <div class="theme-switcher">
+                            <div class="theme-btn warm" data-theme="warm" title="Warm Beige"></div>
+                            <div class="theme-btn dark" data-theme="dark" title="Dark Mode"></div>
+                            <div class="theme-btn ocean" data-theme="ocean" title="Ocean Blue"></div>
+                            <div class="theme-btn forest" data-theme="forest" title="Forest Green"></div>
+                            <div class="theme-btn sunset" data-theme="sunset" title="Sunset Orange"></div>
+                            <div class="theme-btn luxury" data-theme="luxury" title="Purple Luxury"></div>
+                        </div>
+                    </div>
+                </div>
 
 
+                @await Html.PartialAsync("_LoginPartial")
+            </div>
+        </div>
+    }
+    <div class="mainView">
+        @await Html.PartialAsync("_navigationBar")
+        <div class="mainWindow">
+            @RenderBody()
+        </div>
+    </div>
 
-	@await RenderSectionAsync("Scripts", required: false)
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- Theme Switcher Script -->
+    <script>
+
+                // Obsługa modala z motywami
+        const openModalBtn = document.getElementById('openThemeModal');
+        const closeModalBtn = document.getElementById('closeThemeModal');
+        const themeModal = document.getElementById('themeModal');
+
+        openModalBtn.addEventListener('click', () => {
+            themeModal.classList.remove('hidden');
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            themeModal.classList.add('hidden');
+        });
+
+        // Zamknięcie po kliknięciu tła
+        window.addEventListener('click', (e) => {
+            if (e.target === themeModal) {
+                themeModal.classList.add('hidden');
+            }
+        });
+
+        // Theme switching functionality
+        const themeButtons = document.querySelectorAll('.theme-btn');
+        const htmlElement = document.documentElement;
+
+        // Load saved theme or default to 'warm'
+        const savedTheme = localStorage.getItem('hotel-theme') || 'warm';
+        htmlElement.setAttribute('data-theme', savedTheme);
+
+        // Update active button
+        function updateActiveButton(activeTheme) {
+            themeButtons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.theme === activeTheme);
+            });
+        }
+
+        updateActiveButton(savedTheme);
+
+        // Theme button click handlers
+        themeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const theme = button.dataset.theme;
+                htmlElement.setAttribute('data-theme', theme);
+                localStorage.setItem('hotel-theme', theme);
+                updateActiveButton(theme);
+
+                // Add subtle animation
+                button.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    button.style.transform = 'scale(1)';
+                }, 150);
+            });
+        });
+
+        // Smooth theme transition
+        function enableTransitions() {
+            const css = document.createElement('style');
+            css.textContent = `
+                * {
+                    transition: background-color 0.3s ease,
+                               color 0.3s ease,
+                               border-color 0.3s ease,
+                               box-shadow 0.3s ease !important;
+                }
+            `;
+            document.head.appendChild(css);
+        }
+
+        // Enable transitions after page load
+        window.addEventListener('load', enableTransitions);
+
+        // Keyboard shortcuts for themes (Alt + 1-6)
+        document.addEventListener('keydown', (e) => {
+            if (e.altKey) {
+                const themeMap = {
+                    '1': 'warm',
+                    '2': 'dark',
+                    '3': 'ocean',
+                    '4': 'forest',
+                    '5': 'sunset',
+                    '6': 'luxury'
+                };
+
+                const theme = themeMap[e.key];
+                if (theme) {
+                    htmlElement.setAttribute('data-theme', theme);
+                    localStorage.setItem('hotel-theme', theme);
+                    updateActiveButton(theme);
+                    e.preventDefault();
+                }
+            }
+        });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
