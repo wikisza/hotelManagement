@@ -216,7 +216,7 @@ namespace hotelASP.Controllers
                 var user = _context.Users
                     .Include(u => u.Role)
                     .Where(x => (x.Username == model.UsernameOrEmail || x.Email == model.UsernameOrEmail)).FirstOrDefault();
-                if (user != null|| !BCrypt.Net.BCrypt.Verify(model.Password, user.Password))
+                if (user != null && BCrypt.Net.BCrypt.Verify(model.Password, user.Password))
                 {
                     //success
                     var claims = new List<Claim>

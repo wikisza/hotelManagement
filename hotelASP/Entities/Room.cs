@@ -11,7 +11,7 @@ namespace hotelASP.Entities
         public Standard? Standard { get; set; }
         public int IdType { get; set; }
         public RoomType? RoomType { get; set; }
-        public int FloorNumber { get; set; }
+        public int? FloorNumber { get; set; }
         public required float Price { get; set; }
         [Required]
         public required string Description { get; set; }
