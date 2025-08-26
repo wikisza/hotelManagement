@@ -34,13 +34,15 @@
                     </div>
                 </div>
 
-
                 @await Html.PartialAsync("_LoginPartial")
             </div>
         </div>
     }
     <div class="mainView">
-        @await Html.PartialAsync("_navigationBar")
+        @if (Context.User.Identity.Name != null)
+        {
+            @await Html.PartialAsync("_navigationBar")
+        }
         <div class="mainWindow">
             @RenderBody()
         </div>

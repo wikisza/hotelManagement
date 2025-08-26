@@ -352,11 +352,11 @@ label {
     color: white;
 }
 
-input, .loginBtn {
+input, .loginBtn, .addRoomStandardTypeBtn {
     margin-top: 5px;
     background-color: var(--sand);
     color: #000000;
-    border: 2px solid #6A704C;
+    border: 2px solid var(--brown);
     border-radius: 5px;
     padding: 10px;
 }
@@ -365,7 +365,7 @@ input {
     cursor: pointer;
 }
 
-.loginBtn {
+.loginBtn, .addRoomStandardTypeBtn {
     cursor: pointer;
     text-decoration: none;
     transition: 0.2s;
@@ -645,7 +645,7 @@ img {
 input, .loginBtn {
     background-color: var(--cardBackground) !important;
     color: var(--bodyColor) !important;
-    border: 2px solid var(--headerBorder) !important;
+    border: 2px solid var(--brown) !important;
     border-radius: 5px;
     padding: 10px;
 }
@@ -688,4 +688,30 @@ select:hover {
     flex-direction: row;
     justify-content: space-around;
     gap: 2rem;
+}
+
+.boxRoomStandardType{
+    display:flex;
+    flex-direction:row;
+    justify-content:center;
+    align-items:center;
+    align-content:center;
+    padding:1rem;
+    border: 2px solid var(--brown);
+    margin: 1rem;
+}
+
+.boxRoomStandardType a{
+    margin-left:5px
+}
+
+.addRoomStandardTypeBtn:hover {
+    background-color: var(--darkBeige);
+}
+
+.optionsSection {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 2px;
 }
