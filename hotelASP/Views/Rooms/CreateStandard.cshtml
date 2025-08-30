@@ -1,39 +1,59 @@
-﻿@model hotelASP.Entities.Standard
+﻿@model hotelASP.Models.StandardViewModel
+
 @{
     ViewData["Title"] = "CreateStandard";
 }
 
 <div class="mainPage">
+    <div class="standardHeader">
+        <h3>Dodaj nowy standard</h3>
+        <a asp-action="Index" class="addRoomStandardTypeBtn">Wróć do listy pokoi</a>
+    </div>
 
-<h3>Dodaj nowy standard</h3>
 
-<div class="row">
-    <div class="col-md-4">
+    <div class="newStandardForm">
         <form asp-action="CreateStandard">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="form-group">
-                <label class="control-label">Nazwa standardu:</label>
-                <input asp-for="StandardName" class="form-control" />
-                <span asp-validation-for="StandardName" class="text-danger"></span>
+                <label>Nazwa standardu:</label>
+                <input asp-for="NewStandard.StandardName" class="form-control" />
+                <span asp-validation-for="NewStandard.StandardName" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label class="control-label">Wartość standardu: (mnożnik bazowej ceny)</label>
-                <input asp-for="StandardValue" class="form-control" />
-                <span asp-validation-for="StandardValue" class="text-danger"></span>
+                <label>Wartość standardu: (mnożnik bazowej ceny)</label>
+                <input asp-for="NewStandard.StandardValue" class="form-control" />
+                <span asp-validation-for="NewStandard.StandardValue" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Dodaj standard" class="btn btn-primary" />
             </div>
         </form>
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Wróć do listy pokoi</a>
-</div>
+    <div>
+        <h3>Obecne standardy:</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nazwa standardu</th>
+                    <th>Wartość standardu</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Standards)
+                {
+                    <tr>
+                        <td>@item.StandardName</td>
+                        <td>@item.StandardValue</td>
+                    </tr>
+                }
+            </tbody>
+    </div>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
