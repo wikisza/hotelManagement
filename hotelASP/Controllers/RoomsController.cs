@@ -76,42 +76,96 @@ namespace hotelASP.Controllers
             return View(room);
         }
 
-        public IActionResult CreateStandard()
+        public async Task<IActionResult> CreateStandard()
         {
-            return View();
+            var vm = new StandardViewModel
+            {
+                Standards = await _context.Standards.ToListAsync()
+            };
+            return View(vm);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateStandard([Bind("IdStandard,StandardName,StandardValue")] Standard standard)
+        public async Task<IActionResult> CreateStandard(StandardViewModel vm)
         {
             if (ModelState.IsValid)
             {
-                _context.Standards.Add(standard);
+                _context.Standards.Add(vm.NewStandard);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return RedirectToAction(nameof(CreateStandard));
+            vm.Standards = await _context.Standards.ToListAsync();
+            return View(vm);
         }
+        
 
-        public IActionResult CreateType()
+        //TYPES
+        public async Task<IActionResult> CreateType()
         {
-            return View();
+            var vm = new RoomTypeViewModel
+            {
+                RoomTypes = await _context.Types.ToListAsync()
+            };
+            return View(vm);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateType([Bind("IdType,PeopleNumber,BedNumber,BasePrice")] RoomType type)
+        public async Task<IActionResult> CreateType(RoomTypeViewModel vm)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(type);
+                _context.Add(vm.NewRoomType);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(type);
+            return View(vm);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditRoomType([Bind("IdType,TypeName,PeopleNumber,BedNumber,BasePrice")] RoomType roomType)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(roomType); 
+            }
+
+            try
+            {
+                _context.Update(roomType);
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_context.Types.Any(e => e.IdType == roomType.IdType))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return RedirectToAction(nameof(CreateType)); 
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteRoomType(int IdType)
+        {
+            var roomType = await _context.Types.FindAsync(IdType);
+            if (roomType is not null)
+            {
+                _context.Remove(roomType);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            return NotFound();
+        }
+
+        //ROOMS
         public IActionResult Create()
         {
             ViewBag.Types = _context.Types.ToList();
