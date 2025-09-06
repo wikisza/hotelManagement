@@ -98,7 +98,7 @@ namespace hotelASP.Controllers
             vm.Standards = await _context.Standards.ToListAsync();
             return View(vm);
         }
-        
+
 
         //TYPES
         public async Task<IActionResult> CreateType()
@@ -129,7 +129,7 @@ namespace hotelASP.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View(roomType); 
+                return View(roomType);
             }
 
             try
@@ -149,7 +149,7 @@ namespace hotelASP.Controllers
                 }
             }
 
-            return RedirectToAction(nameof(CreateType)); 
+            return RedirectToAction(nameof(CreateType));
         }
 
         [HttpPost]
@@ -165,66 +165,107 @@ namespace hotelASP.Controllers
             return NotFound();
         }
 
-        //ROOMS
-        public IActionResult Create()
-        {
-            ViewBag.Types = _context.Types.ToList();
-            ViewBag.Standards = _context.Standards.ToList();
-            return View();
-        }
+        //ROOM DESCRIPTION OPTIONS
 
-        [Authorize]
+        public async Task<IActionResult> CreateRoomDescriptionOption()
+        {
+            var vm = new RoomDescriptionViewModel
+            {
+                ExistingOptions = await _context.RoomDescriptionOptions.ToListAsync()
+            };
+            return View(vm);
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("IdRoom,RoomNumber, IdStandard, IdType, FloorNumber, Description, Price, IsTaken")] Room room)
+        public async Task<IActionResult> CreateRoomDescriptionOption(RoomDescriptionViewModel vm)
         {
             if (ModelState.IsValid)
             {
-                var existingRoom = _context.Rooms.Any(r => r.RoomNumber == room.RoomNumber);
+                _context.Add(vm.NewOption);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(CreateRoomDescriptionOption));
+            }
+            return View(vm);
+        }
+
+        //ROOMS
+        public IActionResult Create()
+        {
+            var createRoomViewModel = new CreateRoomViewModel
+            {
+                Rooms = new Room { Price = 0.0f },
+                Standards = _context.Standards.ToList(),
+                RoomTypes = _context.Types.ToList(),
+                RoomDescriptions = _context.RoomDescriptions.ToList(),
+                RoomDescriptionOptions = _context.RoomDescriptionOptions.ToList()
+            };
+            return View(createRoomViewModel);
+        }
+        [Authorize]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(CreateRoomViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var existingRoom = _context.Rooms.Any(r => r.RoomNumber == model.Rooms.RoomNumber);
                 if (existingRoom)
                 {
-                    ModelState.AddModelError("RoomNumber", "Pokój z tym numerem już istnieje.");
-                    return View(room);
+                    ModelState.AddModelError("Rooms.RoomNumber", "Pokój z tym numerem już istnieje.");
+                    model.Standards = _context.Standards.ToList();
+                    model.RoomTypes = _context.Types.ToList();
+                    model.RoomDescriptionOptions = _context.RoomDescriptionOptions.ToList();
+                    return View(model);
                 }
 
                 var standardValue = _context.Standards
-                    .Where(s => s.IdStandard == room.IdStandard)
+                    .Where(s => s.IdStandard == model.Rooms.IdStandard)
                     .Select(s => s.StandardValue)
                     .FirstOrDefault();
 
                 var typeValue = _context.Types
-                    .Where(t => t.IdType == room.IdType)
+                    .Where(t => t.IdType == model.Rooms.IdType)
                     .Select(t => t.BasePrice)
                     .FirstOrDefault();
 
                 float finalPrice = standardValue * typeValue;
 
-
-                if (finalPrice != 0)
+                Room newRoom = new Room
                 {
-                    Room newRoom = new Room
+                    RoomNumber = model.Rooms.RoomNumber,
+                    IdStandard = model.Rooms.IdStandard,
+                    IdType = model.Rooms.IdType,
+                    FloorNumber = model.Rooms.FloorNumber,
+                    Price = finalPrice,
+                    IsTaken = 0
+                };
+
+                _context.Rooms.Add(newRoom);
+                await _context.SaveChangesAsync(); 
+
+                if (model.SelectedOptions != null)
+                {
+                    foreach (var optionId in model.SelectedOptions)
                     {
-                        IdRoom = room.IdRoom,
-                        RoomNumber = room.RoomNumber,
-                        IdStandard = room.IdStandard,
-                        IdType = room.IdType,
-                        FloorNumber = room.FloorNumber,
-                        Description = room.Description,
-                        Price = finalPrice,
-                        IsTaken = 0
-                    };
-
-                    _context.Rooms.Add(newRoom);
+                        _context.RoomDescriptions.Add(new RoomDescription
+                        {
+                            IdRoom = newRoom.IdRoom, 
+                            IdOption = optionId
+                        });
+                    }
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
                 }
-                else
-                {
-                    return View("Błąd przy dodawaniu pokoju", new ErrorViewModel());
-                }
+
+                return RedirectToAction(nameof(Index));
             }
-            return View(room);
+
+            model.Standards = _context.Standards.ToList();
+            model.RoomTypes = _context.Types.ToList();
+            model.RoomDescriptionOptions = _context.RoomDescriptionOptions.ToList();
+
+            return View(model);
         }
+
 
         public async Task<IActionResult> Edit(int? id)
         {
@@ -243,7 +284,7 @@ namespace hotelASP.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IdRoom,RoomNumber,IdStandard,IdType,FloorNumber, Description, IsTaken, Price, Description, IsEmpty")] Room room)
+        public async Task<IActionResult> Edit(int id, [Bind("IdRoom,RoomNumber,IdStandard,IdType,FloorNumber, IsTaken, Price, IsEmpty")] Room room)
         {
             if (id != room.IdRoom)
             {

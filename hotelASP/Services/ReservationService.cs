@@ -176,7 +176,6 @@ public class ReservationService : IReservationService
                 start = r.Date_from,
                 end = r.Date_to,
                 title = r.First_name + ' ' + r.Last_name + ", pokój: " + r.Room.RoomNumber,
-                description = $"Pokój: {r.Room.RoomNumber}",
                 IdRoom = r.IdRoom
             })
             .Cast<object>()
@@ -194,7 +193,6 @@ public class ReservationService : IReservationService
                 start = r.Date_from,
                 end = r.Date_to,
                 title = r.First_name + ' ' + r.Last_name + ", pokój: " + r.Room.RoomNumber,
-                description = $"Pokój: {r.Room.RoomNumber}",
                 IdRoom = r.IdRoom
             })
             .Cast<object>()
@@ -212,7 +210,6 @@ public class ReservationService : IReservationService
             {
                 room.IdRoom,
                 room.RoomNumber,
-                room.Description
             })
             .Cast<object>()
             .ToListAsync();
