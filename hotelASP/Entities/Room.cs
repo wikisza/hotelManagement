@@ -13,11 +13,10 @@ namespace hotelASP.Entities
         public RoomType? RoomType { get; set; }
         public int? FloorNumber { get; set; }
         public required float Price { get; set; }
-        [Required]
-        public required string Description { get; set; }
         public int IsTaken { get; set; }
         public bool IsEmpty { get; set; }
 
         public ICollection<Reservation> Reservations { get; set; } = new List<Reservation>();
+        public ICollection<RoomDescription> RoomDescriptions { get; set; } = new List<RoomDescription>();
     }
 }
