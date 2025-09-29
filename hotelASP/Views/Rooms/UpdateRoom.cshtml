@@ -1,0 +1,75 @@
+﻿@using hotelASP.Views.Rooms.Helpers
+@model hotelASP.Entities.Room
+
+<div class="create-room-container">
+
+    <div class="headerRoom">
+        <h2>Edytuj pokój nr @Model.FloorNumber</h2>
+        <div class="headerRoom-actions">
+            <a asp-action="Index" class="btn btn-secondaryRoom">Powrót</a>
+        </div>
+    </div>
+
+    <div class="cardRoom">
+
+        <form asp-action="UpdateRoom">
+            <input type="hidden" asp-for="IdRoom" />
+
+            <div class="form-groupRoom">
+                <label asp-for="RoomNumber">Numer pokoju</label>
+                <input asp-for="RoomNumber" class="form-controlRoom" />
+                <span asp-validation-for="RoomNumber" class="text-danger"></span>
+            </div>
+
+            <div class="form-groupRoom">
+                <label>Standard</label>
+                <select asp-for="IdStandard" class="form-controlRoom" asp-items="ViewBag.Standards"></select>
+                <span asp-validation-for="IdStandard" class="text-danger"></span>
+            </div>
+
+            <div class="form-groupRoom">
+                <label>Liczba osób i łóżek</label>
+                <select asp-for="IdType" class="form-controlRoom" asp-items="ViewBag.RoomTypes">
+                    <option value="">-- Wybierz typ --</option>
+                </select>
+                <span asp-validation-for="IdType" class="text-danger"></span>
+            </div>
+
+            <div class="form-groupRoom">
+                <label asp-for="FloorNumber">Piętro</label>
+                <input asp-for="FloorNumber" class="form-controlRoom" />
+            </div>
+
+            <div class="form-groupRoom">
+                <label>Status</label>
+                <select asp-for="IsTaken" class="form-controlRoom">
+                    <option value="0" selected="@(Model.IsTaken == 0)">Wolny</option>
+                    <option value="1" selected="@(Model.IsTaken == 1)">Zajęty</option>
+                </select>
+            </div>
+
+            <div class="form-groupRoom">
+                <label asp-for="Price">Cena</label>
+                <input asp-for="Price" class="form-controlRoom" />
+            </div>
+
+            <div class="roomDescriptionBox">
+                <label>Opcje pokoju</label>
+                <div class="options-grid">
+                    @foreach (var opt in ViewBag.Options)
+                    {
+                        var isChecked = Model.RoomDescriptions.Any(rd => rd.IdOption == opt.ID);
+                        <div>
+                            <input type="checkbox" name="SelectedOptions" value="@opt.ID" @(isChecked ? "checked" : "") />
+                            <label>@opt.Name</label>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="form-actionsRoom">
+                <button type="submit" class="btn-primaryRoom">Zapisz</button>
+            </div>
+        </form>
+    </div>
+</div>

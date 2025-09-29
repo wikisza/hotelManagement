@@ -1,77 +1,44 @@
-﻿using System;
+﻿using hotelASP.Data;
+using hotelASP.Entities;
+using hotelASP.Interfaces.IRoomService;
+using hotelASP.Models;
+using hotelASP.Services.RoomService;
+using hotelASP.Views.Rooms.Helpers;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using hotelASP.Data;
-using hotelASP.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using hotelASP.Entities;
 
 namespace hotelASP.Controllers
 {
     public class RoomsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IRoomService _roomService;
 
-        public RoomsController(ApplicationDbContext context)
+        public RoomsController(IRoomService roomService)
         {
-            _context = context;
+            _roomService = roomService;
         }
 
         [Authorize]
         public async Task<IActionResult> Index()
         {
-            await UpdateRoomStatuses();
-            var rooms = await _context.Rooms.ToListAsync();
+            await _roomService.UpdateRoomStatuses();
+            var rooms = await _roomService.GetAllRooms();
             return View(rooms);
-        }
-
-        public async Task<IActionResult> UpdateRoomStatuses()
-        {
-            var now = DateTime.Now;
-
-            var rooms = await _context.Rooms.ToListAsync();
-
-            foreach (var room in rooms)
-            {
-                var hasActiveReservation = await _context.Reservations
-                    .AnyAsync(reservation =>
-                        reservation.IdRoom == room.IdRoom &&
-                        reservation.Date_from <= now &&
-                        reservation.Date_to >= now);
-
-                if (hasActiveReservation)
-                {
-                    room.IsTaken = 1;
-                }
-                else
-                {
-                    room.IsTaken = 0;
-                }
-
-            }
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
-            var room = await _context.Rooms
-                .FirstOrDefaultAsync(m => m.IdRoom == id);
-            if (room == null)
-            {
-                return NotFound();
-            }
+            var room = await _roomService.GetRoomById(id.Value);
+            if (room == null) return NotFound();
 
             return View(room);
         }
@@ -80,7 +47,7 @@ namespace hotelASP.Controllers
         {
             var vm = new StandardViewModel
             {
-                Standards = await _context.Standards.ToListAsync()
+                Standards = await _roomService.GetAllStandards()
             };
             return View(vm);
         }
@@ -91,78 +58,51 @@ namespace hotelASP.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Standards.Add(vm.NewStandard);
-                await _context.SaveChangesAsync();
+                await _roomService.CreateStandard(vm);
                 return RedirectToAction(nameof(Index));
             }
-            vm.Standards = await _context.Standards.ToListAsync();
             return View(vm);
         }
 
-
         //TYPES
-        public async Task<IActionResult> CreateType()
+        public async Task<IActionResult> CreateRoomType()
         {
             var vm = new RoomTypeViewModel
             {
-                RoomTypes = await _context.Types.ToListAsync()
+                RoomTypes = await _roomService.GetAllRoomTypes()
             };
             return View(vm);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateType(RoomTypeViewModel vm)
+        public async Task<IActionResult> CreateRoomType(RoomTypeViewModel vm)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(vm.NewRoomType);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                await _roomService.CreateRoomType(vm);
+                return RedirectToAction(nameof(CreateRoomType));
             }
             return View(vm);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditRoomType([Bind("IdType,TypeName,PeopleNumber,BedNumber,BasePrice")] RoomType roomType)
+        public async Task<IActionResult> UpdateRoomType([Bind("IdType,TypeName,PeopleNumber,BedNumber,BasePrice")] RoomType roomType)
         {
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                return View(roomType);
+                await _roomService.UpdateRoomType(roomType);
+                return RedirectToAction(nameof(Index));
             }
-
-            try
-            {
-                _context.Update(roomType);
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Types.Any(e => e.IdType == roomType.IdType))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
-
-            return RedirectToAction(nameof(CreateType));
+            return View(roomType);
         }
 
         [HttpPost]
         public async Task<IActionResult> DeleteRoomType(int IdType)
         {
-            var roomType = await _context.Types.FindAsync(IdType);
-            if (roomType is not null)
-            {
-                _context.Remove(roomType);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return NotFound();
+            await _roomService.DeleteRoomType(IdType);
+            return RedirectToAction(nameof(Index));
         }
 
         //ROOM DESCRIPTION OPTIONS
@@ -171,158 +111,107 @@ namespace hotelASP.Controllers
         {
             var vm = new RoomDescriptionViewModel
             {
-                ExistingOptions = await _context.RoomDescriptionOptions.ToListAsync()
+                ExistingOptions = await _roomService.GetAllRoomDescriptionOption()
             };
             return View(vm);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateRoomDescriptionOption(RoomDescriptionViewModel vm)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(vm.NewOption);
-                await _context.SaveChangesAsync();
+                await _roomService.CreateRoomDescriptionOption(vm);
                 return RedirectToAction(nameof(CreateRoomDescriptionOption));
             }
             return View(vm);
         }
 
         //ROOMS
-        public IActionResult Create()
+        public async Task<IActionResult> CreateRoomAsync()
         {
-            var createRoomViewModel = new CreateRoomViewModel
-            {
-                Rooms = new Room { Price = 0.0f },
-                Standards = _context.Standards.ToList(),
-                RoomTypes = _context.Types.ToList(),
-                RoomDescriptions = _context.RoomDescriptions.ToList(),
-                RoomDescriptionOptions = _context.RoomDescriptionOptions.ToList()
-            };
-            return View(createRoomViewModel);
+            var vm = new CreateRoomViewModel();
+            vm.Standards = await _roomService.GetAllStandards();
+            vm.RoomTypes = await _roomService.GetAllRoomTypes();
+            vm.RoomDescriptionOptions = await _roomService.GetAllRoomDescriptionOption();
+            ViewBag.Standards = new SelectList(vm.Standards, "IdStandard", "StandardName");
+            ViewBag.RoomTypes = new SelectList(
+                vm.RoomTypes
+                    .Select(t => new
+                    {
+                        t.IdType,
+                        Display = GrammarHelper.PeopleText(t.PeopleNumber) + " • " +
+                                  GrammarHelper.BedsText(t.BedNumber) + " • " +
+                                  t.BasePrice + " zł"
+                    })
+                    .ToList(),
+                "IdType",
+                "Display"
+            );
+            return View(vm);
         }
+
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CreateRoomViewModel model)
+        public async Task<IActionResult> CreateRoom(CreateRoomViewModel model)
         {
-            if (ModelState.IsValid)
-            {
-                var existingRoom = _context.Rooms.Any(r => r.RoomNumber == model.Rooms.RoomNumber);
-                if (existingRoom)
-                {
-                    ModelState.AddModelError("Rooms.RoomNumber", "Pokój z tym numerem już istnieje.");
-                    model.Standards = _context.Standards.ToList();
-                    model.RoomTypes = _context.Types.ToList();
-                    model.RoomDescriptionOptions = _context.RoomDescriptionOptions.ToList();
-                    return View(model);
-                }
+            if (!ModelState.IsValid) return View(model);
 
-                var standardValue = _context.Standards
-                    .Where(s => s.IdStandard == model.Rooms.IdStandard)
-                    .Select(s => s.StandardValue)
-                    .FirstOrDefault();
-
-                var typeValue = _context.Types
-                    .Where(t => t.IdType == model.Rooms.IdType)
-                    .Select(t => t.BasePrice)
-                    .FirstOrDefault();
-
-                float finalPrice = standardValue * typeValue;
-
-                Room newRoom = new Room
-                {
-                    RoomNumber = model.Rooms.RoomNumber,
-                    IdStandard = model.Rooms.IdStandard,
-                    IdType = model.Rooms.IdType,
-                    FloorNumber = model.Rooms.FloorNumber,
-                    Price = finalPrice,
-                    IsTaken = 0
-                };
-
-                _context.Rooms.Add(newRoom);
-                await _context.SaveChangesAsync(); 
-
-                if (model.SelectedOptions != null)
-                {
-                    foreach (var optionId in model.SelectedOptions)
-                    {
-                        _context.RoomDescriptions.Add(new RoomDescription
-                        {
-                            IdRoom = newRoom.IdRoom, 
-                            IdOption = optionId
-                        });
-                    }
-                    await _context.SaveChangesAsync();
-                }
-
-                return RedirectToAction(nameof(Index));
-            }
-
-            model.Standards = _context.Standards.ToList();
-            model.RoomTypes = _context.Types.ToList();
-            model.RoomDescriptionOptions = _context.RoomDescriptionOptions.ToList();
-
-            return View(model);
+            await _roomService.CreateRoom(model);
+            return RedirectToAction(nameof(Index));
         }
 
-
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> UpdateRoom(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
-            var room = await _context.Rooms.FindAsync(id);
-            if (room == null)
-            {
-                return NotFound();
-            }
+            var room = await _roomService.GetRoomById(id.Value);
+
+            if (room == null) return NotFound();
+
+            var standardList = await _roomService.GetAllStandards();
+            var typeList = await _roomService.GetAllRoomTypes();
+            ViewBag.Standards = new SelectList(standardList, "IdStandard", "StandardName", room.IdStandard);
+            ViewBag.RoomTypes = new SelectList(
+                typeList
+                    .Select(t => new
+                    {
+                        t.IdType,
+                        Display = GrammarHelper.PeopleText(t.PeopleNumber) + " • " +
+                                  GrammarHelper.BedsText(t.BedNumber) + " • " +
+                                  t.BasePrice + " zł"
+                    })
+                    .ToList(),
+                "IdType",
+                "Display",
+                room.IdType
+            );
+            ViewBag.Options = await _roomService.GetAllRoomDescriptionOption();
+
             return View(room);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("IdRoom,RoomNumber,IdStandard,IdType,FloorNumber, IsTaken, Price, IsEmpty")] Room room)
+        public async Task<IActionResult> UpdateRoom(int id, Room room, int[] SelectedOptions)
         {
-            if (id != room.IdRoom)
-            {
-                return NotFound();
-            }
+            if (!ModelState.IsValid) return View(room);
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(room);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!RoomExists(room.IdRoom))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction("Index", "Account");
-            }
-            return View(room);
+            await _roomService.UpdateRoom(id, room, SelectedOptions);
+            return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> DeleteRoom(int? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var room = await _context.Rooms
-                .FirstOrDefaultAsync(m => m.IdRoom == id);
+            var room = await _roomService.GetRoomById(id.Value);
+            
             if (room == null)
             {
                 return NotFound();
@@ -331,23 +220,12 @@ namespace hotelASP.Controllers
             return View(room);
         }
 
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteRoom(int id)
         {
-            var room = await _context.Rooms.FindAsync(id);
-            if (room != null)
-            {
-                _context.Rooms.Remove(room);
-            }
-
-            await _context.SaveChangesAsync();
+            await _roomService.DeleteRoom(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool RoomExists(int id)
-        {
-            return _context.Rooms.Any(e => e.IdRoom == id);
         }
 
         public IActionResult CheckRoomStatus()
@@ -358,7 +236,6 @@ namespace hotelASP.Controllers
         [HttpPost]
         public async Task<IActionResult> CheckRoomStatus(string KeyCode)
         {
-
             return View();
         }
     }

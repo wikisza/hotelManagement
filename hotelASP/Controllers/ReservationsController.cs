@@ -42,7 +42,6 @@ namespace hotelASP.Controllers
             return Json(availableRooms);
         }
 
-
         public IActionResult Calendar()
         {
             return View();
@@ -53,9 +52,6 @@ namespace hotelASP.Controllers
         {
             return View();
         }
-
-
-
 
         public IActionResult CurrentReservations()
         {

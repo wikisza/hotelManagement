@@ -8,9 +8,9 @@
     @if (User.IsInRole("manager") || User.IsInRole("admin"))
     {
         <div class="boxRoomStandardType">
-            <a asp-controller="Rooms" asp-action="Create" class="addRoomStandardTypeBtn"> Dodaj pokój </a>
+            <a asp-controller="Rooms" asp-action="CreateRoom" class="addRoomStandardTypeBtn"> Dodaj pokój </a>
             <a asp-controller="Rooms" asp-action="CreateStandard" class="addRoomStandardTypeBtn"> Dodaj standard </a>
-            <a asp-controller="Rooms" asp-action="CreateType" class="addRoomStandardTypeBtn"> Dodaj typ </a>
+            <a asp-controller="Rooms" asp-action="CreateRoomType" class="addRoomStandardTypeBtn"> Dodaj typ </a>
         </div>
     }
 
@@ -41,6 +41,21 @@
                             @Html.DisplayFor(modelItem => item.RoomNumber)
                         </td>
                         <td>
+                            @if (item.RoomDescriptions != null && item.RoomDescriptions.Any())
+                            {
+                                <ul class="room-options-list">
+                                    @foreach (var desc in item.RoomDescriptions)
+                                    {
+                                        <li>@desc.DescriptionOption?.Name</li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Brak opcji</span>
+                            }
+                        </td>
+                        <td>
                             @Html.DisplayFor(modelItem => item.Price) zł
                         </td>
                         <td>
@@ -61,8 +76,8 @@
                                 <a asp-action="Details" asp-route-id="@item.IdRoom" class="addRoomStandardTypeBtn">Szczegóły</a>
                                 @if (User.IsInRole("manager") || User.IsInRole("admin"))
                                 {
-                                    <a asp-action="Edit" asp-route-id="@item.IdRoom" class="addRoomStandardTypeBtn">Edytuj</a>
-                                    <a asp-action="Delete" asp-route-id="@item.IdRoom" class="addRoomStandardTypeBtn">Usuń</a>
+                                    <a asp-action="UpdateRoom" asp-route-id="@item.IdRoom" class="addRoomStandardTypeBtn">Edytuj</a>
+                                    <a asp-action="DeleteRoom" asp-route-id="@item.IdRoom" class="addRoomStandardTypeBtn">Usuń</a>
                                 }
                             </div>
                         </td>
@@ -72,3 +87,41 @@
         </table>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll("th").forEach((header, index) => {
+            header.style.cursor = "pointer";
+
+            header.addEventListener("click", () => {
+                let table = header.closest("table");
+                let rows = Array.from(table.querySelectorAll("tbody tr"));
+                let asc = header.asc = !header.asc;
+
+                document.querySelectorAll("th").forEach(th => {
+                    th.innerHTML = th.innerHTML.replace(/ ▲| ▼/g, "");
+                });
+
+                header.innerHTML += asc ? " ▲" : " ▼";
+
+                rows.sort((a, b) => {
+                    let cellA = a.cells[index].innerText.trim();
+                    let cellB = b.cells[index].innerText.trim();
+
+                    let valA = parseFloat(cellA.replace(",", "."));
+                    let valB = parseFloat(cellB.replace(",", "."));
+
+                    if (!isNaN(valA) && !isNaN(valB)) {
+                        return asc ? valA - valB : valB - valA;
+                    }
+                    return asc
+                        ? cellA.localeCompare(cellB, "pl", { numeric: true })
+                        : cellB.localeCompare(cellA, "pl", { numeric: true });
+                });
+
+                rows.forEach(row => table.querySelector("tbody").appendChild(row));
+            });
+        });
+    });
+</script>
+
