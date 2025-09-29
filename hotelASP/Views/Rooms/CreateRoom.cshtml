@@ -1,0 +1,79 @@
+﻿@using hotelASP.Views.Rooms.Helpers
+@model hotelASP.Models.CreateRoomViewModel
+@{
+    ViewData["Title"] = "Create";
+}
+
+<div class="create-room-container">
+
+    <div class="headerRoom">
+        <h2>➕ Dodaj nowy pokój</h2>
+        <div class="headerRoom-actions">
+            <a asp-action="Index" class="btn-secondaryRoom">Powrót</a>
+            <a asp-controller="Rooms" asp-action="CreateRoomDescriptionOption" class="btn-secondaryRoom">⚙️ Opcje pokojów</a>
+        </div>
+    </div>
+
+    <div class="cardRoom">
+        <form asp-action="CreateRoom">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-groupRoom">
+                <label asp-for="Rooms.RoomNumber" class="control-label">Numer pokoju</label>
+                <input asp-for="Rooms.RoomNumber" class="form-control" placeholder="np. 101" />
+                <span asp-validation-for="Rooms.RoomNumber" class="text-danger"></span>
+            </div>
+
+            <div class="form-groupRoom">
+                <label class="control-label">Standard</label>
+                <select asp-for="Rooms.IdStandard" class="form-controlRoom" asp-items="@(new SelectList(Model.Standards, "IdStandard", "StandardName"))">
+                    <option value="" disabled selected>-- Wybierz standard --</option>
+                </select>
+                <span asp-validation-for="Rooms.IdStandard" class="text-danger"></span>
+            </div>
+
+            <div class="form-groupRoom">
+                <label class="control-label">Typ pokoju</label>
+                <select asp-for="Rooms.IdType" class="form-controlRoom">
+                    <option value="" disabled selected>-- Wybierz typ --</option>
+                    @foreach (var type in Model.RoomTypes)
+                    {
+                        <option value="@type.IdType">
+                            @GrammarHelper.PeopleText(type.PeopleNumber) • @GrammarHelper.BedsText(type.BedNumber) • @type.BasePrice zł
+                        </option>
+                    }
+                </select>
+                <span asp-validation-for="Rooms.IdType" class="text-danger"></span>
+            </div>
+
+            <div class="form-groupRoom">
+                <label asp-for="Rooms.FloorNumber" class="control-label">Piętro</label>
+                <input asp-for="Rooms.FloorNumber" class="form-controlRoom" placeholder="np. 2" />
+                <span asp-validation-for="Rooms.FloorNumber" class="text-danger"></span>
+            </div>
+
+            <div class="roomDescriptionBox">
+                <label class="control-label">Opcje pokoju</label>
+                <div class="options-grid">
+                    @foreach (var option in Model.RoomDescriptionOptions)
+                    {
+                        <div class="descriptionOption">
+                            <input type="checkbox" class="form-check-input" name="SelectedOptions" value="@option.ID" id="option_@option.ID" />
+                            <label class="form-check-label" for="option_@option.ID">@option.Name</label>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <input type="submit" value="✅ Dodaj pokój" class="btn-primaryRoom" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

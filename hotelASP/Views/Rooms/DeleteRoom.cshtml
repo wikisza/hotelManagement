@@ -22,8 +22,8 @@
 
     </dl>
     
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="IdRoom" />
+    <form asp-action="DeleteRoom">
+        <input type="hidden" asp-route-id="IdRoom" asp-for="IdRoom" />
         <input type="submit" value="Delete" class="btn btn-danger" /> |
         <a asp-action="Index">Back to List</a>
     </form>

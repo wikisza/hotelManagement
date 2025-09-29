@@ -11,5 +11,6 @@ namespace hotelASP.Entities
         public float BasePrice { get; set; }
 
         public ICollection<Room> Rooms { get; set; } = new List<Room>();
+        public string DisplayName => $"{PeopleNumber} {(PeopleNumber == 1 ? "osoba" : "osoby")} - {BedNumber} {(BedNumber == 1 ? "łóżko" : "łóżka")}";
     }
 }

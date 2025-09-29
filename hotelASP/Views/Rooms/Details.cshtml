@@ -1,26 +1,88 @@
-﻿@model hotelASP.Entities.Room
+﻿@using hotelASP.Views.Rooms.Helpers
+@model hotelASP.Entities.Room
 
-@{
-    ViewData["Title"] = "Details";
-}
+<div class="mainPage">
 
-<h1>Details</h1>
+    <div class="headerRoom">
+        <h2>Szczegóły pokoju nr @Model.RoomNumber</h2>
+        <div class="headerRoom-actions">
+            <a asp-action="UpdateRoom" asp-route-id="@Model.IdRoom" class="btn-secondaryRoom">Edytuj</a>
+            <a asp-action="Index" class="btn-secondaryRoom">Powrót</a>
+        </div>
+    </div>
 
-<div>
-    <h4>Room</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IsTaken)
-            @Html.DisplayNameFor(Model => Model.Price)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IsTaken)
-            @Html.DisplayFor(model => model.Price)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.IdRoom">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+    <div class="roomsTable">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        Standard
+                    </th>
+                    <th>
+                        Liczba osób i łóżek
+                    </th>
+                    <th>
+                        Opis pokoju
+                    </th>
+                    <th>
+                        Cena
+                    </th>
+                    <th>
+                        Czy zajęty
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        @(Model.Standard?.StandardName ?? "Nie ma nazwy")
+                    </td>
+                    <td>
+                        @if (Model.RoomType != null)
+                        {
+                            <span>
+                                @GrammarHelper.PeopleText(Model.RoomType.PeopleNumber) - @GrammarHelper.BedsText(Model.RoomType.BedNumber)
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Brak danych</span>
+                        }
+                    </td>
+                    <td>
+                        @if (Model.RoomDescriptions != null && Model.RoomDescriptions.Any())
+                        {
+                            <ul class="room-options-list">
+                                @foreach (var desc in Model.RoomDescriptions)
+                                {
+                                    <li>@desc.DescriptionOption?.Name</li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Brak opcji</span>
+                        }
+                    </td>
+                    <td>
+                        @Model.Price zł
+                    </td>
+                    <td>
+                        @{
+                            if (Model.IsTaken == 0)
+                            {
+                                <span style="color:green;">Wolny</span>
+                            }
+                            else
+                            {
+                                <span style="color:red;">Zajęty</span>
+                            }
+                        }
+                    </td>
+                </tr>
+            </tbody>
+
+        </table>
+    </div>
+
 </div>
