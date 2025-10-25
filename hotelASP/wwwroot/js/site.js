@@ -9,13 +9,17 @@
     "#3C3C3C"  // Dark Gray
 ];
 
-
 document.addEventListener('DOMContentLoaded', function () {
     var calendarEl = document.getElementById('calendar');
 
     var calendar = new FullCalendar.Calendar(calendarEl, {
         initialView: 'dayGridMonth',
         firstDay: '1',
+        locale: 'pl',
+        height: 'auto',
+
+        displayEventTime: false,
+
         events: function (fetchInfo, successCallback, failureCallback) {
             Promise.all([
                 fetch('/get_current_reservations').then(response => response.json()),
@@ -24,15 +28,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 .then(dataArray => {
                     const [currentReservations, oldReservations] = dataArray;
 
+                    const eventColors = ["#2E7D32", "#880E4F", "#00695C", "#1565C0", "#4527A0", "#EF6C00"];
+
                     currentReservations.forEach((event, index) => {
-                        const colorIndex = index % darkPalette.length;
-                        event.backgroundColor = darkPalette[colorIndex];
-                        event.borderColor = darkPalette[colorIndex];
+                        const colorIndex = index % eventColors.length;
+                        event.backgroundColor = eventColors[colorIndex];
+                        event.borderColor = eventColors[colorIndex];
                     });
 
                     oldReservations.forEach(event => {
                         event.backgroundColor = 'gray';
-                        event.borderColor = event.backgroundColor;
+                        event.borderColor = 'gray';
                     });
 
                     const allEvents = [...currentReservations, ...oldReservations];
@@ -43,7 +49,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     failureCallback(error);
                 });
         },
-        locale: 'pl',
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
@@ -55,40 +60,37 @@ document.addEventListener('DOMContentLoaded', function () {
             week: 'Tydzień',
             day: 'Dzień'
         },
-        
+
         eventClick: function (info) {
             const modal = document.getElementById('reservationModal');
-            modal.className = 'modal';
-            modal.style.position = 'fixed';
-            modal.style.left = '50%';
-            modal.style.top = '50%';
-            modal.style.transform = 'translate(-50%, -50%)';
-            modal.style.backgroundColor = '#fff';
-            modal.style.padding = '20px';
-            modal.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
-            modal.style.borderRadius = '8px';
-            modal.style.zIndex = '1000';
+            const props = info.event.extendedProps;
 
-            document.getElementById('reservationTitle').innerText = info.event.title;
-            document.getElementById('reservationStart').innerText = new Date(info.event.start).toLocaleString();
-            document.getElementById('reservationEnd').innerText = info.event.end ? new Date(info.event.end).toLocaleString() : 'Brak';
-            document.getElementById('reservationDescription').innerText = info.event.extendedProps.description || 'Brak opisu';
+            document.getElementById('reservationGuest').innerText = props.firstName + ' ' + props.lastName;
+            document.getElementById('reservationRoom').innerText = props.roomNumber;
 
-            document.getElementById('reservationModal').style.display = "block";
+            const startDate = new Date(info.event.start).toLocaleString('pl-PL', { dateStyle: 'long', timeStyle: 'short' });
+            const endDate = info.event.end ? new Date(info.event.end).toLocaleString('pl-PL', { dateStyle: 'long', timeStyle: 'short' }) : 'Brak';
 
-            document.getElementById('closeModal').addEventListener('click', function () {
-                document.getElementById('reservationModal').style.display = 'none';
-            });
+            document.getElementById('reservationStart').innerText = startDate;
+            document.getElementById('reservationEnd').innerText = endDate;
 
+            modal.style.display = "block";
+        }
+    });
+
+    document.getElementById('closeModal').addEventListener('click', function () {
+        document.getElementById('reservationModal').style.display = 'none';
+    });
+
+    window.addEventListener('click', function (event) {
+        const modal = document.getElementById('reservationModal');
+        if (event.target == modal) {
+            modal.style.display = 'none';
         }
     });
 
     calendar.render();
-
-
-
 });
-
 
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -131,5 +133,70 @@ async function loadAvailableRooms() {
         });
     }
 }
+
+// TABLE SORT
+document.addEventListener("DOMContentLoaded", function () {
+    const parsePolishDate = (dateStr) => {
+        const parts = dateStr.match(/^(\d{2})\.(\d{2})\.(\d{4})(?: (\d{2}):(\d{2}))?$/);
+
+        if (!parts) {
+            return null;
+        }
+
+        const day = parts[1];
+        const month = parts[2];
+        const year = parts[3];
+        const hour = parts[4] || '00';
+        const minute = parts[5] || '00';
+
+        return new Date(year, month - 1, day, hour, minute);
+    };
+
+    document.querySelectorAll("th").forEach((header, index) => {
+        if (header.classList.contains('no-sort')) {
+            return;
+        }
+
+        header.style.cursor = "pointer";
+
+        header.addEventListener("click", () => {
+            const table = header.closest("table");
+            const tbody = table.querySelector("tbody");
+            const rows = Array.from(tbody.querySelectorAll("tr"));
+            const asc = (header.asc = !header.asc);
+
+            document.querySelectorAll("th").forEach(th => {
+                th.innerHTML = th.innerHTML.replace(/ ▲| ▼/g, "");
+            });
+
+            header.innerHTML += asc ? " ▲" : " ▼";
+
+            rows.sort((a, b) => {
+                const cellA = a.cells[index].innerText.trim();
+                const cellB = b.cells[index].innerText.trim();
+
+                const dateA = parsePolishDate(cellA);
+                const dateB = parsePolishDate(cellB);
+
+                if (dateA && dateB) {
+                    return asc ? dateA - dateB : dateB - dateA;
+                }
+
+                const valA = parseFloat(cellA.replace(",", "."));
+                const valB = parseFloat(cellB.replace(",", "."));
+
+                if (!isNaN(valA) && !isNaN(valB)) {
+                    return asc ? valA - valB : valB - valA;
+                }
+
+                return asc
+                    ? cellA.localeCompare(cellB, "pl", { numeric: true, sensitivity: 'base' })
+                    : cellB.localeCompare(cellA, "pl", { numeric: true, sensitivity: 'base' });
+            });
+
+            rows.forEach(row => tbody.appendChild(row));
+        });
+    });
+});
 
 

@@ -47,7 +47,6 @@ public class ReservationService : IReservationService
             reservation.Date_to = reservation.Date_to.Date.AddHours(10);
         }
 
-        //checking if the room is already reserved in the given date range
         var overlappingReservations = await _context.Reservations
                 .Where(r => r.IdRoom == reservation.IdRoom &&
                             r.Date_from < reservation.Date_to &&
@@ -175,8 +174,16 @@ public class ReservationService : IReservationService
             {
                 start = r.Date_from,
                 end = r.Date_to,
-                title = r.First_name + ' ' + r.Last_name + ", pokój: " + r.Room.RoomNumber,
-                IdRoom = r.IdRoom
+                // ZMIANA: Skrócony tytuł, aby był bardziej czytelny w kalendarzu
+                title = "Pokój " + r.Room.RoomNumber + ": " + r.Last_name,
+                // ZMIANA: Dodajemy szczegółowe dane, które wykorzystamy w modalu
+                extendedProps = new
+                {
+                    firstName = r.First_name,
+                    lastName = r.Last_name,
+                    roomNumber = r.Room.RoomNumber,
+                    reservationId = r.Id_reservation
+                }
             })
             .Cast<object>()
             .ToListAsync();
@@ -192,8 +199,14 @@ public class ReservationService : IReservationService
             {
                 start = r.Date_from,
                 end = r.Date_to,
-                title = r.First_name + ' ' + r.Last_name + ", pokój: " + r.Room.RoomNumber,
-                IdRoom = r.IdRoom
+                title = "Pokój " + r.Room.RoomNumber + ": " + r.Last_name,
+                extendedProps = new
+                {
+                    firstName = r.First_name,
+                    lastName = r.Last_name,
+                    roomNumber = r.Room.RoomNumber,
+                    reservationId = r.Id_reservation
+                }
             })
             .Cast<object>()
             .ToListAsync();

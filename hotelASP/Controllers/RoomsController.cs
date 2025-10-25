@@ -159,7 +159,16 @@ namespace hotelASP.Controllers
         {
             if (!ModelState.IsValid) return View(model);
 
-            await _roomService.CreateRoom(model);
+            try
+            {
+                await _roomService.CreateRoom(model);
+            }
+            catch (InvalidOperationException ex)
+            {
+                ModelState.AddModelError("Rooms.RoomNumber", ex.Message);
+                return View(model);
+            }
+
             return RedirectToAction(nameof(Index));
         }
 

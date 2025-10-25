@@ -1,0 +1,29 @@
+﻿@model IEnumerable<hotelASP.Entities.Room>
+
+@{
+    ViewData["Title"] = "Symulator drzwi hotelowych";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/doorSimulator.css" />
+}
+
+<div class="door-simulator">
+    <h2>Symulator drzwi hotelowych</h2>
+
+    <div class="doors-container">
+        @foreach (var room in Model)
+        {
+            <div class="door" data-room-id="@room.IdRoom" onclick="openDoor(@room.IdRoom)">
+                <div class="door-frame">
+                    <div class="door-panel"></div>
+                </div>
+                <p>Pokój @room.RoomNumber</p>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/doorSimulator.js"></script>
+}

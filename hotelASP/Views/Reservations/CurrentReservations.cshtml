@@ -1,58 +1,63 @@
 ﻿@model IEnumerable<hotelASP.Models.ReservationViewModel>
 
 @{
-	ViewData["Title"] = "Aktualne rezerwacje";
+    ViewData["Title"] = "Aktualne rezerwacje";
+}
+@section Styles {
+    <link rel="stylesheet" href="~/css/reservationStyle.css" />
+}
+@section Scripts {
+    <script src="~/js/reservation.js"></script>
 }
 
+<div class="mainPage">
+    <div class="headerMain">
+        <h3>Aktualne rezerwacje</h3>
+        <div class="headerMain-actions">
+            <a asp-action="Index" class="btnMainSecondary">Wróć</a>
+        </div>
+    </div>
 
-<div class="mainView">
-	<div class="currentBar">
-		<label id="labelCurrent">Aktualne rezerwacje</label>
-		<a id="btn" name="btn" asp-action="Index">Wróć</a>
-	</div>
+    <div class="optionsBox">
+        <div class="selectedReservationActions">
+            <button id="detailsBtn" class="addRoomStandardTypeBtn" disabled>Szczegóły</button>
+            @if (User.IsInRole("manager") || User.IsInRole("admin"))
+            {
+                <button id="editBtn" class="addRoomStandardTypeBtn" disabled>Edytuj</button>
+                <button id="deleteBtn" class="addRoomStandardTypeBtn" disabled>Usuń</button>
+            }
+        </div>
+    </div>
 
-	<table class="table">
-		<thead>
-			<tr>
-				<th>
-					Data rozpoczęcia pobytu
-				</th>
-				<th>
-					Data zakończenia pobytu
-				</th>
-				<th>
-					Imię i nazwisko
-				</th>
-				<th>
-					Numer pokoju
-				</th>
-				<th>Opcje</th>
-			</tr>
-		</thead>
-		<tbody>
-			@foreach (var item in Model)
-			{
-				<tr>
-					<td>
-						@Html.DisplayFor(modelItem => item.Date_from)
-					</td>
-					<td>
-						@Html.DisplayFor(modelItem => item.Date_to)
-					</td>
-					<td>
-						@Html.DisplayFor(modelItem => item.First_name) @Html.DisplayFor(modelItem => item.Last_name)
-					</td>
-					<td>
-						@Html.DisplayFor(modelItem => item.IdRoom)
-					</td>
-					<td>
-						<a asp-action="Edit" asp-route-id="@item.Id_reservation">Edit</a> |
-						<a asp-action="Details" asp-route-id="@item.Id_reservation">Details</a> |
-						<a asp-action="Delete" asp-route-id="@item.Id_reservation">Delete</a>
-					</td>
-				</tr>
-			}
-		</tbody>
-	</table>
-
+    <div class="reservationsTable">
+        <table class="table" id="reservationsTable">
+            <thead>
+                <tr>
+                    <th>Data rozpoczęcia pobytu</th>
+                    <th>Data zakończenia pobytu</th>
+                    <th>Imię i nazwisko</th>
+                    <th>Numer pokoju</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr data-reservation-id="@item.Id_reservation">
+                        <td>
+                            @Convert.ToDateTime(item.Date_from).ToString("dd.MM.yyyy")
+                        </td>
+                        <td>
+                            @Convert.ToDateTime(item.Date_to).ToString("dd.MM.yyyy")
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.First_name) @Html.DisplayFor(modelItem => item.Last_name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.IdRoom)
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
