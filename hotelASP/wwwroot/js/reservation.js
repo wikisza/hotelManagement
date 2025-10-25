@@ -118,7 +118,7 @@ document.getElementById('detailsBtn').addEventListener('click', () => {
 const editBtn = document.getElementById('editBtn');
 if (editBtn) {
     editBtn.addEventListener('click', () => {
-        if (selectselectedReservationIdedRoomId)
+        if (selectedReservationId)
             window.location.href = `/Reservations/Edit/${selectedReservationId}`;
     });
 }

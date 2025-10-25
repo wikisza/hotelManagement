@@ -1,60 +1,87 @@
 ﻿@model hotelASP.Models.ReservationViewModel
-
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edytuj rezerwację";
 }
 
-<h1>Edit</h1>
+@section Styles {
+    <link rel="stylesheet" href="~/css/reservationStyle.css" />
+}
 
-<h4>Reservation</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<div class="reservation-container">
+    <div class="headerMain">
+        <h3>✏️ Edytuj rezerwację</h3>
+        <div class="headerMain-actions">
+            <a asp-action="CurrentReservations" class="btnMainSecondary">Powrót</a>
+        </div>
+    </div>
+
+    <div class="cardMain-ReservationDetails">
+        <form asp-action="Edit" class="reservation-form">
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
             <input type="hidden" asp-for="Id_reservation" />
-            <div class="form-group">
-                <label asp-for="Date_from" class="control-label"></label>
-                <input asp-for="Date_from" class="form-control" />
-                <span asp-validation-for="Date_from" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Date_to" class="control-label"></label>
-                <input asp-for="Date_to" class="form-control" />
-                <span asp-validation-for="Date_to" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="First_name" class="control-label"></label>
-                <input asp-for="First_name" class="form-control" />
-                <span asp-validation-for="First_name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Last_name" class="control-label"></label>
-                <input asp-for="Last_name" class="form-control" />
-                <span asp-validation-for="Last_name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="IdRoom" class="control-label"></label>
-                <input asp-for="IdRoom" class="form-control" />
-                <span asp-validation-for="IdRoom" class="text-danger"></span>
+
+            <div class="form-section">
+                <h4 class="section-title">📅 Daty pobytu</h4>
+
+                <div class="form-row">
+                    <div class="form-groupMain">
+                        <label asp-for="Date_from" class="control-label">Data przyjazdu:</label>
+                        <input asp-for="Date_from" type="datetime-local" class="form-controlMain" />
+                        <span asp-validation-for="Date_from" class="text-danger"></span>
+                    </div>
+                    <div class="form-groupMain">
+                        <label asp-for="Date_to" class="control-label">Data wyjazdu:</label>
+                        <input asp-for="Date_to" type="datetime-local" class="form-controlMain" />
+                        <span asp-validation-for="Date_to" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label asp-for="KeyCode" class="control-label"></label>
-                <input asp-for="KeyCode" class="form-control" />
-                <span asp-validation-for="IdRoom" class="text-danger"></span>
+            <div class="form-section">
+                <h4 class="section-title">👤 Dane gościa</h4>
+
+                <div class="form-row">
+                    <div class="form-groupMain">
+                        <label asp-for="First_name" class="control-label">Imię:</label>
+                        <input asp-for="First_name" class="form-controlMain" />
+                        <span asp-validation-for="First_name" class="text-danger"></span>
+                    </div>
+                    <div class="form-groupMain">
+                        <label asp-for="Last_name" class="control-label">Nazwisko:</label>
+                        <input asp-for="Last_name" class="form-controlMain" />
+                        <span asp-validation-for="Last_name" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
+
+            <div class="form-section">
+                <h4 class="section-title">🔑 Informacje o pokoju</h4>
+
+                <div class="form-row">
+                    <div class="form-groupMain">
+                        <label asp-for="IdRoom" class="control-label">Numer pokoju:</label>
+                        <input asp-for="IdRoom" class="form-controlMain" />
+                        <span asp-validation-for="IdRoom" class="text-danger"></span>
+                    </div>
+                    <div class="form-groupMain">
+                        <label asp-for="KeyCode" class="control-label">Kod klucza:</label>
+                        <input asp-for="KeyCode" class="form-controlMain" />
+                        <span asp-validation-for="KeyCode" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <input type="submit" value="💾 Zapisz zmiany" class="btn btn-primary" />
+                <a asp-action="CurrentReservations" class="btn btn-secondary">Anuluj</a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

@@ -18,5 +18,8 @@ namespace hotelASP.Entities
         public int IdRoom { get; set; }
         public string KeyCode { get; set; }
         public Room? Room { get; set; }
+        public Bill? Bills { get; set; }
+        public ICollection<Order> Orders { get; set; } = new List<Order>();
+
     }
 }

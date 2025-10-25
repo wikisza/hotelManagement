@@ -50,6 +50,32 @@ namespace hotelASP.Data
                 .WithOne(o => o.DescriptionOption)
                 .HasForeignKey(rd => rd.IdOption);
 
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Reservation)
+                .WithMany(r => r.Orders)
+                .HasForeignKey(o => o.ReservationId);
+
+            modelBuilder.Entity<Order>()
+                .HasMany(o => o.OrderDetails)
+                .WithOne(od => od.Order)
+                .HasForeignKey(od => od.OrderId);
+
+            modelBuilder.Entity<MenuItems>()
+                .HasMany(mi => mi.OrderDetails)
+                .WithOne(od => od.MenuItem)
+                .HasForeignKey(od => od.MenuItemId);
+
+            modelBuilder.Entity<MenuItems>()
+                .HasOne(mi => mi.MenuCategory)
+                .WithMany(mc => mc.MenuItems)
+                .HasForeignKey(mi => mi.MenuCategoryId);
+
+            modelBuilder.Entity<Bill>()
+                .HasOne(b => b.Reservation)
+                .WithOne(r => r.Bills)
+                .HasForeignKey<Bill>(b => b.ReservationId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             base.OnModelCreating(modelBuilder);
         }
 
@@ -61,5 +87,10 @@ namespace hotelASP.Data
         public DbSet<Reservation> Reservations { get; set; }
         public DbSet<RoomDescription> RoomDescriptions { get; set; }
         public DbSet<RoomDescriptionOption> RoomDescriptionOptions { get; set; }
-    }
+        public DbSet<MenuCategories> MenuCategories { get; set; }
+        public DbSet<MenuItems> MenuItems { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderDetails> OrderDetails { get; set; }
+        public DbSet<Bill> Bills { get; set; }
+        }
 }

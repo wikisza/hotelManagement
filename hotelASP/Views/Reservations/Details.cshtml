@@ -1,48 +1,117 @@
 ﻿@model hotelASP.Models.ReservationViewModel
-
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Szczegóły rezerwacji";
 }
 
-<h1>Details</h1>
+@section Styles {
+    <link rel="stylesheet" href="~/css/reservationStyle.css" />
+}
+@section Scripts {
+    <script src="~/js/reservation.js"></script>
+}
+<div class="reservation-container">
+    <div class="headerMain">
+        <h3>📋 Szczegóły rezerwacji</h3>
+        <div class="headerMain-actions">
+            <a asp-action="CurrentReservations" class="btnMainSecondary">Powrót</a>
+        </div>
+    </div>
 
-<div>
-    <h4>Reservation</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Date_from)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Date_from)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Date_to)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Date_to)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.First_name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.First_name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Last_name)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Last_name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IdRoom)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IdRoom)
-        </dd>
-    </dl>
+    <div class="cardMain-ReservationDetails">
+        <h4 class="section-title">ℹ️ Informacje o rezerwacji</h4>
+        <div class="details-grid">
+            <div class="detail-item">
+                <label class="detail-label">Data od:</label>
+                <span class="detail-value">@Html.DisplayFor(model => model.Date_from)</span>
+            </div>
+            <div class="detail-item">
+                <label class="detail-label">Data do:</label>
+                <span class="detail-value">@Html.DisplayFor(model => model.Date_to)</span>
+            </div>
+            <div class="detail-item">
+                <label class="detail-label">Gość:</label>
+                <span class="detail-value">@Html.DisplayFor(model => model.First_name) @Html.DisplayFor(model => model.Last_name)</span>
+            </div>
+            <div class="detail-item">
+                <label class="detail-label">Pokój:</label>
+                <span class="detail-value">@Html.DisplayFor(model => model.IdRoom)</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="cardMain-ReservationDetails">
+        <h4 class="section-title">💳 Rachunek</h4>
+        @if (Model.Bill != null)
+        {
+            <div class="details-grid">
+                <div class="detail-item">
+                    <label class="detail-label">Aktualna kwota:</label>
+                    <span class="detail-value price-highlight">@Model.Bill.Amount.ToString("0.00") zł</span>
+                </div>
+                <div class="detail-item">
+                    <label class="detail-label">Status:</label>
+                    <span class="detail-value status-@Model.Bill.Status.ToLower()">@Html.DisplayFor(model => model.Bill.Status)</span>
+                </div>
+                <div class="detail-item">
+                    <label class="detail-label">Data utworzenia:</label>
+                    <span class="detail-value">@Model.Bill.BillDate.ToString("g")</span>
+                </div>
+            </div>
+        }
+        else
+        {
+            <p class="no-data">Brak informacji o rachunku.</p>
+        }
+    </div>
+
+    <div class="cardMain-ReservationDetails">
+        <h4 class="section-title">🛎️ Zamówienia do pokoju</h4>
+        @if (Model.Orders != null && Model.Orders.Any())
+        {
+            @foreach (var order in Model.Orders.OrderByDescending(o => o.OrderDateTime))
+            {
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-info">
+                            <strong>Zamówienie z dnia:</strong> @order.OrderDateTime.ToString("g")
+                        </div>
+                        <div class="order-meta">
+                            <span class="order-status">@order.Status</span>
+                            <span class="order-total">@order.TotalAmount.ToString("C")</span>
+                        </div>
+                    </div>
+                    <div class="order-body">
+                        <table class="order-table">
+                            <thead>
+                                <tr>
+                                    <th>Produkt</th>
+                                    <th>Ilość</th>
+                                    <th>Cena jednostkowa</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var detail in order.Details)
+                                {
+                                    <tr>
+                                        <td>@detail.MenuItemName</td>
+                                        <td class="text-center">@detail.Quantity</td>
+                                        <td class="text-right">@detail.PriceAtOrder.ToString("C")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p class="no-data">Brak złożonych zamówień do tej rezerwacji.</p>
+        }
+    </div>
+
+    <div class="form-actions">
+        <a asp-action="Edit" asp-route-id="@Model?.Id_reservation" class="btn btn-primary">✏️ Edytuj rezerwację</a>
+    </div>
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.Id_reservation">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+

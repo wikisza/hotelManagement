@@ -11,15 +11,21 @@ namespace hotelASP.Services;
 public class ReservationService : IReservationService
 {
     private readonly ApplicationDbContext _context;
-    public ReservationService(ApplicationDbContext context)
+    private readonly IBillService _billService;
+    public ReservationService(ApplicationDbContext context, IBillService billService)
     {
         _context = context;
+        _billService = billService;
     }
     public async Task<ReservationViewModel> FindReservation(int id)
     {
         var reservation = await _context.Reservations
             .Where(r => r.Id_reservation == id)
             .Include(r => r.Room)
+            .Include(r => r.Bills)
+            .Include(r => r.Orders)
+                .ThenInclude(o => o.OrderDetails)
+                    .ThenInclude(od => od.MenuItem)
             .Select(r => new ReservationViewModel
             {
                 Id_reservation = r.Id_reservation,
@@ -28,7 +34,29 @@ public class ReservationService : IReservationService
                 First_name = r.First_name,
                 Last_name = r.Last_name,
                 IdRoom = r.IdRoom,
-                KeyCode = r.KeyCode
+                KeyCode = r.KeyCode,
+
+                Bill = r.Bills != null ? new BillViewModel
+                {
+                    Id = r.Bills.Id,
+                    Amount = r.Bills.Amount,
+                    Status = r.Bills.Status,
+                    BillDate = r.Bills.BillDate
+                } : null,
+
+                Orders = r.Orders.Select(o => new OrderViewModel
+                {
+                    Id = o.Id,
+                    OrderDateTime = o.OrderDate,
+                    TotalAmount = o.TotalAmount,
+                    Status = o.Status,
+                    Details = o.OrderDetails.Select(od => new OrderDetailViewModel
+                    {
+                        MenuItemName = od.MenuItem.Name,
+                        Quantity = od.Quantity,
+                        PriceAtOrder = od.Price
+                    }).ToList()
+                }).ToList()
             })
             .FirstOrDefaultAsync();
 
@@ -37,37 +65,52 @@ public class ReservationService : IReservationService
 
     public async Task<(bool Success, string ErrorMessage)> CreateAsync(Reservation reservation)
     {
-        if (reservation.Date_from.TimeOfDay != new TimeSpan(14, 0, 0))
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+        try
         {
-            reservation.Date_from = reservation.Date_from.Date.AddHours(14);
-        }
+            if (reservation.Date_from.TimeOfDay != new TimeSpan(14, 0, 0))
+            {
+                reservation.Date_from = reservation.Date_from.Date.AddHours(14);
+            }
 
-        if (reservation.Date_to.TimeOfDay != new TimeSpan(10, 0, 0))
-        {
-            reservation.Date_to = reservation.Date_to.Date.AddHours(10);
-        }
+            if (reservation.Date_to.TimeOfDay != new TimeSpan(10, 0, 0))
+            {
+                reservation.Date_to = reservation.Date_to.Date.AddHours(10);
+            }
 
-        var overlappingReservations = await _context.Reservations
+            var overlappingReservations = await _context.Reservations
                 .Where(r => r.IdRoom == reservation.IdRoom &&
                             r.Date_from < reservation.Date_to &&
                             r.Date_to > reservation.Date_from)
                 .ToListAsync();
 
-        if (overlappingReservations.Any())
-        {
-            return (false, "Pokój jest już zarezerwowany w tym terminie.");
+            if (overlappingReservations.Any())
+            {
+                return (false, "Pokój jest już zarezerwowany w tym terminie.");
+            }
+
+            _context.Reservations.Add(reservation);
+            await _context.SaveChangesAsync();
+
+            await _billService.CreateBillForReservationAsync(reservation.Id_reservation);
+
+            var thisRoom = await _context.Rooms.FindAsync(reservation.IdRoom);
+            if (thisRoom != null)
+            {
+                thisRoom.IsEmpty = true;
+            }
+
+            await _context.SaveChangesAsync();
+
+            await transaction.CommitAsync();
+
+            return (true, string.Empty);
         }
-
-        _context.Reservations.Add(reservation);
-
-        var thisRoom = await _context.Rooms.FindAsync(reservation.IdRoom);
-        if (thisRoom != null)
+        catch (Exception ex)
         {
-            thisRoom.IsEmpty = true;
+            await transaction.RollbackAsync();
+            return (false, "Wystąpił nieoczekiwany błąd podczas tworzenia rezerwacji i rachunku.");
         }
-
-        await _context.SaveChangesAsync();
-        return (true, string.Empty);
     }
 
 
@@ -107,7 +150,6 @@ public class ReservationService : IReservationService
         }
 
     }
-
 
     public async Task<(bool Success, string ErrorMessage)> DeleteConfirmed(int id)
     {
@@ -174,9 +216,7 @@ public class ReservationService : IReservationService
             {
                 start = r.Date_from,
                 end = r.Date_to,
-                // ZMIANA: Skrócony tytuł, aby był bardziej czytelny w kalendarzu
                 title = "Pokój " + r.Room.RoomNumber + ": " + r.Last_name,
-                // ZMIANA: Dodajemy szczegółowe dane, które wykorzystamy w modalu
                 extendedProps = new
                 {
                     firstName = r.First_name,
