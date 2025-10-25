@@ -13,5 +13,8 @@ namespace hotelASP.Models
         public int IdRoom { get; set; }
         public Room? Room { get; set; }
         public string KeyCode { get; set; }
+
+        public BillViewModel? Bill { get; set; }
+        public ICollection<OrderViewModel> Orders { get; set; } = new List<OrderViewModel>();
     }
 }

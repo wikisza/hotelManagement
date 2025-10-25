@@ -19,6 +19,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseMySql(
 
 builder.Services.AddScoped<IReservationService, ReservationService>();
 builder.Services.AddScoped<IRoomService, RoomService>();
+builder.Services.AddScoped<IBillService, BillsService>();
 
 var app = builder.Build();
 

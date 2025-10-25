@@ -1,0 +1,18 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace hotelASP.Entities
+{
+    public class OrderDetails
+    {
+        [Key]
+        public int Id { get; set; }
+        [Required]
+        public int OrderId { get; set; }
+        [Required]
+        public int MenuItemId { get; set; }
+        public MenuItems? MenuItem { get; set; }
+        public int Quantity { get; set; }
+        public decimal Price { get; set; }
+        public Order? Order { get; set; }
+    }
+}
