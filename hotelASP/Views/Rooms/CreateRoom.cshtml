@@ -6,35 +6,35 @@
 
 <div class="create-room-container">
 
-    <div class="headerRoom">
+    <div class="headerMain">
         <h2>➕ Dodaj nowy pokój</h2>
-        <div class="headerRoom-actions">
-            <a asp-action="Index" class="btn-secondaryRoom">Powrót</a>
-            <a asp-controller="Rooms" asp-action="CreateRoomDescriptionOption" class="btn-secondaryRoom">⚙️ Opcje pokojów</a>
+        <div class="headerMain-actions">
+            <a asp-action="Index" class="btnMainSecondary">Powrót</a>
+            <a asp-controller="Rooms" asp-action="CreateRoomDescriptionOption" class="btnMainSecondary">⚙️ Opcje pokojów</a>
         </div>
     </div>
 
-    <div class="cardRoom">
+    <div class="cardMain">
         <form asp-action="CreateRoom">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <div class="form-groupRoom">
+            <div class="form-groupMain">
                 <label asp-for="Rooms.RoomNumber" class="control-label">Numer pokoju</label>
                 <input asp-for="Rooms.RoomNumber" class="form-control" placeholder="np. 101" />
                 <span asp-validation-for="Rooms.RoomNumber" class="text-danger"></span>
             </div>
 
-            <div class="form-groupRoom">
+            <div class="form-groupMain">
                 <label class="control-label">Standard</label>
-                <select asp-for="Rooms.IdStandard" class="form-controlRoom" asp-items="@(new SelectList(Model.Standards, "IdStandard", "StandardName"))">
+                <select asp-for="Rooms.IdStandard" class="form-controlMain" asp-items="@(new SelectList(Model.Standards, "IdStandard", "StandardName"))">
                     <option value="" disabled selected>-- Wybierz standard --</option>
                 </select>
                 <span asp-validation-for="Rooms.IdStandard" class="text-danger"></span>
             </div>
 
-            <div class="form-groupRoom">
+            <div class="form-groupMain">
                 <label class="control-label">Typ pokoju</label>
-                <select asp-for="Rooms.IdType" class="form-controlRoom">
+                <select asp-for="Rooms.IdType" class="form-controlMain">
                     <option value="" disabled selected>-- Wybierz typ --</option>
                     @foreach (var type in Model.RoomTypes)
                     {
@@ -46,9 +46,9 @@
                 <span asp-validation-for="Rooms.IdType" class="text-danger"></span>
             </div>
 
-            <div class="form-groupRoom">
+            <div class="form-groupMain">
                 <label asp-for="Rooms.FloorNumber" class="control-label">Piętro</label>
-                <input asp-for="Rooms.FloorNumber" class="form-controlRoom" placeholder="np. 2" />
+                <input asp-for="Rooms.FloorNumber" class="form-controlMain" placeholder="np. 2" />
                 <span asp-validation-for="Rooms.FloorNumber" class="text-danger"></span>
             </div>
 

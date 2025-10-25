@@ -1,26 +1,30 @@
 ﻿@model hotelASP.Entities.Reservation
 
 @{
-	ViewData["Title"] = "Lista rezerwacji";
+    ViewData["Title"] = "Lista rezerwacji";
 }
 
-<div class="mainView">
+<div class="mainPage">
 
-	<div class="reservationBar">
-		<a asp-action="CurrentReservations" asp-controller="Reservations">Aktualne rezerwacje</a>
-		<a asp-action="HistoryReservations" asp-controller="Reservations">Historia rezerwacji</a>
-	</div>
-
-	<div id="calendar"></div>
-
-    <div id="reservationModal" class="modalEdit" style="display:none">
-        <div class="reservationModal-content">
-            <h3>Informacje o rezerwacji</h3>
-            <p><strong>Tytuł:</strong> <span id="reservationTitle"></span></p>
-            <p><strong>Data rozpoczęcia:</strong><span id="reservationStart"></span> </p>
-            <p><strong>Data zakończenia:</strong><span id="reservationEnd"></span> </p>
-            <button id="closeModal" style="margin-top: 10px;">Zamknij</button>
+    <div class="headerMain">
+        <div class="headerMain-actions">
+            <a asp-action="CurrentReservations" 
+                asp-controller="Reservations" class="btnMainSecondary">Aktualne rezerwacje</a>
+            <a asp-action="HistoryReservations" 
+                asp-controller="Reservations" class="btnMainSecondary">Historia rezerwacji</a>
         </div>
+    </div>
+
+    <div id="calendar"></div>
+
+    <div id="reservationModal" style="display: none; position: fixed; z-index: 1000; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: white; padding: 25px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); width: 400px;">
+        <h2 id="reservationTitle" style="margin-top: 0;">Szczegóły rezerwacji</h2>
+        <hr>
+        <p><strong>Gość:</strong> <span id="reservationGuest"></span></p>
+        <p><strong>Pokój:</strong> <span id="reservationRoom"></span></p>
+        <p><strong>Początek pobytu:</strong> <span id="reservationStart"></span></p>
+        <p><strong>Koniec pobytu:</strong> <span id="reservationEnd"></span></p>
+        <button id="closeModal" style="float: right; padding: 8px 16px; border-radius: 5px; border: 1px solid #ccc; cursor: pointer;">Zamknij</button>
     </div>
 
 </div>

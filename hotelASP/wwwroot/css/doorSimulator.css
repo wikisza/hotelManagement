@@ -1,0 +1,57 @@
+﻿.door {
+    display: inline-block;
+    margin: 20px;
+    cursor: pointer;
+    text-align: center;
+}
+
+.door-frame {
+    width: 100px;
+    height: 160px;
+    border: 3px solid #555;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+}
+
+.door-panel {
+    background: #996633;
+    width: 100%;
+    height: 100%;
+    transition: transform 1s ease-in-out;
+    transform-origin: left center;
+}
+
+    .door-panel.open {
+        transform: rotateY(-100deg);
+        background: #cc9966;
+    }
+
+    .door-panel.waiting {
+        animation: pulse 1s infinite alternate;
+    }
+
+    .door-panel.denied {
+        background: #ff5555;
+        animation: blink 0.5s 2 alternate;
+    }
+
+@keyframes pulse {
+    from {
+        opacity: 0.7;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes blink {
+    from {
+        background-color: #ff5555;
+    }
+
+    to {
+        background-color: #ff0000;
+    }
+}

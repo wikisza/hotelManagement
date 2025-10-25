@@ -3,54 +3,54 @@
 
 <div class="create-room-container">
 
-    <div class="headerRoom">
+    <div class="headerMain">
         <h2>Edytuj pokój nr @Model.FloorNumber</h2>
-        <div class="headerRoom-actions">
-            <a asp-action="Index" class="btn btn-secondaryRoom">Powrót</a>
+        <div class="headerMain-actions">
+            <a asp-action="Index" class="btnMain">Powrót</a>
         </div>
     </div>
 
-    <div class="cardRoom">
+    <div class="cardMain">
 
         <form asp-action="UpdateRoom">
             <input type="hidden" asp-for="IdRoom" />
 
-            <div class="form-groupRoom">
+            <div class="form-groupMain">
                 <label asp-for="RoomNumber">Numer pokoju</label>
-                <input asp-for="RoomNumber" class="form-controlRoom" />
+                <input asp-for="RoomNumber" class="form-controlMain" />
                 <span asp-validation-for="RoomNumber" class="text-danger"></span>
             </div>
 
-            <div class="form-groupRoom">
+            <div class="form-groupMain">
                 <label>Standard</label>
-                <select asp-for="IdStandard" class="form-controlRoom" asp-items="ViewBag.Standards"></select>
+                <select asp-for="IdStandard" class="form-controlMain" asp-items="ViewBag.Standards"></select>
                 <span asp-validation-for="IdStandard" class="text-danger"></span>
             </div>
 
-            <div class="form-groupRoom">
+            <div class="form-groupMain">
                 <label>Liczba osób i łóżek</label>
-                <select asp-for="IdType" class="form-controlRoom" asp-items="ViewBag.RoomTypes">
+                <select asp-for="IdType" class="form-controlMain" asp-items="ViewBag.RoomTypes">
                     <option value="">-- Wybierz typ --</option>
                 </select>
                 <span asp-validation-for="IdType" class="text-danger"></span>
             </div>
 
-            <div class="form-groupRoom">
+            <div class="form-groupMain">
                 <label asp-for="FloorNumber">Piętro</label>
-                <input asp-for="FloorNumber" class="form-controlRoom" />
+                <input asp-for="FloorNumber" class="form-controlMain" />
             </div>
 
-            <div class="form-groupRoom">
+            <div class="form-groupMain">
                 <label>Status</label>
-                <select asp-for="IsTaken" class="form-controlRoom">
+                <select asp-for="IsTaken" class="form-controlMain">
                     <option value="0" selected="@(Model.IsTaken == 0)">Wolny</option>
                     <option value="1" selected="@(Model.IsTaken == 1)">Zajęty</option>
                 </select>
             </div>
 
-            <div class="form-groupRoom">
+            <div class="form-groupMain">
                 <label asp-for="Price">Cena</label>
-                <input asp-for="Price" class="form-controlRoom" />
+                <input asp-for="Price" class="form-controlMain" />
             </div>
 
             <div class="roomDescriptionBox">

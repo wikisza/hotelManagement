@@ -57,6 +57,15 @@ namespace hotelASP.Services.RoomService
 
         public async Task<Room> CreateRoom(CreateRoomViewModel model)
         {
+            var existingRoom = await _context.Rooms
+                .Where(x => x.RoomNumber == model.Rooms.RoomNumber)
+                .FirstOrDefaultAsync();
+
+            if (existingRoom is not null)
+            {
+                throw new InvalidOperationException("Pokój o tym numerze już istnieje.");
+            }
+
             var standardValue = _context.Standards
                 .Where(s => s.IdStandard == model.Rooms.IdStandard)
                 .Select(s => s.StandardValue)

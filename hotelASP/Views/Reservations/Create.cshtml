@@ -1,62 +1,140 @@
 ﻿@model hotelASP.Entities.Reservation
 
 @{
-	ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create";
 }
 
-<div class="mainView">
+@section Styles {
+    <link rel="stylesheet" href="~/css/reservationStyle.css" />
+}
 
-	<h1>Utwórz rezerwację</h1>
+<div class="mainPage">
 
-	<div class="row">
-		<div class="col-md-4">
-			<form asp-action="Create">
-				<div asp-validation-summary="ModelOnly" class="text-danger"></div>
-				<div class="form-group">
-					<label class="control-label">Data rozpoczęcia pobytu:</label>
-					<input type="datetime-local" id="dateFrom" asp-for="Date_from" class="form-control"
-						   value="@DateTime.Now.Date.AddHours(14).ToString("yyyy-MM-ddTHH:mm")" />
-					<span asp-validation-for="Date_from" class="text-danger"></span>
-				</div>
-				<div class="form-group">
-					<label class="control-label">Data zakończenia pobytu:</label>
-					<input type="datetime-local" id="dateTo" asp-for="Date_to" class="form-control"
-						   value="@DateTime.Now.Date.AddDays(1).AddHours(10).ToString("yyyy-MM-ddTHH:mm")" />
-					<span asp-validation-for="Date_to" class="text-danger"></span>
-				</div>
-				<div class="form-group">
-					<label class="control-label">Imię:</label>
-					<input asp-for="First_name" class="form-control" />
-					<span asp-validation-for="First_name" class="text-danger"></span>
-				</div>
-				<div class="form-group">
-					<label class="control-label">Nazwisko:</label>
-					<input asp-for="Last_name" class="form-control" />
-					<span asp-validation-for="Last_name" class="text-danger"></span>
-				</div>
-				<div class="form-group">
-					<label class="control-label">Wybierz pokój:</label>
-					<select id="roomSelect" asp-for="IdRoom" class="form-control">
-						<option value="">-- Wybierz pokój --</option>
-					</select>
-					<span asp-validation-for="IdRoom" class="text-danger"></span>
-				</div>
+    <div class="headerMain">
+        <h1>Utwórz rezerwację</h1>
 
-				<div class="form-group">
-					<label>Przypisz kartę</label>
-					<input type="password" asp-for="KeyCode"/>
-				</div>
-				<div class="form-group">
-					<input type="submit" value="Create" class="btn btn-primary" />
-				</div>
-			</form>
-		</div>
-	</div>
+    </div>
+
+    <div class="cardMain">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-groupMain">
+                <label class="control-label">Data rozpoczęcia pobytu:</label>
+                <input type="datetime-local" id="dateFrom" asp-for="Date_from" class="form-control"
+                       value="@DateTime.Now.Date.AddHours(14).ToString("yyyy-MM-ddTHH:mm")" />
+                <span asp-validation-for="Date_from" class="text-danger"></span>
+            </div>
+            <div class="form-groupMain">
+                <label class="control-label">Data zakończenia pobytu:</label>
+                <input type="datetime-local" id="dateTo" asp-for="Date_to" class="form-control"
+                       value="@DateTime.Now.Date.AddDays(1).AddHours(10).ToString("yyyy-MM-ddTHH:mm")" />
+                <span asp-validation-for="Date_to" class="text-danger"></span>
+            </div>
+            <div class="form-groupMain">
+                <label class="control-label">Imię:</label>
+                <input asp-for="First_name" class="form-control" />
+                <span asp-validation-for="First_name" class="text-danger"></span>
+            </div>
+            <div class="form-groupMain">
+                <label class="control-label">Nazwisko:</label>
+                <input asp-for="Last_name" class="form-control" />
+                <span asp-validation-for="Last_name" class="text-danger"></span>
+            </div>
+            <div class="form-groupMain">
+                <label class="control-label">Wybierz pokój:</label>
+                <select id="roomSelect" asp-for="IdRoom" class="form-control">
+                    <option value="">-- Wybierz pokój --</option>
+                </select>
+                <span asp-validation-for="IdRoom" class="text-danger"></span>
+            </div>
+
+            <div class="form-groupMain card-assign-section">
+                <label class="control-label">Przypisz kartę:</label>
+                <div class="card-assign-container">
+                    <button type="button" id="assignCardBtn" class="btn-assign-card">
+                        <i class="fa fa-id-card"></i> Przypisz kartę
+                    </button>
+
+                    <input type="text" asp-for="KeyCode" id="cardInput"
+                           style="position: absolute; left: -9999px; opacity: 0;" />
+
+                    <span id="cardMessage" class="card-message">
+                        <i class="fa fa-check-circle"></i> Karta przypisana pomyślnie!
+                    </span>
+                </div>
+                <span asp-validation-for="KeyCode" class="text-danger"></span>
+            </div>
+
+            <div class="form-groupMain">
+                <input type="submit" value="Potwierdź rezerwację" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
 </div>
 
-
 @section Scripts {
-	@{
-		await Html.RenderPartialAsync("_ValidationScriptsPartial");
-	}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const assignBtn = document.getElementById("assignCardBtn");
+            const cardInput = document.getElementById("cardInput");
+            const cardMessage = document.getElementById("cardMessage");
+            const btnIcon = assignBtn.querySelector('i');
+            const originalBtnText = assignBtn.textContent.trim();
+            const originalBtnIconClass = btnIcon.className;
+
+            // Funkcja resetująca stan przycisku i wiadomości
+            function resetCardState() {
+                cardMessage.style.display = "none";
+                cardMessage.classList.remove("show-message");
+                assignBtn.classList.remove("listening", "assigned");
+                btnIcon.className = originalBtnIconClass;
+                // Używamy textContent, aby bezpiecznie zmienić tekst obok ikony
+                assignBtn.childNodes[2].nodeValue = " " + originalBtnText;
+            }
+
+            assignBtn.addEventListener("click", function () {
+                resetCardState();
+                cardInput.value = ""; // Czyści poprzednią wartość
+                cardInput.focus(); // Ustawia focus na niewidocznym inpucie
+
+                // Zmiana wyglądu przycisku na "nasłuchiwanie"
+                assignBtn.classList.add("listening");
+                btnIcon.className = "fa fa-wifi";
+                assignBtn.childNodes[2].nodeValue = " Oczekuje na kartę...";
+            });
+
+            cardInput.addEventListener("keydown", function (e) {
+                if (e.key === "Enter") {
+                    e.preventDefault(); // Zapobiega wysłaniu formularza po wciśnięciu Enter
+
+                    if (cardInput.value.trim() !== "") {
+                        // Pomyślnie odczytano kartę
+                        cardMessage.style.display = "inline-flex";
+                        cardMessage.classList.add("show-message");
+
+                        // Zmiana wyglądu przycisku na "przypisano"
+                        assignBtn.classList.remove("listening");
+                        assignBtn.classList.add("assigned");
+                        btnIcon.className = "fa fa-check";
+                        assignBtn.childNodes[2].nodeValue = " Karta przypisana";
+
+                        cardInput.blur(); // Usuwa focus z inputa
+                    } else {
+                        // Jeśli Enter został naciśnięty bez odczytu karty, resetuj stan
+                        resetCardState();
+                    }
+                }
+            });
+
+            // Dodatkowo: resetuj stan, jeśli użytkownik kliknie gdziekolwiek indziej
+            document.addEventListener('click', function(event) {
+                if (!assignBtn.contains(event.target) && assignBtn.classList.contains('listening')) {
+                    resetCardState();
+                    cardInput.blur();
+                }
+            });
+        });
+    </script>
+
+    @await Html.PartialAsync("_ValidationScriptsPartial")
 }

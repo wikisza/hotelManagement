@@ -260,10 +260,15 @@ h1, h2, h3, h4, h5, h6 {
 /* Main Window - zajmuje całą pozostałą przestrzeń */
 .mainWindow {
     flex: 1;
-    padding: 30px;
+    padding: 10px;
     overflow-y: auto;
     background-color: var(--backgroundColor);
     position: relative;
+}
+
+.mainWindow > * {
+    width: 95%;
+    margin: 0 auto;
 }
 
 /* Responsive design */
@@ -386,8 +391,6 @@ img {
 }
 
 .usersTable, .table {
-    width: 100%;
-    max-width: 80vw;
     border-collapse: collapse;
     overflow: hidden;
     box-shadow: 0 0 20px rgba(0,0,0,0.1);
@@ -423,20 +426,22 @@ img {
             transition: all 0.3s ease;
         }
 
-.roomsTable, .partialView, .mainPage {
+.roomsTable, .partialView{
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
 .mainPage {
+    display:flex;
     flex-direction: column;
 }
 
 .reservationBar {
     display: flex;
-    gap: 10px;
-    margin-bottom: 1rem;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
 }
 
     .reservationBar a, #btn {
@@ -641,7 +646,6 @@ img {
         border-color: var(--hoverColor);
     }
 
-/* Poprawki dla inputów i labeli */
 input, .loginBtn {
     background-color: var(--cardBackground) !important;
     color: var(--bodyColor) !important;
@@ -660,7 +664,6 @@ label {
     color: var(--bodyColor) !important;
 }
 
-/* Poprawki dla sekcji z background blur */
 section label {
     color: white !important;
 }
@@ -690,20 +693,20 @@ select:hover {
     gap: 2rem;
 }
 
-.boxRoomStandardType{
-    display:flex;
-    flex-direction:row;
-    justify-content:center;
-    align-items:center;
-    align-content:center;
-    padding:1rem;
+.optionsBox {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    align-content: center;
+    padding: 1rem;
     border: 2px solid var(--brown);
     margin: 1rem;
 }
 
-.boxRoomStandardType a{
-    margin-left:5px
-}
+    .optionsBox a {
+        margin-left: 5px
+    }
 
 .addRoomStandardTypeBtn:hover {
     background-color: var(--darkBeige);
@@ -716,7 +719,6 @@ select:hover {
     gap: 2px;
 }
 
-/*standard*/
 .standardHeader {
     display: flex;
     flex-direction: row;
@@ -725,7 +727,6 @@ select:hover {
     align-items:center;
 }
 
-/*types*/
 .modal {
     display: none; 
     position: fixed;
@@ -761,27 +762,27 @@ select:hover {
 }
 
 /* Header */
-.headerRoom {
+.headerMain {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
 }
 
-    .headerRoom h2 {
+    .headerMain h2 {
         margin: 0;
         font-size: 1.5rem;
         font-weight: bold;
         color: #2c3e50;
     }
 
-.headerRoom-actions {
+.headerMain-actions {
     display: flex;
     gap: 0.5rem;
 }
 
 /* Card */
-.cardRoom {
+.cardMain {
     background: #fff;
     border-radius: 12px;
     padding: 1.5rem;
@@ -789,18 +790,18 @@ select:hover {
 }
 
 /* Form */
-.form-groupRoom {
+.form-groupMain {
     margin-bottom: 1rem;
 }
 
-.form-controlRoom {
+.form-controlMain {
     border-radius: 8px;
     padding: 0.6rem;
     border: 1px solid #ccc;
     transition: border-color 0.2s;
 }
 
-    .form-controlRoom:focus {
+    .form-controlMain:focus {
         border-color: #007bff;
         outline: none;
         box-shadow: 0 0 4px rgba(0,123,255,0.3);
@@ -839,7 +840,7 @@ select:hover {
         background: #0056b3;
     }
 
-.btn-secondaryRoom {
+.btnMainSecondary {
     background: #f4f4f4;
     color: #333;
     border: none;
@@ -850,7 +851,7 @@ select:hover {
     transition: background 0.2s;
 }
 
-    .btn-secondaryRoom:hover {
+    .btnMainSecondary:hover {
         background: #e0e0e0;
     }
 
@@ -859,3 +860,16 @@ select:hover {
     margin-top: 1.5rem;
     text-align: center;
 }
+
+/* Stylizacja wydarzeń w kalendarzu FullCalendar */
+
+/* Zmiana kursora i dodanie małego marginesu na dole każdego wydarzenia */
+.fc-daygrid-event {
+    cursor: pointer;
+    margin-bottom: 3px !important; /* Ważne, aby nadpisać domyślne style */
+}
+
+    /* Efekt rozjaśnienia po najechaniu myszką */
+    .fc-daygrid-event:hover {
+        filter: brightness(120%); /* Zwiększa jasność o 20% */
+    }
