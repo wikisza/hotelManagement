@@ -2,7 +2,7 @@
 
 namespace hotelASP.Entities
 {
-    public class MenuCategories
+    public class MenuCategory
     {
         [Key]
         public int Id { get; set; }
@@ -11,8 +11,6 @@ namespace hotelASP.Entities
         [MaxLength(100)]
         public string Name { get; set; }
 
-        [Required]
-        public string Description { get; set; }
-        public ICollection<MenuItems> MenuItems { get; set; }
+        public ICollection<MenuItem> MenuItems { get; set; }
     }
 }

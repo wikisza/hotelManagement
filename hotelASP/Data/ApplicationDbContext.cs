@@ -60,12 +60,12 @@ namespace hotelASP.Data
                 .WithOne(od => od.Order)
                 .HasForeignKey(od => od.OrderId);
 
-            modelBuilder.Entity<MenuItems>()
+            modelBuilder.Entity<MenuItem>()
                 .HasMany(mi => mi.OrderDetails)
                 .WithOne(od => od.MenuItem)
                 .HasForeignKey(od => od.MenuItemId);
 
-            modelBuilder.Entity<MenuItems>()
+            modelBuilder.Entity<MenuItem>()
                 .HasOne(mi => mi.MenuCategory)
                 .WithMany(mc => mc.MenuItems)
                 .HasForeignKey(mi => mi.MenuCategoryId);
@@ -87,8 +87,8 @@ namespace hotelASP.Data
         public DbSet<Reservation> Reservations { get; set; }
         public DbSet<RoomDescription> RoomDescriptions { get; set; }
         public DbSet<RoomDescriptionOption> RoomDescriptionOptions { get; set; }
-        public DbSet<MenuCategories> MenuCategories { get; set; }
-        public DbSet<MenuItems> MenuItems { get; set; }
+        public DbSet<MenuCategory> MenuCategories { get; set; }
+        public DbSet<MenuItem> MenuItems { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetails> OrderDetails { get; set; }
         public DbSet<Bill> Bills { get; set; }

@@ -1,0 +1,126 @@
+﻿@model List<hotelASP.Models.OrderViewModel>
+
+@{
+    ViewData["Title"] = "Zarządzanie Zamówieniami";
+    var newOrders = Model.Where(o => o.Status == "Nowe").ToList();
+    var inProgressOrders = Model.Where(o => o.Status == "W przygotowaniu").ToList();
+    var readyOrders = Model.Where(o => o.Status == "Gotowe do dostarczenia").ToList();
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/orders.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/createOrder.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/verifyGuests.css" asp-append-version="true" />
+}
+
+<div class="mainPage">
+    <div class="headerMain">
+        <h3>Centrum Zarządzania Room Service</h3>
+        <div class="headerMain-actions">
+            <button class="btnMainPrimary" data-bs-toggle="modal" data-bs-target="#createOrderModal">[+] Dodaj Zamówienie</button>
+            <a asp-action="History" class="btnMainSecondary">[📜] Historia Zamówień</a>
+            @if (User.IsInRole("manager") || User.IsInRole("admin"))
+            {
+                <a asp-action="ManageMenu" class="btnMainSecondary">[⚙️] Zarządzaj Menu</a>
+            }
+        </div>
+    </div>
+
+    <div id="order-board" class="kanban-board">
+        <div class="kanban-column" id="new-orders">
+            <h4 class="column-title">Nowe (@newOrders.Count)</h4>
+            @foreach (var order in newOrders)
+            {
+                <div class="kanban-card" data-order-id="@order.Id">
+                    <div class="card-header">
+                        <strong>Pokój: @order.RoomNumber</strong>
+                        <small class="text-muted">@order.OrderDateTime.ToString("HH:mm")</small>
+                    </div>
+                    <div class="card-body">
+                        <ul>
+                            @foreach (var detail in order.Details)
+                            {
+                                <li>@detail.Quantity x @detail.MenuItemName</li>
+                            }
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm btn-primary w-100 update-status-btn" data-new-status="W przygotowaniu">Rozpocznij</button>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="kanban-column" id="in-progress-orders">
+            <h4 class="column-title">W Przygotowaniu (@inProgressOrders.Count)</h4>
+            @foreach (var order in inProgressOrders)
+            {
+                <div class="kanban-card in-progress" data-order-id="@order.Id">
+                    <div class="card-header">
+                        <strong>Pokój: @order.RoomNumber</strong>
+                        <small class="text-muted">@order.OrderDateTime.ToString("HH:mm")</small>
+                    </div>
+                    <div class="card-body">
+                        <ul>
+                            @foreach (var detail in order.Details)
+                            {
+                                <li>@detail.Quantity x @detail.MenuItemName</li>
+                            }
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm btn-warning w-100 update-status-btn" data-new-status="Gotowe do dostarczenia">Gotowe</button>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="kanban-column" id="ready-orders">
+            <h4 class="column-title">Do Dostarczenia (@readyOrders.Count)</h4>
+            @foreach (var order in readyOrders)
+            {
+                <div class="kanban-card ready" data-order-id="@order.Id">
+                    <div class="card-header">
+                        <strong>Pokój: @order.RoomNumber</strong>
+                        <small class="text-muted">@order.OrderDateTime.ToString("HH:mm")</small>
+                    </div>
+                    <div class="card-body">
+                        <ul>
+                            @foreach (var detail in order.Details)
+                            {
+                                <li>@detail.Quantity x @detail.MenuItemName</li>
+                            }
+                        </ul>
+                    </div>
+                    <div class="card-footer">
+                        <button class="btn btn-sm btn-success w-100 update-status-btn" data-new-status="Dostarczone">Dostarczono</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createOrderModal" tabindex="-1" aria-labelledby="createOrderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createOrderModalLabel">Nowe zamówienie</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modalContent">
+                <div class="text-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<form asp-action="Index" hidden>@Html.AntiForgeryToken()</form>
+@section Scripts {
+    <script src="~/js/orders.js" asp-append-version="true"></script>
+    <script src="~/js/createOrder.js" asp-append-version="true"></script>
+}

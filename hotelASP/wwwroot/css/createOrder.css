@@ -1,0 +1,234 @@
+﻿.menu-container {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.menu-header {
+    background: linear-gradient(135deg, #2f3b5e 0%, #3b73af 100%);
+    padding: 30px;
+    color: white;
+}
+
+    .menu-header h2 {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+.menu-body {
+    padding: 30px;
+}
+
+.category-section {
+    margin-bottom: 40px;
+}
+
+.category-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #2f3b5e;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 3px solid #28a745;
+}
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.menu-item {
+    background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+    .menu-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.5s ease;
+        pointer-events: none;
+    }
+
+    .menu-item:hover {
+        border-color: #28a745;
+        box-shadow: 0 8px 24px rgba(40, 167, 69, 0.15);
+        transform: translateY(-4px);
+    }
+
+        .menu-item:hover::before {
+            left: 100%;
+        }
+
+.menu-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.menu-item-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2f3b5e;
+    flex: 1;
+}
+
+.menu-item-price {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+.menu-item-description {
+    color: #6c757d;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+.menu-item-flags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.flag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+.flag-unavailable {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.flag-alcohol {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+.menu-item-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #f8f9fa;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.qty-btn {
+    background-color: white;
+    border: 2px solid #e9ecef;
+    color: #2f3b5e;
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .qty-btn:hover:not(:disabled) {
+        border-color: #2f3b5e;
+        background-color: #2f3b5e;
+        color: white;
+    }
+
+    .qty-btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.5;
+    }
+
+.qty-display {
+    flex: 1;
+    text-align: center;
+    font-weight: 600;
+    color: #2f3b5e;
+    font-size: 0.95rem;
+    min-width: 30px;
+}
+
+.add-btn {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    flex: 1;
+}
+
+    .add-btn:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    }
+
+    .add-btn:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+    }
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6c757d;
+}
+
+.empty-state-icon {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+    .menu-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .category-title {
+        font-size: 1.2rem;
+    }
+
+    .menu-item-controls {
+        flex-wrap: wrap;
+    }
+
+    .add-btn {
+        flex: 1 0 100%;
+        margin-top: 10px;
+    }
+}
