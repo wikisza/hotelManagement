@@ -20,5 +20,6 @@ namespace hotelASP.Models
         public List<MenuCategory> AvailableMenuItems { get; set; } = new List<MenuCategory>();
 
         public List<OrderItemInput> SelectedItems { get; set; } = new List<OrderItemInput>();
+        public string? SpecialRequests { get; internal set; }
     }
 }

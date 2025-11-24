@@ -86,23 +86,25 @@ namespace hotelASP.Services
 
         public async Task<Order> CreateOrderAsync(CreateOrderViewModel model)
         {
-            if (model.ReservationId == null || !model.SelectedItems.Any(i => i.Quantity > 0))
+            if (model.ReservationId == null || model.SelectedItems == null || !model.SelectedItems.Any(i => i.Quantity > 0))
             {
                 return null;
             }
 
             var itemsToOrder = model.SelectedItems.Where(i => i.Quantity > 0).ToList();
             var itemIds = itemsToOrder.Select(i => i.MenuItemId).ToList();
+
             var menuItems = await _context.MenuItems
-                                          .Where(mi => itemIds.Contains(mi.Id))
-                                          .ToDictionaryAsync(mi => mi.Id, mi => mi);
+                .Where(mi => itemIds.Contains(mi.Id))
+                .ToDictionaryAsync(mi => mi.Id, mi => mi);
 
             var newOrder = new Order
             {
                 ReservationId = model.ReservationId.Value,
                 OrderDate = DateTime.Now,
                 Status = "Nowe",
-                OrderDetails = new List<OrderDetails>()
+                OrderDetails = new List<OrderDetails>(),
+                SpecialRequests = model.SpecialRequests ?? ""
             };
 
             decimal totalAmount = 0;
@@ -117,6 +119,7 @@ namespace hotelASP.Services
                         Quantity = item.Quantity,
                         Price = menuItem.Price
                     };
+
                     newOrder.OrderDetails.Add(orderDetail);
                     totalAmount += menuItem.Price * item.Quantity;
                 }
@@ -124,17 +127,10 @@ namespace hotelASP.Services
 
             newOrder.TotalAmount = totalAmount;
 
-            _context.Orders.Add(newOrder);
-            await _context.SaveChangesAsync();
-
             if (totalAmount > 0)
             {
-                newOrder.TotalAmount = totalAmount;
-
-                _context.Orders.Add(newOrder);
-
                 var bill = await _context.Bills
-                                         .FirstOrDefaultAsync(b => b.ReservationId == model.ReservationId.Value);
+                    .FirstOrDefaultAsync(b => b.ReservationId == model.ReservationId.Value);
 
                 if (bill == null)
                 {
@@ -147,10 +143,12 @@ namespace hotelASP.Services
                     _context.Bills.Add(bill);
                 }
 
-                bill.Amount += newOrder.TotalAmount;
-
-                await _context.SaveChangesAsync();
+                bill.Amount += totalAmount;
             }
+
+            _context.Orders.Add(newOrder);
+
+            await _context.SaveChangesAsync();
 
             return newOrder;
         }

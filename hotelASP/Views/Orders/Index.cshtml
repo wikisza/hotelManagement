@@ -17,16 +17,16 @@
     <div class="headerMain">
         <h3>Centrum Zarządzania Room Service</h3>
         <div class="headerMain-actions">
-            <button class="btnMainPrimary" data-bs-toggle="modal" data-bs-target="#createOrderModal">[+] Dodaj Zamówienie</button>
-            <a asp-action="History" class="btnMainSecondary">[📜] Historia Zamówień</a>
+            <button class="btnMainSecondary" data-bs-toggle="modal" data-bs-target="#createOrderModal">Dodaj Zamówienie</button>
+            <a asp-action="History" class="btnMainSecondary">Historia Zamówień</a>
             @if (User.IsInRole("manager") || User.IsInRole("admin"))
             {
-                <a asp-action="ManageMenu" class="btnMainSecondary">[⚙️] Zarządzaj Menu</a>
+                <a asp-action="ManageMenu" class="btnMainSecondary">Zarządzaj Menu</a>
             }
         </div>
     </div>
 
-    <div id="order-board" class="kanban-board">
+    <div id="order-board" class="kanban-board" data-update-url="@Url.Action("UpdateStatus", "Orders")">
         <div class="kanban-column" id="new-orders">
             <h4 class="column-title">Nowe (@newOrders.Count)</h4>
             @foreach (var order in newOrders)
@@ -102,16 +102,21 @@
 </div>
 
 <div class="modal fade" id="createOrderModal" tabindex="-1" aria-labelledby="createOrderModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="createOrderModalLabel">Nowe zamówienie</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title" id="createOrderModalLabel">
+                    Nowe Zamówienie
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Zamknij" title="Zamknij (ESC)">
+                    ✕
+                </button>
             </div>
+
             <div class="modal-body" id="modalContent">
-                <div class="text-center">
-                    <div class="spinner-border" role="status">
-                        <span class="visually-hidden">Loading...</span>
+                <div class="text-center p-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Ładowanie...</span>
                     </div>
                 </div>
             </div>
