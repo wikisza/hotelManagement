@@ -2,7 +2,7 @@
 
 namespace hotelASP.Entities
 {
-    public class MenuItems
+    public class MenuItem
     {
         [Key]
         public int Id { get; set; }
@@ -15,7 +15,7 @@ namespace hotelASP.Entities
         public int MenuCategoryId { get; set; }
         public bool IsAvailable { get; set; }
         public bool ContainsAlcohol { get; set; }
-        public MenuCategories? MenuCategory { get; set; }
+        public MenuCategory? MenuCategory { get; set; }
 
         public ICollection<OrderDetails> OrderDetails { get; set; } = new List<OrderDetails>();
 

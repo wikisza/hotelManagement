@@ -1,0 +1,30 @@
+﻿@model hotelASP.Models.CreateOrderViewModel
+
+<div class="verification-container">
+    <div class="verification-header">
+        <h2>🔐 Weryfikacja Gościa</h2>
+        <p>Podaj dane, aby kontynuować</p>
+    </div>
+    <div class="verification-body">
+        <form id="verifyGuestForm" action="@Url.Action("VerifyGuest", "Orders")" method="post">
+            @Html.AntiForgeryToken()
+
+            <div id="verificationError" class="alert alert-danger" style="display: none;"></div>
+
+            <div class="form-group">
+                <label class="form-label">🏨 Numer pokoju</label>
+                <input asp-for="RoomNumber" type="number" class="form-control" placeholder="np. 101" required />
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">👤 Nazwisko gościa</label>
+                <input asp-for="GuestLastName" type="text" class="form-control" placeholder="np. Kowalski" required />
+            </div>
+
+            <div class="d-flex justify-content-end gap-3">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+                <button type="submit" class="btn btn-primary">Weryfikuj i kontynuuj →</button>
+            </div>
+        </form>
+    </div>
+</div>

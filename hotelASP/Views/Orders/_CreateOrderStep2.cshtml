@@ -1,0 +1,96 @@
+﻿@model hotelASP.Models.CreateOrderViewModel
+
+<form asp-action="SubmitOrder" asp-controller="Orders" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="ReservationId" />
+    <input type="hidden" asp-for="RoomNumber" />
+    <input type="hidden" asp-for="GuestFullName" />
+
+    <div class="menu-container expanded-width">
+        <div class="menu-header text-white p-4" style="background: linear-gradient(135deg, #2f3b5e 0%, #3b73af 100%);">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1">🍽️ Menu dla pokoju @Model.RoomNumber</h2>
+                    <small class="opacity-75">Gość: @Model.GuestFullName</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="menu-controls p-4 border-bottom bg-white sticky-top" style="z-index: 10;">
+            <div class="search-wrapper mb-4">
+                <span class="search-icon"></span>
+                <input type="text" id="menuSearchInput" class="form-control search-input" placeholder="Czego szukasz? (np. Pizza, Cola, Zupa)..." autocomplete="off">
+            </div>
+
+            <div class="category-filters" id="categoryFilters">
+                <button type="button" class="filter-btn active" data-filter="all">Wszystkie</button>
+                @if (Model.AvailableMenuItems != null)
+                {
+                    @foreach (var category in Model.AvailableMenuItems)
+                    {
+                        <button type="button" class="filter-btn" data-filter="@category.Name.ToLower()">
+                            @category.Name
+                        </button>
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="menu-body p-4 bg-light">
+            @if (Model.AvailableMenuItems != null && Model.AvailableMenuItems.Any())
+            {
+                int globalIndex = 0;
+                @foreach (var category in Model.AvailableMenuItems)
+                {
+                    <div class="category-section" data-category-name="@category.Name.ToLower()">
+                        <h4 class="category-title">@category.Name</h4>
+                        <div class="menu-grid-3">
+                            @foreach (var item in category.MenuItems)
+                            {
+                                <div class="menu-item-card" data-item-name="@item.Name.ToLower()">
+
+                                    <div class="menu-item-header">
+                                        <div class="menu-item-title">@item.Name</div>
+                                        <div class="menu-item-price">@item.Price.ToString("0.00") zł</div>
+                                    </div>
+
+                                    <p class="menu-item-desc">@item.Description</p>
+
+                                    <div class="menu-item-actions">
+                                        <div class="qty-control-group">
+                                            <button type="button" class="btn-qty decrease-qty">−</button>
+                                            <span class="qty-display qty-val">0</span>
+                                            <button type="button" class="btn-qty increase-qty">+</button>
+                                        </div>
+                                        <button type="button" class="btn-add add-item-btn">Dodaj</button>
+                                    </div>
+
+                                    <input type="hidden" name="SelectedItems[@globalIndex].MenuItemId" value="@item.Id" />
+                                    <input type="hidden" name="SelectedItems[@globalIndex].Quantity" value="0" class="item-quantity-value" />
+                                </div>
+                                globalIndex++;
+                            }
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="text-center p-5 text-muted">
+                    <h3>🍽️</h3>
+                    <p>Menu jest obecnie puste.</p>
+                </div>
+            }
+        </div>
+
+        <div class="p-4 border-top bg-white">
+            <label class="form-label fw-bold">📝 Uwagi do zamówienia</label>
+            <textarea asp-for="SpecialRequests" class="form-control" rows="2" placeholder="np. Sos osobno, bez cebuli..."></textarea>
+        </div>
+    </div>
+
+    <div class="modal-footer bg-white p-3">
+        <button type="button" class="btn btn-light border px-4" id="btnBackToStep1">Wróć</button>
+        <button type="submit" class="btn btn-success px-5 fw-bold">Złóż zamówienie ✓</button>
+    </div>
+</form>

@@ -1,0 +1,36 @@
+﻿@model List<hotelASP.Models.OrderViewModel>
+
+@{
+    ViewData["Title"] = "Historia Zamówień";
+}
+
+<div class="mainPage">
+    <div class="headerMain">
+        <h3>Historia Zamówień</h3>
+        <div class="headerMain-actions">
+            <a asp-action="Index" class="btnMainSecondary">Wróć</a>
+        </div>
+    </div>
+
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Data</th>
+                <th>Numer Pokoju</th>
+                <th>Suma</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model)
+            {
+                <tr>
+                    <td>@order.OrderDateTime.ToString("g")</td>
+                    <td>@order.RoomNumber</td>
+                    <td>@order.TotalAmount.ToString("C")</td>
+                    <td>@order.Status</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
