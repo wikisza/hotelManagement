@@ -1,27 +1,98 @@
 ﻿@model IEnumerable<hotelASP.Entities.Room>
 
 @{
-    ViewData["Title"] = "Symulator drzwi hotelowych";
+    ViewData["Title"] = "Symulator dostępu do pokojów";
 }
 
 @section Styles {
     <link rel="stylesheet" href="~/css/doorSimulator.css" />
 }
 
-<div class="door-simulator">
-    <h2>Symulator drzwi hotelowych</h2>
+<div class="door-simulator-container">
+    <div class="simulator-header">
+        <h2>🚪 Symulator dostępu do pokojów hotelowych</h2>
+        <p class="subtitle">Kliknij na pokój i zbliż kartę RFID do czytnika</p>
+        <div class="stats-bar">
+            <div class="stat-item">
+                <span class="stat-number">@Model.Count()</span>
+                <span class="stat-label">Pokoi ogółem</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">@Model.Count(r => r.IsTaken == 1)</span>
+                <span class="stat-label">Zajętych</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">@Model.Count(r => r.IsTaken == 0)</span>
+                <span class="stat-label">Wolnych</span>
+            </div>
+        </div>
+    </div>
 
-    <div class="doors-container">
-        @foreach (var room in Model)
+    <div class="rfid-status-bar" id="rfidStatusBar">
+        <div class="status-icon">📡</div>
+        <div class="status-text">
+            <span id="rfidStatus">Wybierz pokój, aby rozpocząć</span>
+            <span id="rfidHint" class="hint"></span>
+        </div>
+        <button id="cancelBtn" class="cancel-btn" onclick="cancelReading()" style="display:none;">
+            ❌ Anuluj
+        </button>
+    </div>
+
+    <div class="rooms-grid">
+        @foreach (var room in Model.OrderBy(r => r.RoomNumber))
         {
-            <div class="door" data-room-id="@room.IdRoom" onclick="openDoor(@room.IdRoom)">
-                <div class="door-frame">
-                    <div class="door-panel"></div>
+            var isOccupied = room.IsTaken == 1;
+            var standardName = room.Standard?.StandardName ?? "Standard";
+            var roomTypeName = room.RoomType != null 
+                ? $"{room.RoomType.PeopleNumber} os., {room.RoomType.BedNumber} łóżka" 
+                : "";
+            
+            <div class="room-card @(isOccupied ? "occupied" : "vacant")" 
+                 data-room-id="@room.IdRoom" 
+                 data-room-number="@room.RoomNumber"
+                 onclick="selectRoom(@room.IdRoom, @room.RoomNumber)">
+                
+                <div class="room-door">
+                    <div class="door-panel" id="door-@room.IdRoom">
+                        <div class="door-handle"></div>
+                        <div class="door-peephole"></div>
+                    </div>
+                    <div class="door-light" id="light-@room.IdRoom"></div>
                 </div>
-                <p>Pokój @room.RoomNumber</p>
+                
+                <div class="room-info">
+                    <div class="room-number">
+                        <span class="room-label">Pokój</span>
+                        <span class="number">@room.RoomNumber</span>
+                    </div>
+                    <div class="room-status">
+                        @if (isOccupied)
+                        {
+                            <span class="status-badge occupied">🔒 Zajęty</span>
+                        }
+                        else
+                        {
+                            <span class="status-badge vacant">🔓 Wolny</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="room-details">
+                    <small>@standardName</small>
+                    @if (!string.IsNullOrEmpty(roomTypeName))
+                    {
+                        <small>@roomTypeName</small>
+                    }
+                </div>
+
+                <div class="access-result" id="result-@room.IdRoom"></div>
             </div>
         }
     </div>
+
+    <!-- Ukryte pole do wczytywania RFID -->
+    <input type="text" id="rfidInput" class="rfid-hidden-input" autocomplete="off" />
 </div>
 
 @section Scripts {

@@ -1,0 +1,70 @@
+﻿@model hotelASP.Models.CreateReservationViewModel
+
+@{
+    ViewData["Title"] = "Nowa rezerwacja - Wybór terminu";
+}
+
+<link href="~/css/reservationWizard.css" rel="stylesheet" />
+
+<div class="wizard-container">
+    <div class="wizard-header">
+        <h2>📅 Nowa rezerwacja</h2>
+        <div class="wizard-steps">
+            <div class="step active">
+                <span class="step-number">1</span>
+                <span class="step-label">Wybór terminu</span>
+            </div>
+            <div class="step">
+                <span class="step-number">2</span>
+                <span class="step-label">Wybór pokoju</span>
+            </div>
+            <div class="step">
+                <span class="step-number">3</span>
+                <span class="step-label">Dane gościa</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="wizard-body">
+        <div class="step-info">
+            <h3>Krok 1: Wybierz termin pobytu</h3>
+            <p>Podaj daty przyjazdu i wyjazdu, aby zobaczyć dostępne pokoje.</p>
+        </div>
+
+        <form asp-action="SelectDates" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="DateFrom" class="control-label">
+                        <i>📅</i> Data przyjazdu (14:00)
+                    </label>
+                    <input asp-for="DateFrom" type="datetime-local" class="form-control" />
+                    <span asp-validation-for="DateFrom" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="DateTo" class="control-label">
+                        <i>📅</i> Data wyjazdu (10:00)
+                    </label>
+                    <input asp-for="DateTo" type="datetime-local" class="form-control" />
+                    <span asp-validation-for="DateTo" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="info-box">
+                <strong>ℹ️ Informacja:</strong>
+                <p>Standardowy czas zameldowania: 14:00 | Standardowy czas wymeldowania: 10:00</p>
+            </div>
+
+            <div class="form-actions">
+                <a asp-action="Index" class="btn btn-secondary">◀️ Anuluj</a>
+                <button type="submit" class="btn btn-primary">Szukaj dostępnych pokoi ➡️</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

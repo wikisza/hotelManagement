@@ -1,72 +1,64 @@
 ﻿@model hotelASP.Entities.Reservation
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Nowa rezerwacja";
 }
 
-@section Styles {
-    <link rel="stylesheet" href="~/css/reservationStyle.css" />
-}
+<link href="~/css/ReservationCreate.css" rel="stylesheet" />
 
-<div class="mainPage">
-
-    <div class="headerMain">
-        <h1>Utwórz rezerwację</h1>
-
+<div class="create-container">
+    <div class="form-header">
+        <h2>Nowa rezerwacja</h2>
     </div>
 
-    <div class="cardMain">
-        <form asp-action="Create">
+    <div class="form-body">
+        <form asp-action="Create" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-groupMain">
-                <label class="control-label">Data rozpoczęcia pobytu:</label>
-                <input type="datetime-local" id="dateFrom" asp-for="Date_from" class="form-control"
-                       value="@DateTime.Now.Date.AddHours(14).ToString("yyyy-MM-ddTHH:mm")" />
-                <span asp-validation-for="Date_from" class="text-danger"></span>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Date_from" class="control-label">Data rozpoczęcia</label>
+                    <input asp-for="Date_from" type="date" class="form-control" id="dateFrom" />
+                    <span asp-validation-for="Date_from" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Date_to" class="control-label">Data zakończenia</label>
+                    <input asp-for="Date_to" type="date" class="form-control" id="dateTo" />
+                    <span asp-validation-for="Date_to" class="text-danger"></span>
+                </div>
             </div>
-            <div class="form-groupMain">
-                <label class="control-label">Data zakończenia pobytu:</label>
-                <input type="datetime-local" id="dateTo" asp-for="Date_to" class="form-control"
-                       value="@DateTime.Now.Date.AddDays(1).AddHours(10).ToString("yyyy-MM-ddTHH:mm")" />
-                <span asp-validation-for="Date_to" class="text-danger"></span>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="CustomerId" class="control-label">Klient</label>
+                    <select asp-for="CustomerId" class="form-control" asp-items="ViewBag.Customers">
+                        <option value="">-- Wybierz klienta --</option>
+                    </select>
+                    <span asp-validation-for="CustomerId" class="text-danger"></span>
+                    <small class="form-text text-muted">
+                        <a asp-controller="Customers" asp-action="Create" target="_blank">Dodaj nowego klienta</a>
+                    </small>
+                </div>
             </div>
-            <div class="form-groupMain">
-                <label class="control-label">Imię:</label>
-                <input asp-for="First_name" class="form-control" />
-                <span asp-validation-for="First_name" class="text-danger"></span>
-            </div>
-            <div class="form-groupMain">
-                <label class="control-label">Nazwisko:</label>
-                <input asp-for="Last_name" class="form-control" />
-                <span asp-validation-for="Last_name" class="text-danger"></span>
-            </div>
-            <div class="form-groupMain">
-                <label class="control-label">Wybierz pokój:</label>
-                <select id="roomSelect" asp-for="IdRoom" class="form-control">
+
+            <div class="form-group">
+                <label asp-for="IdRoom" class="control-label">Pokój</label>
+                <select asp-for="IdRoom" class="form-control" id="roomSelect">
                     <option value="">-- Wybierz pokój --</option>
                 </select>
                 <span asp-validation-for="IdRoom" class="text-danger"></span>
             </div>
 
-            <div class="form-groupMain card-assign-section">
-                <label class="control-label">Przypisz kartę:</label>
-                <div class="card-assign-container">
-                    <button type="button" id="assignCardBtn" class="btn-assign-card">
-                        <i class="fa fa-id-card"></i> Przypisz kartę
-                    </button>
-
-                    <input type="text" asp-for="KeyCode" id="cardInput"
-                           style="position: absolute; left: -9999px; opacity: 0;" />
-
-                    <span id="cardMessage" class="card-message">
-                        <i class="fa fa-check-circle"></i> Karta przypisana pomyślnie!
-                    </span>
-                </div>
+            <div class="form-group">
+                <label asp-for="KeyCode" class="control-label">Kod dostępu</label>
+                <input asp-for="KeyCode" class="form-control" />
                 <span asp-validation-for="KeyCode" class="text-danger"></span>
             </div>
 
-            <div class="form-groupMain">
-                <input type="submit" value="Potwierdź rezerwację" class="btn btn-primary" />
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Utwórz rezerwację</button>
+                <a asp-action="Index" class="btn btn-secondary">Powrót do listy</a>
             </div>
         </form>
     </div>

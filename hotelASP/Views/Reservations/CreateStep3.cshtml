@@ -1,0 +1,332 @@
+﻿@model hotelASP.Models.CreateReservationViewModel
+
+@{
+    ViewData["Title"] = "Nowa rezerwacja - Dane gościa";
+}
+
+<link href="~/css/reservationWizard.css" rel="stylesheet" />
+
+<div class="wizard-container">
+    <div class="wizard-header">
+        <h2>👤 Nowa rezerwacja</h2>
+        <div class="wizard-steps">
+            <div class="step completed">
+                <span class="step-number">✓</span>
+                <span class="step-label">Wybór terminu</span>
+            </div>
+            <div class="step completed">
+                <span class="step-number">✓</span>
+                <span class="step-label">Wybór pokoju</span>
+            </div>
+            <div class="step active">
+                <span class="step-number">3</span>
+                <span class="step-label">Dane gościa</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="wizard-body">
+        <div class="step-info">
+            <h3>Krok 3: Dane gościa</h3>
+            <p>Wybierz istniejącego klienta lub dodaj nowego gościa.</p>
+        </div>
+
+        <form asp-action="FinalizeReservation" method="post" id="reservationForm">
+            <input type="hidden" asp-for="DateFrom" />
+            <input type="hidden" asp-for="DateTo" />
+            <input type="hidden" asp-for="SelectedRoomId" />
+            <input type="hidden" asp-for="KeyCode" id="keyCodeField" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="guest-selection">
+                <div class="selection-tabs">
+                    <button type="button" class="tab-button active" onclick="showExistingCustomer()">
+                        📋 Wybierz istniejącego klienta
+                    </button>
+                    <button type="button" class="tab-button" onclick="showNewCustomer()">
+                        ➕ Dodaj nowego klienta
+                    </button>
+                </div>
+
+                <!-- Wybór istniejącego klienta -->
+                <div id="existing-customer-panel" class="customer-panel active">
+                    <div class="form-group">
+                        <label for="ExistingCustomerId" class="control-label">Wybierz klienta z bazy</label>
+                        <select asp-for="ExistingCustomerId" class="form-control" id="customerSelect">
+                            <option value="">-- Wybierz klienta --</option>
+                            @if (Model.ExistingCustomers != null)
+                            {
+                                @foreach (var customer in Model.ExistingCustomers)
+                                {
+                                    <option value="@customer.Id">
+                                        @customer.FirstName @customer.LastName - @customer.Email - @customer.PhoneNumber
+                                    </option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <input type="hidden" asp-for="IsNewCustomer" id="isNewCustomerField" value="false" />
+                </div>
+
+                <!-- Formularz nowego klienta -->
+                <div id="new-customer-panel" class="customer-panel">
+                    <h4>Dane nowego klienta</h4>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label asp-for="FirstName" class="control-label">Imię *</label>
+                            <input asp-for="FirstName" class="form-control" placeholder="Jan" />
+                            <span asp-validation-for="FirstName" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="LastName" class="control-label">Nazwisko *</label>
+                            <input asp-for="LastName" class="form-control" placeholder="Kowalski" />
+                            <span asp-validation-for="LastName" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label asp-for="Email" class="control-label">Email *</label>
+                            <input asp-for="Email" type="email" class="form-control" placeholder="jan.kowalski@example.com" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="PhoneNumber" class="control-label">Telefon *</label>
+                            <input asp-for="PhoneNumber" type="tel" class="form-control" placeholder="+48 123 456 789" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="collapsible-section">
+                        <button type="button" class="collapse-toggle" onclick="toggleSection('addressSection')">
+                            📍 Adres (opcjonalnie) <span class="toggle-icon">▼</span>
+                        </button>
+                        <div id="addressSection" class="collapse-content">
+                            <div class="form-group">
+                                <label asp-for="Address" class="control-label">Ulica i numer</label>
+                                <input asp-for="Address" class="form-control" placeholder="ul. Kwiatowa 15/3" />
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label asp-for="PostalCode" class="control-label">Kod pocztowy</label>
+                                    <input asp-for="PostalCode" class="form-control" placeholder="00-000" />
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="City" class="control-label">Miasto</label>
+                                    <input asp-for="City" class="form-control" placeholder="Warszawa" />
+                                </div>
+                                <div class="form-group">
+                                    <label asp-for="Country" class="control-label">Kraj</label>
+                                    <input asp-for="Country" class="form-control" placeholder="Polska" value="Polska" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="collapsible-section">
+                        <button type="button" class="collapse-toggle" onclick="toggleSection('notesSection')">
+                            📝 Notatki (opcjonalnie) <span class="toggle-icon">▼</span>
+                        </button>
+                        <div id="notesSection" class="collapse-content">
+                            <div class="form-group">
+                                <textarea asp-for="Notes" class="form-control" rows="3" placeholder="Dodatkowe informacje..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sekcja przypisywania karty RFID -->
+            <div class="card-assignment-section">
+                <h4>🔑 Karta dostępu do pokoju</h4>
+                
+                <div class="card-status-container">
+                    <div id="cardNotAssigned" class="card-status active">
+                        <div class="status-icon">🔓</div>
+                        <p>Karta nie została jeszcze przypisana</p>
+                        <button type="button" class="btn btn-primary" onclick="activateCardReader()">
+                            📱 Przypisz kartę hotelową
+                        </button>
+                    </div>
+
+                    <div id="cardWaiting" class="card-status">
+                        <div class="status-icon pulsing">📡</div>
+                        <p><strong>Oczekiwanie na zbliżenie karty...</strong></p>
+                        <p class="hint">Zbliż kartę RFID do czytnika</p>
+                        <input type="text" id="rfidInput" class="rfid-hidden-input" autocomplete="off" />
+                        <button type="button" class="btn btn-secondary" onclick="cancelCardAssignment()">
+                            Anuluj
+                        </button>
+                    </div>
+
+                    <div id="cardAssigned" class="card-status">
+                        <div class="status-icon success">✅</div>
+                        <p><strong>Karta została przypisana!</strong></p>
+                        <p class="card-code">Kod karty: <span id="assignedCardCode"></span></p>
+                        <button type="button" class="btn btn-warning" onclick="resetCardAssignment()">
+                            🔄 Przypisz inną kartę
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="reservation-summary">
+                <h4>📋 Podsumowanie rezerwacji</h4>
+                <div class="summary-row">
+                    <span>Termin:</span>
+                    <strong>@Model.DateFrom.ToString("dd.MM.yyyy") - @Model.DateTo.ToString("dd.MM.yyyy")</strong>
+                </div>
+                <div class="summary-row">
+                    <span>Pokój:</span>
+                    <strong>Nr @Model.SelectedRoomId</strong>
+                </div>
+                <div class="summary-row">
+                    <span>Kod dostępu:</span>
+                    <strong id="displayKeyCode">@Model.KeyCode</strong>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="button" onclick="history.back()" class="btn btn-secondary">◀️ Wstecz</button>
+                <button type="submit" class="btn btn-primary">✓ Utwórz rezerwację</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        let cardAssignmentActive = false;
+
+        function showExistingCustomer() {
+            document.getElementById('existing-customer-panel').classList.add('active');
+            document.getElementById('new-customer-panel').classList.remove('active');
+            document.querySelectorAll('.tab-button')[0].classList.add('active');
+            document.querySelectorAll('.tab-button')[1].classList.remove('active');
+            document.getElementById('isNewCustomerField').value = 'false';
+        }
+
+        function showNewCustomer() {
+            document.getElementById('existing-customer-panel').classList.remove('active');
+            document.getElementById('new-customer-panel').classList.add('active');
+            document.querySelectorAll('.tab-button')[0].classList.remove('active');
+            document.querySelectorAll('.tab-button')[1].classList.add('active');
+            document.getElementById('isNewCustomerField').value = 'true';
+        }
+
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const toggle = event.target.querySelector('.toggle-icon');
+            section.classList.toggle('open');
+            toggle.textContent = section.classList.contains('open') ? '▲' : '▼';
+        }
+
+        // Funkcje obsługi karty RFID
+        function activateCardReader() {
+            cardAssignmentActive = true;
+            showCardStatus('waiting');
+            
+            // Fokus na ukryte pole input
+            const rfidInput = document.getElementById('rfidInput');
+            rfidInput.value = '';
+            rfidInput.focus();
+        }
+
+        function cancelCardAssignment() {
+            cardAssignmentActive = false;
+            showCardStatus('notAssigned');
+            document.getElementById('rfidInput').value = '';
+        }
+
+        function resetCardAssignment() {
+            document.getElementById('keyCodeField').value = '';
+            document.getElementById('displayKeyCode').textContent = '';
+            cancelCardAssignment();
+        }
+
+        function showCardStatus(status) {
+            document.getElementById('cardNotAssigned').classList.remove('active');
+            document.getElementById('cardWaiting').classList.remove('active');
+            document.getElementById('cardAssigned').classList.remove('active');
+
+            if (status === 'notAssigned') {
+                document.getElementById('cardNotAssigned').classList.add('active');
+            } else if (status === 'waiting') {
+                document.getElementById('cardWaiting').classList.add('active');
+            } else if (status === 'assigned') {
+                document.getElementById('cardAssigned').classList.add('active');
+            }
+        }
+
+        // Obsługa wczytania karty RFID
+        document.addEventListener('DOMContentLoaded', function() {
+            const rfidInput = document.getElementById('rfidInput');
+            
+            rfidInput.addEventListener('input', function() {
+                if (cardAssignmentActive && this.value.length > 0) {
+                    // Sprawdź czy wartość została w pełni wczytana (zakładamy Enter na końcu)
+                    setTimeout(() => {
+                        if (this.value.trim().length >= 8) {
+                            const cardCode = this.value.trim();
+                            assignCard(cardCode);
+                        }
+                    }, 100);
+                }
+            });
+
+            // Alternatywnie - wykryj Enter
+            rfidInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && cardAssignmentActive) {
+                    e.preventDefault();
+                    const cardCode = this.value.trim();
+                    if (cardCode.length > 0) {
+                        assignCard(cardCode);
+                    }
+                }
+            });
+
+            // Automatyczny fokus po otwarciu panelu oczekiwania
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.target.id === 'cardWaiting' && 
+                        mutation.target.classList.contains('active')) {
+                        rfidInput.focus();
+                    }
+                });
+            });
+
+            observer.observe(document.getElementById('cardWaiting'), {
+                attributes: true,
+                attributeFilter: ['class']
+            });
+        });
+
+        function assignCard(cardCode) {
+            cardAssignmentActive = false;
+            
+            // Zapisz kod karty
+            document.getElementById('keyCodeField').value = cardCode;
+            document.getElementById('assignedCardCode').textContent = cardCode;
+            document.getElementById('displayKeyCode').textContent = cardCode;
+            
+            // Pokaż status przypisania
+            showCardStatus('assigned');
+            
+            // Wyczyść pole RFID
+            document.getElementById('rfidInput').value = '';
+        }
+
+        // Zapobiegaj utracie fokusa z pola RFID
+        document.addEventListener('click', function(e) {
+            if (cardAssignmentActive && 
+                document.getElementById('cardWaiting').classList.contains('active')) {
+                const rfidInput = document.getElementById('rfidInput');
+                if (e.target !== rfidInput) {
+                    setTimeout(() => rfidInput.focus(), 10);
+                }
+            }
+        });
+    </script>
+}

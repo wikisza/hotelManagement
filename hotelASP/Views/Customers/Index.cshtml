@@ -1,0 +1,107 @@
+﻿@model IEnumerable<hotelASP.Models.CustomerViewModel>
+
+@{
+    ViewData["Title"] = "Klienci";
+}
+
+<link href="~/css/customers.css" rel="stylesheet" />
+
+<div class="customers-container">
+    <div class="customers-header">
+        <h2>🧑‍🤝‍🧑 Baza Klientów</h2>
+        <a asp-action="Create" class="btn btn-primary">
+            <i>➕</i> Dodaj nowego klienta
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <div class="customers-stats">
+        <div class="stat-card">
+            <div class="stat-number">@Model.Count()</div>
+            <div class="stat-label">Łącznie klientów</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">@Model.Count(c => c.LastVisitDate.HasValue && c.LastVisitDate.Value > DateTime.Now.AddDays(-30))</div>
+            <div class="stat-label">Aktywni (30 dni)</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">@Model.Sum(c => c.TotalReservations)</div>
+            <div class="stat-label">Wszystkie rezerwacje</div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table class="customers-table">
+            <thead>
+                <tr>
+                    <th>Imię i nazwisko</th>
+                    <th>Email</th>
+                    <th>Telefon</th>
+                    <th>Data dodania</th>
+                    <th>Ostatnia wizyta</th>
+                    <th>Rezerwacje</th>
+                    <th>Zamówienia</th>
+                    <th class="no-sort">Akcje</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var customer in Model)
+                {
+                    <tr>
+                        <td>
+                            <div class="customer-name">
+                                <strong>@customer.FirstName @customer.LastName</strong>
+                            </div>
+                        </td>
+                        <td>@customer.Email</td>
+                        <td>@customer.PhoneNumber</td>
+                        <td>@customer.CreatedDate.ToString("dd.MM.yyyy")</td>
+                        <td>
+                            @if (customer.LastVisitDate.HasValue)
+                            {
+                                <span>@customer.LastVisitDate.Value.ToString("dd.MM.yyyy")</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Brak wizyt</span>
+                            }
+                        </td>
+                        <td>
+                            <span class="badge badge-info">@customer.TotalReservations</span>
+                        </td>
+                        <td>
+                            <span class="badge badge-success">@customer.TotalOrders</span>
+                        </td>
+                        <td class="actions">
+                            <a asp-action="Details" asp-route-id="@customer.Id" class="btn btn-sm btn-info" title="Szczegóły">
+                                👁️
+                            </a>
+                            <a asp-action="Edit" asp-route-id="@customer.Id" class="btn btn-sm btn-warning" title="Edytuj">
+                                ✏️
+                            </a>
+                            @if (User.IsInRole("admin") || User.IsInRole("manager"))
+                            {
+                                <a asp-action="Delete" asp-route-id="@customer.Id" class="btn btn-sm btn-danger" title="Usuń">
+                                    🗑️
+                                </a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

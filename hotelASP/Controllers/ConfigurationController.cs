@@ -1,36 +1,70 @@
 ﻿using hotelASP.Data;
+using hotelASP.Interfaces.IRoomService;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace hotelASP.Controllers
 {
-    public class ConfigurationController(ApplicationDbContext context) : Controller
+    public class ConfigurationController : Controller
     {
+        private readonly ApplicationDbContext _context;
+        private readonly IRoomService _roomService;
+
+        public ConfigurationController(ApplicationDbContext context, IRoomService roomService)
+        {
+            _context = context;
+            _roomService = roomService;
+        }
+
         [HttpGet("/migrate")]
         public async Task<IActionResult> MigrateDb()
         {
-            await context.Database.MigrateAsync();
+            await _context.Database.MigrateAsync();
             return Ok("migrated");
         }
 
         [HttpGet("/roomAccess")]
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var rooms = context.Rooms.ToList();
+            // Najpierw zaktualizuj statusy pokojów
+            await _roomService.UpdateRoomStatuses();
+            
+            // Pobierz pokoje z aktualnymi statusami
+            var rooms = await _context.Rooms
+                .Include(r => r.Standard)
+                .Include(r => r.RoomType)
+                .OrderBy(r => r.RoomNumber)
+                .ToListAsync();
+            
             return View(rooms);
         }
 
         [HttpGet]
         public IActionResult CheckAccess(int roomId, string keyCode)
         {
-            var reservation = context.Reservations
-                .FirstOrDefault(r => r.IdRoom == roomId && r.KeyCode == keyCode &&
-                                     r.Date_from <= DateTime.Now && r.Date_to >= DateTime.Now);
+            var now = DateTime.Now;
+            
+            // Znajdź aktywną rezerwację dla tego pokoju
+            var reservation = _context.Reservations
+                .FirstOrDefault(r => r.IdRoom == roomId && 
+                                     r.KeyCode == keyCode &&
+                                     r.Date_from <= now && 
+                                     r.Date_to >= now);
 
             if (reservation != null)
-                return Json(new { success = true, message = "Dostęp przyznany — drzwi otwarte!" });
+            {
+                return Json(new { 
+                    success = true, 
+                    message = "Dostęp przyznany — drzwi otwarte!" 
+                });
+            }
             else
-                return Json(new { success = false, message = "Brak dostępu — karta niepasująca lub brak aktywnej rezerwacji." });
+            {
+                return Json(new { 
+                    success = false, 
+                    message = "Brak dostępu — karta niepasująca lub brak aktywnej rezerwacji." 
+                });
+            }
         }
     }
 }

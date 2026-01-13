@@ -1,0 +1,173 @@
+﻿@model hotelASP.Models.CustomerDetailsViewModel
+
+@{
+    ViewData["Title"] = "Szczegóły klienta";
+}
+
+<link href="~/css/customerDetails.css" rel="stylesheet" />
+
+<div class="customer-details-container">
+    <div class="details-header">
+        <div>
+            <h2>👤 @Model.Customer.FirstName @Model.Customer.LastName</h2>
+            <p class="customer-since">Klient od: @Model.Customer.CreatedDate.ToString("dd MMMM yyyy")</p>
+        </div>
+        <div class="header-actions">
+            <a asp-action="Edit" asp-route-id="@Model.Customer.Id" class="btn btn-warning">✏️ Edytuj</a>
+            <a asp-action="Index" class="btn btn-secondary">◀️ Powrót</a>
+        </div>
+    </div>
+
+    <div class="customer-info-grid">
+        <div class="info-card">
+            <h3>📋 Informacje kontaktowe</h3>
+            <div class="info-item">
+                <span class="info-label">Email:</span>
+                <span class="info-value">@Model.Customer.Email</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">Telefon:</span>
+                <span class="info-value">@Model.Customer.PhoneNumber</span>
+            </div>
+            @if (!string.IsNullOrEmpty(Model.Customer.Address))
+            {
+                <div class="info-item">
+                    <span class="info-label">Adres:</span>
+                    <span class="info-value">
+                        @Model.Customer.Address<br />
+                        @Model.Customer.PostalCode @Model.Customer.City<br />
+                        @Model.Customer.Country
+                    </span>
+                </div>
+            }
+        </div>
+
+        <div class="info-card">
+            <h3>📊 Statystyki</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">@Model.Reservations.Count</div>
+                    <div class="stat-label">Rezerwacje</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">@Model.TotalNightsStayed</div>
+                    <div class="stat-label">Noce</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">@Model.Orders.Count</div>
+                    <div class="stat-label">Zamówienia</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">@Model.TotalSpent.ToString("C")</div>
+                    <div class="stat-label">Wydano</div>
+                </div>
+            </div>
+            @if (Model.Customer.LastVisitDate.HasValue)
+            {
+                <div class="info-item">
+                    <span class="info-label">Ostatnia wizyta:</span>
+                    <span class="info-value">@Model.Customer.LastVisitDate.Value.ToString("dd MMMM yyyy")</span>
+                </div>
+            }
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.Customer.Notes))
+        {
+            <div class="info-card full-width">
+                <h3>📝 Notatki</h3>
+                <p>@Model.Customer.Notes</p>
+            </div>
+        }
+    </div>
+
+    <div class="history-section">
+        <h3>🏨 Historia rezerwacji</h3>
+        @if (Model.Reservations.Any())
+        {
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Data od</th>
+                        <th>Data do</th>
+                        <th>Pokój</th>
+                        <th>Rachunek</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var reservation in Model.Reservations)
+                    {
+                        <tr>
+                            <td>@reservation.Date_from.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>@reservation.Date_to.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>Pokój @reservation.Room?.RoomNumber</td>
+                            <td>
+                                @if (reservation.Bill != null)
+                                {
+                                    <span>@reservation.Bill.Amount.ToString("C")</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Brak</span>
+                                }
+                            </td>
+                            <td>
+                                @if (reservation.Bill != null)
+                                {
+                                    <span class="badge @(reservation.Bill.Status == "Opłacone" ? "badge-success" : "badge-warning")">
+                                        @reservation.Bill.Status
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p class="no-data">Brak rezerwacji dla tego klienta.</p>
+        }
+    </div>
+
+    <div class="history-section">
+        <h3>🍽️ Historia zamówień</h3>
+        @if (Model.Orders.Any())
+        {
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Data zamówienia</th>
+                        <th>Status</th>
+                        <th>Pozycje</th>
+                        <th>Kwota</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in Model.Orders)
+                    {
+                        <tr>
+                            <td>@order.OrderDateTime.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>
+                                <span class="badge">@order.Status</span>
+                            </td>
+                            <td>
+                                <ul class="order-items">
+                                    @foreach (var detail in order.Details)
+                                    {
+                                        <li>@detail.Quantity x @detail.MenuItemName</li>
+                                    }
+                                </ul>
+                            </td>
+                            <td><strong>@order.TotalAmount.ToString("C")</strong></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p class="no-data">Brak zamówień dla tego klienta.</p>
+        }
+    </div>
+</div>

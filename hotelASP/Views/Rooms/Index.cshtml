@@ -12,7 +12,7 @@
 
 <div class="mainPage">
     <div class="optionsBox">
-        @if (User.IsInRole("manager") || User.IsInRole("admin"))
+        @if (User.IsInRole("Manager") || User.IsInRole("Admin"))
         {
             <div class="addButtonsRow">
                 <a asp-controller="Rooms" asp-action="CreateRoom" class="addRoomStandardTypeBtn"> Dodaj pokój </a>
@@ -22,7 +22,7 @@
         }
         <div class="selectedRoomActions">
             <button id="detailsBtn" class="addRoomStandardTypeBtn" disabled>Szczegóły</button>
-            @if (User.IsInRole("manager") || User.IsInRole("admin"))
+            @if (User.IsInRole("Manager") || User.IsInRole("Admin"))
             {
                 <button id="editBtn" class="addRoomStandardTypeBtn" disabled>Edytuj</button>
                 <button id="deleteBtn" class="addRoomStandardTypeBtn" disabled>Usuń</button>

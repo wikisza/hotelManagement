@@ -20,6 +20,7 @@
             <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
 
             <input type="hidden" asp-for="Id_reservation" />
+            <input type="hidden" asp-for="CustomerId" />
 
             <div class="form-section">
                 <h4 class="section-title">📅 Daty pobytu</h4>
@@ -41,18 +42,26 @@
             <div class="form-section">
                 <h4 class="section-title">👤 Dane gościa</h4>
 
-                <div class="form-row">
-                    <div class="form-groupMain">
-                        <label asp-for="First_name" class="control-label">Imię:</label>
-                        <input asp-for="First_name" class="form-controlMain" />
-                        <span asp-validation-for="First_name" class="text-danger"></span>
+                @if (Model.Customer != null)
+                {
+                    <div class="info-display">
+                        <div class="info-item">
+                            <span class="label">Imię i nazwisko:</span>
+                            <strong>@Model.Customer.FirstName @Model.Customer.LastName</strong>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Email:</span>
+                            <strong>@Model.Customer.Email</strong>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Telefon:</span>
+                            <strong>@Model.Customer.PhoneNumber</strong>
+                        </div>
+                        <a asp-controller="Customers" asp-action="Details" asp-route-id="@Model.Customer.Id" class="btn-link">
+                            Zobacz pełny profil klienta →
+                        </a>
                     </div>
-                    <div class="form-groupMain">
-                        <label asp-for="Last_name" class="control-label">Nazwisko:</label>
-                        <input asp-for="Last_name" class="form-controlMain" />
-                        <span asp-validation-for="Last_name" class="text-danger"></span>
-                    </div>
-                </div>
+                }
             </div>
 
             <div class="form-section">
@@ -61,13 +70,32 @@
                 <div class="form-row">
                     <div class="form-groupMain">
                         <label asp-for="IdRoom" class="control-label">Numer pokoju:</label>
-                        <input asp-for="IdRoom" class="form-controlMain" />
+                        <input asp-for="IdRoom" type="number" class="form-controlMain" readonly />
                         <span asp-validation-for="IdRoom" class="text-danger"></span>
+                        <small class="form-text">Aby zmienić pokój, utwórz nową rezerwację</small>
                     </div>
                     <div class="form-groupMain">
-                        <label asp-for="KeyCode" class="control-label">Kod klucza:</label>
-                        <input asp-for="KeyCode" class="form-controlMain" />
+                        <label asp-for="KeyCode" class="control-label">Kod karty dostępu:</label>
+                        <div class="input-with-button">
+                            <input asp-for="KeyCode" class="form-controlMain" id="keyCodeInput" maxlength="255" />
+                            <button type="button" class="btn-rfid" onclick="activateRfidReader()">
+                                📱 Przypisz nową kartę
+                            </button>
+                        </div>
                         <span asp-validation-for="KeyCode" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <!-- RFID Reader Section -->
+                <div id="rfidReaderSection" class="rfid-reader-section" style="display:none;">
+                    <div class="rfid-status">
+                        <div class="status-icon pulsing">📡</div>
+                        <p><strong>Oczekiwanie na zbliżenie karty...</strong></p>
+                        <p class="hint">Zbliż kartę RFID do czytnika</p>
+                        <input type="text" id="rfidHiddenInput" class="rfid-hidden-input" autocomplete="off" />
+                        <button type="button" class="btn btn-secondary" onclick="cancelRfidReader()">
+                            Anuluj
+                        </button>
                     </div>
                 </div>
             </div>
@@ -84,4 +112,222 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        let rfidActive = false;
+
+        function activateRfidReader() {
+            rfidActive = true;
+            document.getElementById('rfidReaderSection').style.display = 'block';
+            const rfidInput = document.getElementById('rfidHiddenInput');
+            rfidInput.value = '';
+            rfidInput.focus();
+        }
+
+        function cancelRfidReader() {
+            rfidActive = false;
+            document.getElementById('rfidReaderSection').style.display = 'none';
+            document.getElementById('rfidHiddenInput').value = '';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const rfidInput = document.getElementById('rfidHiddenInput');
+            const keyCodeInput = document.getElementById('keyCodeInput');
+
+            rfidInput.addEventListener('input', function() {
+                if (rfidActive && this.value.length >= 8) {
+                    setTimeout(() => {
+                        if (this.value.trim().length > 0) {
+                            const cardCode = this.value.trim();
+                            assignRfidCard(cardCode);
+                        }
+                    }, 100);
+                }
+            });
+
+            rfidInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && rfidActive) {
+                    e.preventDefault();
+                    const cardCode = this.value.trim();
+                    if (cardCode.length > 0) {
+                        assignRfidCard(cardCode);
+                    }
+                }
+            });
+        });
+
+        function assignRfidCard(cardCode) {
+            const keyCodeInput = document.getElementById('keyCodeInput');
+            keyCodeInput.value = cardCode;
+            
+            // Pokaż powiadomienie
+            showNotification('✅ Karta została przypisana!', 'success');
+            
+            cancelRfidReader();
+        }
+
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => notification.classList.add('show'), 10);
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Utrzymuj fokus na ukrytym polu podczas aktywnego czytnika
+        document.addEventListener('click', function(e) {
+            if (rfidActive) {
+                const rfidInput = document.getElementById('rfidHiddenInput');
+                if (e.target !== rfidInput) {
+                    setTimeout(() => rfidInput.focus(), 10);
+                }
+            }
+        });
+    </script>
+    <style>
+        .info-display {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-item .label {
+            color: #6c757d;
+            font-weight: 600;
+        }
+
+        .btn-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .btn-link:hover {
+            text-decoration: underline;
+        }
+
+        .input-with-button {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .input-with-button .form-controlMain {
+            flex: 1;
+        }
+
+        .btn-rfid {
+            padding: 10px 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.3s;
+        }
+
+        .btn-rfid:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .rfid-reader-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f0f3ff 0%, #e7f3ff 100%);
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
+        }
+
+        .rfid-status {
+            text-align: center;
+        }
+
+        .status-icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .status-icon.pulsing {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @@keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.7;
+                transform: scale(1.1);
+            }
+        }
+
+        .rfid-status .hint {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .rfid-hidden-input {
+            position: absolute;
+            opacity: 0;
+            width: 1px;
+            height: 1px;
+            top: -100px;
+            left: -100px;
+            pointer-events: none;
+        }
+
+        .form-text {
+            display: block;
+            margin-top: 5px;
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            border-left: 4px solid #28a745;
+        }
+    </style>
 }

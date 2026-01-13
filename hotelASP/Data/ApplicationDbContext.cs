@@ -17,6 +17,12 @@ namespace hotelASP.Data
                 .WithMany(r => r.Users)
                 .HasForeignKey(u => u.RoleId);
 
+            modelBuilder.Entity<Customer>()
+                .HasMany(c => c.Reservations)
+                .WithOne(r => r.Customer)
+                .HasForeignKey(r => r.CustomerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             modelBuilder.Entity<Room>()
                 .HasOne(u => u.RoomType)
                 .WithMany(r => r.Rooms)
@@ -76,11 +82,20 @@ namespace hotelASP.Data
                 .HasForeignKey<Bill>(b => b.ReservationId)
                 .OnDelete(DeleteBehavior.Cascade);
 
+            modelBuilder.Entity<Role>().HasData(
+                new Role { Id = 1, Name = "Admin" },
+                new Role { Id = 2, Name = "Manager" },
+                new Role { Id = 3, Name = "Receptionist" },
+                new Role { Id = 4, Name = "Cleaner" },
+                new Role { Id = 5, Name = "Chef" }
+            );
+
             base.OnModelCreating(modelBuilder);
         }
 
         public DbSet<UserAccount> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
+        public DbSet<Customer> Customers { get; set; }
         public DbSet<Room> Rooms { get; set; } 
         public DbSet<RoomType> Types { get; set; }
         public DbSet<Standard> Standards { get; set; }
@@ -92,5 +107,5 @@ namespace hotelASP.Data
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderDetails> OrderDetails { get; set; }
         public DbSet<Bill> Bills { get; set; }
-        }
+    }
 }

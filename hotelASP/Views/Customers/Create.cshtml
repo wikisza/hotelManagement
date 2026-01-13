@@ -1,0 +1,91 @@
+﻿@model hotelASP.Entities.Customer
+
+@{
+    ViewData["Title"] = "Nowy klient";
+}
+
+<link href="~/css/customerForm.css" rel="stylesheet" />
+
+<div class="form-container">
+    <div class="form-header">
+        <h2>➕ Dodaj nowego klienta</h2>
+    </div>
+
+    <div class="form-body">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <h3>Dane osobowe</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="FirstName" class="control-label">Imię *</label>
+                    <input asp-for="FirstName" class="form-control" placeholder="Jan" />
+                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="LastName" class="control-label">Nazwisko *</label>
+                    <input asp-for="LastName" class="form-control" placeholder="Kowalski" />
+                    <span asp-validation-for="LastName" class="text-danger"></span>
+                </div>
+            </div>
+
+            <h3>Dane kontaktowe</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Email" class="control-label">Email *</label>
+                    <input asp-for="Email" type="email" class="form-control" placeholder="jan.kowalski@example.com" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="PhoneNumber" class="control-label">Telefon *</label>
+                    <input asp-for="PhoneNumber" type="tel" class="form-control" placeholder="+48 123 456 789" />
+                    <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                </div>
+            </div>
+
+            <h3>Adres (opcjonalnie)</h3>
+            <div class="form-group">
+                <label asp-for="Address" class="control-label">Ulica i numer</label>
+                <input asp-for="Address" class="form-control" placeholder="ul. Kwiatowa 15/3" />
+                <span asp-validation-for="Address" class="text-danger"></span>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="PostalCode" class="control-label">Kod pocztowy</label>
+                    <input asp-for="PostalCode" class="form-control" placeholder="00-000" />
+                    <span asp-validation-for="PostalCode" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="City" class="control-label">Miasto</label>
+                    <input asp-for="City" class="form-control" placeholder="Warszawa" />
+                    <span asp-validation-for="City" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Country" class="control-label">Kraj</label>
+                    <input asp-for="Country" class="form-control" placeholder="Polska" />
+                    <span asp-validation-for="Country" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Notes" class="control-label">Notatki</label>
+                <textarea asp-for="Notes" class="form-control" rows="4" placeholder="Dodatkowe informacje o kliencie..."></textarea>
+                <span asp-validation-for="Notes" class="text-danger"></span>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">💾 Zapisz</button>
+                <a asp-action="Index" class="btn btn-secondary">❌ Anuluj</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

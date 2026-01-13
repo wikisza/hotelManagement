@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using hotelASP.Data;
 
@@ -11,9 +12,11 @@ using hotelASP.Data;
 namespace hotelASP.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260113201356_AddRoleSeedData")]
+    partial class AddRoleSeedData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -50,71 +53,6 @@ namespace hotelASP.Migrations
                         .IsUnique();
 
                     b.ToTable("Bills");
-                });
-
-            modelBuilder.Entity("hotelASP.Entities.Customer", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Address")
-                        .HasMaxLength(200)
-                        .HasColumnType("varchar(200)");
-
-                    b.Property<string>("City")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<string>("Country")
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
-                    b.Property<DateTime?>("LastVisitDate")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(500)
-                        .HasColumnType("varchar(500)");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<string>("PostalCode")
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Email")
-                        .IsUnique();
-
-                    b.HasIndex("PhoneNumber")
-                        .IsUnique();
-
-                    b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("hotelASP.Entities.MenuCategory", b =>
@@ -240,25 +178,28 @@ namespace hotelASP.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id_reservation"));
 
-                    b.Property<int>("CustomerId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("Date_from")
                         .HasColumnType("datetime(6)");
 
                     b.Property<DateTime>("Date_to")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<string>("First_name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<int>("IdRoom")
                         .HasColumnType("int");
 
                     b.Property<string>("KeyCode")
-                        .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("Last_name")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id_reservation");
-
-                    b.HasIndex("CustomerId");
 
                     b.HasIndex("IdRoom");
 
@@ -526,19 +467,11 @@ namespace hotelASP.Migrations
 
             modelBuilder.Entity("hotelASP.Entities.Reservation", b =>
                 {
-                    b.HasOne("hotelASP.Entities.Customer", "Customer")
-                        .WithMany("Reservations")
-                        .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("hotelASP.Entities.Room", "Room")
                         .WithMany("Reservations")
                         .HasForeignKey("IdRoom")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Customer");
 
                     b.Navigation("Room");
                 });
@@ -590,11 +523,6 @@ namespace hotelASP.Migrations
                         .IsRequired();
 
                     b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("hotelASP.Entities.Customer", b =>
-                {
-                    b.Navigation("Reservations");
                 });
 
             modelBuilder.Entity("hotelASP.Entities.MenuCategory", b =>
