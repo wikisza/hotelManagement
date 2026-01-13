@@ -55,3 +55,455 @@
         background-color: #ff0000;
     }
 }
+
+.door-simulator-container {
+    max-width: 1400px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+.simulator-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.simulator-header h2 {
+    color: #333;
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: #6c757d;
+    font-size: 1.1rem;
+}
+
+/* Status Bar */
+.rfid-status-bar {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px 25px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    margin-bottom: 30px;
+    border: 2px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.rfid-status-bar.waiting {
+    background: linear-gradient(135deg, #e7f3ff 0%, #f0f8ff 100%);
+    border-color: #2196F3;
+    box-shadow: 0 0 20px rgba(33, 150, 243, 0.2);
+}
+
+.rfid-status-bar.success {
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border-color: #28a745;
+}
+
+.rfid-status-bar.error {
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    border-color: #dc3545;
+}
+
+.rfid-status-bar.checking {
+    background: linear-gradient(135deg, #fff3cd 0%, #ffe5a0 100%);
+    border-color: #ffc107;
+}
+
+.status-icon {
+    font-size: 2.5rem;
+    line-height: 1;
+}
+
+.rfid-status-bar.waiting .status-icon {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: scale(1.1);
+    }
+}
+
+.status-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+#rfidStatus {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.hint {
+    font-size: 0.9rem;
+    color: #6c757d;
+    margin-top: 3px;
+}
+
+.cancel-btn {
+    padding: 10px 20px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.cancel-btn:hover {
+    background: #c82333;
+    transform: translateY(-2px);
+}
+
+/* Rooms Grid */
+.rooms-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 25px;
+    margin-top: 30px;
+}
+
+.room-card {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    position: relative;
+}
+
+.room-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.room-card.selected {
+    border-color: #2196F3;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.2);
+}
+
+.room-card.access-granted {
+    border-color: #28a745;
+    animation: successPulse 0.5s ease;
+}
+
+.room-card.access-denied {
+    border-color: #dc3545;
+    animation: errorShake 0.5s ease;
+}
+
+@keyframes successPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+@keyframes errorShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+/* Door Visual */
+.room-door {
+    width: 100%;
+    height: 180px;
+    background: #e9ecef;
+    border-radius: 8px;
+    perspective: 1000px;
+    position: relative;
+    margin-bottom: 15px;
+    overflow: hidden;
+}
+
+.door-panel {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
+    border-radius: 8px;
+    position: relative;
+    transition: transform 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
+    transform-origin: left center;
+    box-shadow: inset 2px 0 5px rgba(0,0,0,0.2);
+}
+
+.door-panel.opening {
+    animation: doorOpening 0.5s ease;
+}
+
+.door-panel.open {
+    transform: rotateY(-90deg);
+}
+
+.door-panel.denied {
+    animation: doorDenied 0.5s ease;
+}
+
+@keyframes doorOpening {
+    0% { transform: rotateY(0deg); }
+    100% { transform: rotateY(-10deg); }
+}
+
+@keyframes doorDenied {
+    0%, 100% { background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%); }
+    50% { background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); }
+}
+
+/* Door Details */
+.door-handle {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 8px;
+    height: 40px;
+    background: #FFD700;
+    border-radius: 4px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+}
+
+.door-peephole {
+    position: absolute;
+    right: 50%;
+    top: 40%;
+    width: 12px;
+    height: 12px;
+    background: radial-gradient(circle, #333 0%, #666 100%);
+    border-radius: 50%;
+    box-shadow: inset 0 0 3px rgba(0,0,0,0.5);
+}
+
+/* Door Light */
+.door-light {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #ccc;
+    transition: all 0.3s;
+    box-shadow: 0 0 5px rgba(0,0,0,0.2);
+}
+
+.door-light.waiting {
+    background: #2196F3;
+    box-shadow: 0 0 15px #2196F3;
+    animation: blink 1s infinite;
+}
+
+.door-light.granted {
+    background: #28a745;
+    box-shadow: 0 0 20px #28a745;
+}
+
+.door-light.denied {
+    background: #dc3545;
+    box-shadow: 0 0 20px #dc3545;
+    animation: fastBlink 0.3s 3;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+@keyframes fastBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* Room Info */
+.room-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.room-number {
+    display: flex;
+    flex-direction: column;
+}
+
+.room-label {
+    font-size: 0.8rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.status-badge.occupied {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.status-badge.vacant {
+    background: #d4edda;
+    color: #155724;
+}
+
+/* Access Result */
+.access-result {
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s;
+    height: 0;
+    overflow: hidden;
+}
+
+.access-result.show {
+    opacity: 1;
+    transform: translateY(0);
+    height: auto;
+    padding-top: 10px;
+    border-top: 1px solid #dee2e6;
+}
+
+.success-msg {
+    color: #28a745;
+}
+
+.error-msg {
+    color: #dc3545;
+}
+
+/* Hidden RFID Input */
+.rfid-hidden-input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    top: -100px;
+    left: -100px;
+    pointer-events: none;
+}
+
+/* Notifications */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    opacity: 0;
+    transform: translateX(100%);
+    transition: all 0.3s ease;
+    z-index: 1000;
+    max-width: 350px;
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.notification.success {
+    border-left: 4px solid #28a745;
+}
+
+.notification.error {
+    border-left: 4px solid #dc3545;
+}
+
+.notification.warning {
+    border-left: 4px solid #ffc107;
+}
+
+/* Statistics Bar */
+.stats-bar {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 20px;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #667eea;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Room Details */
+.room-details {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid #dee2e6;
+}
+
+.room-details small {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .rooms-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 15px;
+    }
+
+    .room-door {
+        height: 140px;
+    }
+
+    .simulator-header h2 {
+        font-size: 1.5rem;
+    }
+
+    .rfid-status-bar {
+        flex-direction: column;
+        text-align: center;
+    }
+}

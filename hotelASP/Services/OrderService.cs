@@ -21,6 +21,8 @@ namespace hotelASP.Services
             return await _context.Orders
                 .Where(o => activeStatuses.Contains(o.Status))
                 .Include(o => o.Reservation)
+                    .ThenInclude(r => r.Customer)
+                .Include(o => o.Reservation)
                     .ThenInclude(r => r.Room)
                 .Include(o => o.OrderDetails)
                     .ThenInclude(od => od.MenuItem)
@@ -47,6 +49,8 @@ namespace hotelASP.Services
             var inactiveStatuses = new[] { "Dostarczone", "Anulowane" };
             return await _context.Orders
                 .Where(o => inactiveStatuses.Contains(o.Status))
+                .Include(o => o.Reservation)
+                    .ThenInclude(r => r.Customer)
                 .Include(o => o.Reservation)
                     .ThenInclude(r => r.Room)
                 .OrderByDescending(o => o.OrderDate)
@@ -76,10 +80,11 @@ namespace hotelASP.Services
             var now = DateTime.Now;
             var guestLastNameLower = guestLastName.ToLower();
             return await _context.Reservations
+                .Include(r => r.Customer)
                 .Include(r => r.Room)
                 .FirstOrDefaultAsync(r =>
                     r.Room.RoomNumber == roomNumber &&
-                    r.Last_name.ToLower() == guestLastNameLower &&
+                    r.Customer.LastName.ToLower() == guestLastNameLower &&
                     r.Date_from <= now &&
                     r.Date_to >= now);
         }

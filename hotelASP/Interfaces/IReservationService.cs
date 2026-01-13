@@ -14,6 +14,6 @@ namespace hotelASP.Interfaces
         List<ReservationViewModel> HistoryReservations();
         Task<List<object>> GetReservations();
         Task<List<object>> GetOldReservations();
-        Task<List<object>> GetAvailableRooms(DateTime dateFrom, DateTime dateTo);
+        Task<List<int>> GetAvailableRoomIds(DateTime dateFrom, DateTime dateTo);
     }
 }

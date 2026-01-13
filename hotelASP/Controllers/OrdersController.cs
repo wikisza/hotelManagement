@@ -106,7 +106,9 @@ namespace hotelASP.Controllers
             {
                 ReservationId = reservation.Id_reservation,
                 RoomNumber = reservation.Room.RoomNumber,
-                GuestFullName = $"{reservation.First_name} {reservation.Last_name}",
+                GuestFullName = reservation.Customer != null 
+                    ? $"{reservation.Customer.FirstName} {reservation.Customer.LastName}" 
+                    : "Nieznany gość",
                 AvailableMenuItems = await _context.MenuCategories
                     .Include(c => c.MenuItems.Where(mi => mi.IsAvailable))
                     .OrderBy(c => c.Name)

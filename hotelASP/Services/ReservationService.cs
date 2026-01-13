@@ -12,15 +12,20 @@ public class ReservationService : IReservationService
 {
     private readonly ApplicationDbContext _context;
     private readonly IBillService _billService;
-    public ReservationService(ApplicationDbContext context, IBillService billService)
+    private readonly ICustomerService _customerService;
+
+    public ReservationService(ApplicationDbContext context, IBillService billService, ICustomerService customerService)
     {
         _context = context;
         _billService = billService;
+        _customerService = customerService;
     }
+
     public async Task<ReservationViewModel> FindReservation(int id)
     {
         var reservation = await _context.Reservations
             .Where(r => r.Id_reservation == id)
+            .Include(r => r.Customer)
             .Include(r => r.Room)
             .Include(r => r.Bills)
             .Include(r => r.Orders)
@@ -31,10 +36,12 @@ public class ReservationService : IReservationService
                 Id_reservation = r.Id_reservation,
                 Date_from = r.Date_from,
                 Date_to = r.Date_to,
-                First_name = r.First_name,
-                Last_name = r.Last_name,
+                CustomerId = r.CustomerId,
+                First_name = r.Customer.FirstName,
+                Last_name = r.Customer.LastName,
                 IdRoom = r.IdRoom,
                 KeyCode = r.KeyCode,
+                Customer = r.Customer,
 
                 Bill = r.Bills != null ? new BillViewModel
                 {
@@ -100,19 +107,24 @@ public class ReservationService : IReservationService
                 thisRoom.IsEmpty = true;
             }
 
+            var customer = await _context.Customers.FindAsync(reservation.CustomerId);
+            if (customer != null)
+            {
+                customer.LastVisitDate = DateTime.Now;
+            }
+
             await _context.SaveChangesAsync();
 
             await transaction.CommitAsync();
 
             return (true, string.Empty);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             await transaction.RollbackAsync();
             return (false, "Wystąpił nieoczekiwany błąd podczas tworzenia rezerwacji i rachunku.");
         }
     }
-
 
     public async Task<(bool Success, string ErrorMessage)> EditAsync(Reservation reservation)
     {
@@ -127,8 +139,7 @@ public class ReservationService : IReservationService
 
             existingReservation.Date_from = reservation.Date_from;
             existingReservation.Date_to = reservation.Date_to;
-            existingReservation.First_name = reservation.First_name;
-            existingReservation.Last_name = reservation.Last_name;
+            existingReservation.CustomerId = reservation.CustomerId;
             existingReservation.IdRoom = reservation.IdRoom;
             existingReservation.KeyCode = reservation.KeyCode;
 
@@ -148,7 +159,6 @@ public class ReservationService : IReservationService
                 throw;
             }
         }
-
     }
 
     public async Task<(bool Success, string ErrorMessage)> DeleteConfirmed(int id)
@@ -172,16 +182,19 @@ public class ReservationService : IReservationService
         var currentReservations = _context.Reservations
             .Where(r => r.Date_to >= DateTime.Now)
             .OrderBy(r => r.Date_from)
+            .Include(r => r.Customer)
             .Include(r => r.Room)
             .Select(r => new ReservationViewModel
             {
                 Id_reservation = r.Id_reservation,
                 Date_from = r.Date_from,
                 Date_to = r.Date_to,
-                First_name = r.First_name,
-                Last_name = r.Last_name,
+                CustomerId = r.CustomerId,
+                First_name = r.Customer.FirstName,
+                Last_name = r.Customer.LastName,
                 IdRoom = r.IdRoom,
-                KeyCode = r.KeyCode
+                KeyCode = r.KeyCode,
+                Customer = r.Customer
             })
             .ToList();
         return currentReservations;
@@ -192,35 +205,40 @@ public class ReservationService : IReservationService
         var historyReservations = _context.Reservations
             .Where(r => r.Date_to <= DateTime.Now)
             .OrderByDescending(r => r.Date_from)
+            .Include(r => r.Customer)
             .Include(r => r.Room)
             .Select(r => new ReservationViewModel
             {
                 Id_reservation = r.Id_reservation,
                 Date_from = r.Date_from,
                 Date_to = r.Date_to,
-                First_name = r.First_name,
-                Last_name = r.Last_name,
+                CustomerId = r.CustomerId,
+                First_name = r.Customer.FirstName,
+                Last_name = r.Customer.LastName,
                 IdRoom = r.IdRoom,
-                KeyCode = r.KeyCode
+                KeyCode = r.KeyCode,
+                Customer = r.Customer
             })
             .ToList();
         return historyReservations;
     }
+
     public async Task<List<object>> GetReservations()
     {
         var now = DateTime.Now;
         return await _context.Reservations
             .Where(r => r.Date_to > now)
+            .Include(r => r.Customer)
             .Include(r => r.Room)
             .Select(r => new
             {
                 start = r.Date_from,
                 end = r.Date_to,
-                title = "Pokój " + r.Room.RoomNumber + ": " + r.Last_name,
+                title = "Pokój " + r.Room.RoomNumber + ": " + r.Customer.LastName,
                 extendedProps = new
                 {
-                    firstName = r.First_name,
-                    lastName = r.Last_name,
+                    firstName = r.Customer.FirstName,
+                    lastName = r.Customer.LastName,
                     roomNumber = r.Room.RoomNumber,
                     reservationId = r.Id_reservation
                 }
@@ -234,16 +252,17 @@ public class ReservationService : IReservationService
         var now = DateTime.Now;
         return await _context.Reservations
             .Where(r => r.Date_to <= now)
+            .Include(r => r.Customer)
             .Include(r => r.Room)
             .Select(r => new
             {
                 start = r.Date_from,
                 end = r.Date_to,
-                title = "Pokój " + r.Room.RoomNumber + ": " + r.Last_name,
+                title = "Pokój " + r.Room.RoomNumber + ": " + r.Customer.LastName,
                 extendedProps = new
                 {
-                    firstName = r.First_name,
-                    lastName = r.Last_name,
+                    firstName = r.Customer.FirstName,
+                    lastName = r.Customer.LastName,
                     roomNumber = r.Room.RoomNumber,
                     reservationId = r.Id_reservation
                 }
@@ -251,7 +270,9 @@ public class ReservationService : IReservationService
             .Cast<object>()
             .ToListAsync();
     }
-    public async Task<List<object>> GetAvailableRooms(DateTime dateFrom, DateTime dateTo)
+
+    // NOWA METODA - zwraca tylko ID pokoi
+    public async Task<List<int>> GetAvailableRoomIds(DateTime dateFrom, DateTime dateTo)
     {
         return await _context.Rooms
             .Where(room => !_context.Reservations
@@ -259,13 +280,7 @@ public class ReservationService : IReservationService
                     reservation.IdRoom == room.IdRoom &&
                     reservation.Date_from < dateTo &&
                     reservation.Date_to > dateFrom))
-            .Select(room => new
-            {
-                room.IdRoom,
-                room.RoomNumber,
-            })
-            .Cast<object>()
+            .Select(room => room.IdRoom)
             .ToListAsync();
-
     }
 }

@@ -6,20 +6,26 @@ namespace hotelASP.Entities
     {
         [Key]
         public int Id_reservation { get; set; }
+
         [Required]
         public DateTime Date_from { get; set; }
+
         [Required]
         public DateTime Date_to { get; set; }
+
         [Required]
-        public required string First_name { get; set; }
-        [Required]
-        public required string Last_name { get; set; }
+        public int CustomerId { get; set; }
+
         [Required]
         public int IdRoom { get; set; }
-        public string KeyCode { get; set; }
+
+        [MaxLength(255)]
+        public string? KeyCode { get; set; }
+
+        // Relacje
+        public Customer? Customer { get; set; }
         public Room? Room { get; set; }
         public Bill? Bills { get; set; }
         public ICollection<Order> Orders { get; set; } = new List<Order>();
-
     }
 }

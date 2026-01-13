@@ -10,119 +10,133 @@
 ];
 
 document.addEventListener('DOMContentLoaded', function () {
+    // CALENDAR - tylko jeśli element istnieje
     var calendarEl = document.getElementById('calendar');
+    
+    if (calendarEl) {
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            firstDay: '1',
+            locale: 'pl',
+            height: 'auto',
 
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        firstDay: '1',
-        locale: 'pl',
-        height: 'auto',
+            displayEventTime: false,
 
-        displayEventTime: false,
+            events: function (fetchInfo, successCallback, failureCallback) {
+                Promise.all([
+                    fetch('/get_current_reservations').then(response => response.json()),
+                    fetch('/get_old_reservations').then(response => response.json())
+                ])
+                    .then(dataArray => {
+                        const [currentReservations, oldReservations] = dataArray;
 
-        events: function (fetchInfo, successCallback, failureCallback) {
-            Promise.all([
-                fetch('/get_current_reservations').then(response => response.json()),
-                fetch('/get_old_reservations').then(response => response.json())
-            ])
-                .then(dataArray => {
-                    const [currentReservations, oldReservations] = dataArray;
+                        const eventColors = ["#2E7D32", "#880E4F", "#00695C", "#1565C0", "#4527A0", "#EF6C00"];
 
-                    const eventColors = ["#2E7D32", "#880E4F", "#00695C", "#1565C0", "#4527A0", "#EF6C00"];
+                        currentReservations.forEach((event, index) => {
+                            const colorIndex = index % eventColors.length;
+                            event.backgroundColor = eventColors[colorIndex];
+                            event.borderColor = eventColors[colorIndex];
+                        });
 
-                    currentReservations.forEach((event, index) => {
-                        const colorIndex = index % eventColors.length;
-                        event.backgroundColor = eventColors[colorIndex];
-                        event.borderColor = eventColors[colorIndex];
+                        oldReservations.forEach(event => {
+                            event.backgroundColor = 'gray';
+                            event.borderColor = 'gray';
+                        });
+
+                        const allEvents = [...currentReservations, ...oldReservations];
+                        successCallback(allEvents);
+                    })
+                    .catch(error => {
+                        console.error('Error fetching events:', error);
+                        failureCallback(error);
                     });
+            },
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            buttonText: {
+                today: 'Dziś',
+                month: 'Miesiąc',
+                week: 'Tydzień',
+                day: 'Dzień'
+            },
 
-                    oldReservations.forEach(event => {
-                        event.backgroundColor = 'gray';
-                        event.borderColor = 'gray';
-                    });
+            eventClick: function (info) {
+                const modal = document.getElementById('reservationModal');
+                const props = info.event.extendedProps;
 
-                    const allEvents = [...currentReservations, ...oldReservations];
-                    successCallback(allEvents);
-                })
-                .catch(error => {
-                    console.error('Error fetching events:', error);
-                    failureCallback(error);
-                });
-        },
-        headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay'
-        },
-        buttonText: {
-            today: 'Dziś',
-            month: 'Miesiąc',
-            week: 'Tydzień',
-            day: 'Dzień'
-        },
+                document.getElementById('reservationGuest').innerText = props.firstName + ' ' + props.lastName;
+                document.getElementById('reservationRoom').innerText = props.roomNumber;
 
-        eventClick: function (info) {
+                const startDate = new Date(info.event.start).toLocaleString('pl-PL', { dateStyle: 'long', timeStyle: 'short' });
+                const endDate = info.event.end ? new Date(info.event.end).toLocaleString('pl-PL', { dateStyle: 'long', timeStyle: 'short' }) : 'Brak';
+
+                document.getElementById('reservationStart').innerText = startDate;
+                document.getElementById('reservationEnd').innerText = endDate;
+
+                modal.style.display = "block";
+            }
+        });
+
+        const closeModalBtn = document.getElementById('closeModal');
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', function () {
+                document.getElementById('reservationModal').style.display = 'none';
+            });
+        }
+
+        window.addEventListener('click', function (event) {
             const modal = document.getElementById('reservationModal');
-            const props = info.event.extendedProps;
+            if (modal && event.target == modal) {
+                modal.style.display = 'none';
+            }
+        });
 
-            document.getElementById('reservationGuest').innerText = props.firstName + ' ' + props.lastName;
-            document.getElementById('reservationRoom').innerText = props.roomNumber;
-
-            const startDate = new Date(info.event.start).toLocaleString('pl-PL', { dateStyle: 'long', timeStyle: 'short' });
-            const endDate = info.event.end ? new Date(info.event.end).toLocaleString('pl-PL', { dateStyle: 'long', timeStyle: 'short' }) : 'Brak';
-
-            document.getElementById('reservationStart').innerText = startDate;
-            document.getElementById('reservationEnd').innerText = endDate;
-
-            modal.style.display = "block";
-        }
-    });
-
-    document.getElementById('closeModal').addEventListener('click', function () {
-        document.getElementById('reservationModal').style.display = 'none';
-    });
-
-    window.addEventListener('click', function (event) {
-        const modal = document.getElementById('reservationModal');
-        if (event.target == modal) {
-            modal.style.display = 'none';
-        }
-    });
-
-    calendar.render();
+        calendar.render();
+    }
 });
 
-
+// AVAILABLE ROOMS - tylko jeśli elementy istnieją
 document.addEventListener('DOMContentLoaded', () => {
     const dateFromInput = document.getElementById('dateFrom');
     const dateToInput = document.getElementById('dateTo');
 
-    if (!dateFromInput.value) {
-        const today = new Date();
-        dateFromInput.value = today.toISOString().split('T')[0];
+    // Sprawdź czy elementy istnieją przed użyciem
+    if (dateFromInput && dateToInput) {
+        if (!dateFromInput.value) {
+            const today = new Date();
+            dateFromInput.value = today.toISOString().split('T')[0];
+        }
+
+        if (!dateToInput.value) {
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            dateToInput.value = tomorrow.toISOString().split('T')[0];
+        }
+
+        loadAvailableRooms();
+
+        dateFromInput.addEventListener('change', loadAvailableRooms);
+        dateToInput.addEventListener('change', loadAvailableRooms);
     }
-
-    if (!dateToInput.value) {
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        dateToInput.value = tomorrow.toISOString().split('T')[0];
-    }
-
-    loadAvailableRooms();
-
-    dateFromInput.addEventListener('change', loadAvailableRooms);
-    dateToInput.addEventListener('change', loadAvailableRooms);
 });
 
 async function loadAvailableRooms() {
-    const dateFrom = document.getElementById('dateFrom').value;
-    const dateTo = document.getElementById('dateTo').value;
+    const dateFrom = document.getElementById('dateFrom');
+    const dateTo = document.getElementById('dateTo');
+    const roomSelect = document.getElementById('roomSelect');
 
-    if (dateFrom && dateTo) {
-        const response = await fetch(`/Reservations/GetAvailableRooms?dateFrom=${dateFrom}&dateTo=${dateTo}`);
+    // Sprawdź czy elementy istnieją
+    if (!dateFrom || !dateTo || !roomSelect) {
+        return;
+    }
+
+    if (dateFrom.value && dateTo.value) {
+        const response = await fetch(`/Reservations/GetAvailableRooms?dateFrom=${dateFrom.value}&dateTo=${dateTo.value}`);
         const rooms = await response.json();
 
-        const roomSelect = document.getElementById('roomSelect');
         roomSelect.innerHTML = '<option value="">-- Wybierz pokój --</option>';
 
         rooms.forEach(room => {
@@ -161,7 +175,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
         header.addEventListener("click", () => {
             const table = header.closest("table");
+            if (!table) return;
+            
             const tbody = table.querySelector("tbody");
+            if (!tbody) return;
+            
             const rows = Array.from(tbody.querySelectorAll("tr"));
             const asc = (header.asc = !header.asc);
 
@@ -172,6 +190,8 @@ document.addEventListener("DOMContentLoaded", function () {
             header.innerHTML += asc ? " ▲" : " ▼";
 
             rows.sort((a, b) => {
+                if (!a.cells[index] || !b.cells[index]) return 0;
+                
                 const cellA = a.cells[index].innerText.trim();
                 const cellB = b.cells[index].innerText.trim();
 

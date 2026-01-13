@@ -1,0 +1,57 @@
+﻿@model hotelASP.Entities.Customer
+
+@{
+    ViewData["Title"] = "Usuń klienta";
+}
+
+<link href="~/css/customerDelete.css" rel="stylesheet" />
+
+<div class="delete-container">
+    <div class="delete-header">
+        <h2>⚠️ Potwierdzenie usunięcia</h2>
+    </div>
+
+    <div class="delete-body">
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger">
+                <strong>Błąd:</strong> @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <div class="warning-message">
+            <p>Czy na pewno chcesz usunąć następującego klienta?</p>
+        </div>
+
+        <div class="customer-info">
+            <div class="info-row">
+                <span class="label">Imię i nazwisko:</span>
+                <span class="value"><strong>@Model.FirstName @Model.LastName</strong></span>
+            </div>
+            <div class="info-row">
+                <span class="label">Email:</span>
+                <span class="value">@Model.Email</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Telefon:</span>
+                <span class="value">@Model.PhoneNumber</span>
+            </div>
+            <div class="info-row">
+                <span class="label">Data dodania:</span>
+                <span class="value">@Model.CreatedDate.ToString("dd MMMM yyyy")</span>
+            </div>
+        </div>
+
+        <div class="danger-notice">
+            <strong>Uwaga:</strong> Ta operacja jest nieodwracalna. Klient zostanie trwale usunięty z bazy danych.
+        </div>
+
+        <form asp-action="Delete" method="post">
+            <input type="hidden" asp-for="Id" />
+            <div class="form-actions">
+                <button type="submit" class="btn btn-danger">🗑️ Tak, usuń klienta</button>
+                <a asp-action="Index" class="btn btn-secondary">❌ Nie, anuluj</a>
+            </div>
+        </form>
+    </div>
+</div>

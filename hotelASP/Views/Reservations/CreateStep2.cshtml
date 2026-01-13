@@ -1,0 +1,108 @@
+﻿@model hotelASP.Models.CreateReservationViewModel
+
+@{
+    ViewData["Title"] = "Nowa rezerwacja - Wybór pokoju";
+}
+
+<link href="~/css/reservationWizard.css" rel="stylesheet" />
+
+<div class="wizard-container">
+    <div class="wizard-header">
+        <h2>🏨 Nowa rezerwacja</h2>
+        <div class="wizard-steps">
+            <div class="step completed">
+                <span class="step-number">✓</span>
+                <span class="step-label">Wybór terminu</span>
+            </div>
+            <div class="step active">
+                <span class="step-number">2</span>
+                <span class="step-label">Wybór pokoju</span>
+            </div>
+            <div class="step">
+                <span class="step-number">3</span>
+                <span class="step-label">Dane gościa</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="wizard-body">
+        <div class="step-info">
+            <h3>Krok 2: Wybierz pokój</h3>
+            <p>
+                Termin: <strong>@Model.DateFrom.ToString("dd.MM.yyyy HH:mm")</strong> - 
+                <strong>@Model.DateTo.ToString("dd.MM.yyyy HH:mm")</strong>
+                (@((int)Math.Ceiling((Model.DateTo - Model.DateFrom).TotalDays)) @(((int)Math.Ceiling((Model.DateTo - Model.DateFrom).TotalDays)) == 1 ? "noc" : "noce"))
+            </p>
+        </div>
+
+        <form asp-action="SelectRoom" method="post">
+            <input type="hidden" asp-for="DateFrom" />
+            <input type="hidden" asp-for="DateTo" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="rooms-grid">
+                @if (Model.AvailableRooms != null && Model.AvailableRooms.Any())
+                {
+                    @foreach (var room in Model.AvailableRooms)
+                    {
+                        <div class="room-card">
+                            <input type="radio" name="SelectedRoomId" value="@room.IdRoom" id="room_@room.IdRoom" />
+                            <label for="room_@room.IdRoom">
+                                <div class="room-header">
+                                    <div class="room-number">Pokój @room.RoomNumber</div>
+                                    <div class="room-standard">@room.StandardName</div>
+                                </div>
+                                <div class="room-details">
+                                    <div class="room-capacity">
+                                        <span>👥 @room.PeopleNumber @(room.PeopleNumber == 1 ? "osoba" : room.PeopleNumber < 5 ? "osoby" : "osób")</span>
+                                        <span>🛏️ @room.BedNumber @(room.BedNumber == 1 ? "łóżko" : room.BedNumber < 5 ? "łóżka" : "łóżek")</span>
+                                    </div>
+                                    @if (room.RoomOptions != null && room.RoomOptions.Any())
+                                    {
+                                        <div class="room-options">
+                                            @foreach (var option in room.RoomOptions)
+                                            {
+                                                <span class="option-badge">✓ @option</span>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                                <div class="room-pricing">
+                                    <div class="price-breakdown">
+                                        <span>@room.Price.ToString("C") × @room.NumberOfNights @(room.NumberOfNights == 1 ? "noc" : "noce")</span>
+                                    </div>
+                                    <div class="total-price">@room.TotalPrice.ToString("C")</div>
+                                </div>
+                            </label>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="no-rooms">
+                        <p>❌ Brak dostępnych pokoi w wybranym terminie.</p>
+                    </div>
+                }
+            </div>
+
+            <div class="form-actions">
+                <a asp-action="Create" class="btn btn-secondary">◀️ Zmień termin</a>
+                <button type="submit" class="btn btn-primary" @(Model.AvailableRooms == null || !Model.AvailableRooms.Any() ? "disabled" : "")>
+                    Kontynuuj ➡️
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.querySelectorAll('.room-card').forEach(card => {
+            card.addEventListener('click', function() {
+                document.querySelectorAll('.room-card').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+            });
+        });
+    </script>
+}
