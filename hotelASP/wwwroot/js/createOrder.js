@@ -11,25 +11,90 @@
 
     function loadStep1() {
         modalContent.innerHTML = '<div class="text-center p-4"><div class="spinner-border"></div></div>';
-        // Pobierz widok _CreateOrderStep1
         fetch('/Orders/Create')
             .then(res => res.text())
             .then(html => {
                 modalContent.innerHTML = html;
-                initMenuFilters();
             });
     }
 
+    // 2. Obsługa zdarzeń wewnątrz modala (Event Delegation)
+    modalContent.addEventListener('click', function (e) {
+        // Obsługa przycisku "Wróć" w kroku 2
+        if (e.target && e.target.id === 'btnBackToStep1') {
+            e.preventDefault();
+            loadStep1();
+            return;
+        }
+    });
+
+    // 3. Obsługa formularza weryfikacji (Krok 1 -> Krok 2)
+    document.body.addEventListener('submit', function (e) {
+        if (e.target && e.target.id === 'verifyGuestForm') {
+            e.preventDefault();
+            const form = e.target;
+            const errorDiv = document.getElementById('verificationError');
+            const submitBtn = form.querySelector('button[type="submit"]');
+
+            const originalBtnText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Weryfikacja...';
+
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    const contentType = response.headers.get("content-type");
+
+                    if (contentType && contentType.indexOf("application/json") !== -1) {
+                        return response.json().then(data => {
+                            if (!data.success) {
+                                errorDiv.textContent = data.message;
+                                errorDiv.style.display = 'block';
+                            }
+                        });
+                    } else {
+                        return response.text().then(html => {
+                            modalContent.innerHTML = html;
+                            // WAŻNE: Po załadowaniu kroku 2, inicjalizuj filtry i przyciski
+                            setTimeout(() => {
+                                initMenuFilters();
+                                initQuantityButtons();
+                            }, 100);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    errorDiv.textContent = "Wystąpił błąd serwera.";
+                    errorDiv.style.display = 'block';
+                })
+                .finally(() => {
+                    if (document.body.contains(submitBtn)) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnText;
+                    }
+                });
+        }
+    });
+
+    // 4. Inicjalizacja filtrów menu
     function initMenuFilters() {
         const searchInput = document.getElementById('menuSearchInput');
         const filterBtns = document.querySelectorAll('.filter-btn');
-        const menuItems = document.querySelectorAll('.menu-item-card');
         const categories = document.querySelectorAll('.category-section');
 
-        // 1. Obsługa Filtrowania Kategorii
+        if (!searchInput || !filterBtns.length) {
+            console.warn('Nie znaleziono elementów filtrów menu');
+            return;
+        }
+
+        // Obsługa filtrowania kategorii
         filterBtns.forEach(btn => {
             btn.addEventListener('click', () => {
-                // Zmiana klasy active
                 filterBtns.forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
 
@@ -44,148 +109,129 @@
                     }
                 });
 
-                // Reset wyszukiwania po zmianie kategorii
                 if (searchInput) searchInput.value = '';
-                menuItems.forEach(item => item.style.display = 'flex');
+                
+                // Pokaż wszystkie produkty w widocznych kategoriach
+                cat.querySelectorAll('.menu-item-card').forEach(item => {
+                    item.style.display = 'flex';
+                });
             });
         });
 
-        // 2. Obsługa Wyszukiwarki
+        // Obsługa wyszukiwarki
         if (searchInput) {
             searchInput.addEventListener('input', (e) => {
-                const searchText = e.target.value.toLowerCase();
+                const searchText = e.target.value.toLowerCase().trim();
 
-                // Reset filtrów kategorii na "Wszystkie" przy wyszukiwaniu
                 if (searchText.length > 0) {
                     categories.forEach(cat => cat.style.display = 'block');
                     filterBtns.forEach(b => b.classList.remove('active'));
-                    document.querySelector('.filter-btn[data-filter="all"]').classList.add('active');
+                    const allBtn = document.querySelector('.filter-btn[data-filter="all"]');
+                    if (allBtn) allBtn.classList.add('active');
                 }
 
-                menuItems.forEach(item => {
-                    const itemName = item.getAttribute('data-item-name');
-                    const parentCategory = item.closest('.category-section');
+                let totalVisible = 0;
 
-                    if (itemName.includes(searchText)) {
-                        item.style.display = 'flex'; // Przywróć widoczność (flex dla układu karty)
-                    } else {
-                        item.style.display = 'none';
-                    }
-                });
-
-                // Ukryj puste kategorie (te, w których ukryliśmy wszystkie produkty)
                 categories.forEach(cat => {
-                    const visibleItems = cat.querySelectorAll('.menu-item-card[style="display: flex;"]');
-                    // Uwaga: style.display sprawdza inline style, domyślnie jest puste
-                    // Bezpieczniej sprawdzić czy są jakieś widoczne dzieci
-                    let hasVisible = false;
-                    cat.querySelectorAll('.menu-item-card').forEach(item => {
-                        if (item.style.display !== 'none') hasVisible = true;
+                    let categoryHasVisible = false;
+                    const items = cat.querySelectorAll('.menu-item-card');
+
+                    items.forEach(item => {
+                        const itemName = item.getAttribute('data-item-name') || '';
+                        const itemTitle = item.querySelector('.menu-item-title')?.textContent.toLowerCase() || '';
+                        const itemDesc = item.querySelector('.menu-item-desc')?.textContent.toLowerCase() || '';
+
+                        const matches = itemName.includes(searchText) || 
+                                      itemTitle.includes(searchText) || 
+                                      itemDesc.includes(searchText);
+
+                        if (searchText.length === 0 || matches) {
+                            item.style.display = 'flex';
+                            categoryHasVisible = true;
+                            totalVisible++;
+                        } else {
+                            item.style.display = 'none';
+                        }
                     });
 
-                    cat.style.display = hasVisible ? 'block' : 'none';
+                    cat.style.display = categoryHasVisible ? 'block' : 'none';
                 });
+
+                // Pokaż komunikat jeśli brak wyników
+                const noResults = document.getElementById('noResultsMessage');
+                if (noResults) noResults.remove();
+
+                if (searchText.length > 0 && totalVisible === 0) {
+                    const message = document.createElement('div');
+                    message.id = 'noResultsMessage';
+                    message.className = 'alert alert-info text-center my-4';
+                    message.innerHTML = '<p class="mb-0">😢 Nie znaleziono produktów</p>';
+                    const menuBody = document.querySelector('.menu-body');
+                    if (menuBody) menuBody.appendChild(message);
+                }
             });
-        }
-
-    // 2. Obsługa zdarzeń wewnątrz modala (Event Delegation)
-    modalContent.addEventListener('click', function (e) {
-        // Obsługa przycisku "Wróć" w kroku 2
-        if (e.target && e.target.id === 'btnBackToStep1') {
-            e.preventDefault();
-            loadStep1();
-            return;
-        }
-
-        // Obsługa przycisków +/- w menu (tak jak wcześniej)
-        const menuItem = e.target.closest('.menu-item');
-        if (menuItem) {
-            handleMenuClicks(e, menuItem);
-        }
-    });
-
-    // 3. Obsługa formularza weryfikacji (Krok 1 -> Krok 2)
-    document.body.addEventListener('submit', function (e) {
-        if (e.target && e.target.id === 'verifyGuestForm') {
-            e.preventDefault();
-            const form = e.target;
-            const errorDiv = document.getElementById('verificationError');
-            const submitBtn = form.querySelector('button[type="submit"]');
-
-            // Zablokuj przycisk na czas requestu
-            const originalBtnText = submitBtn.innerHTML;
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Weryfikacja...';
-
-            const formData = new FormData(form);
-
-            fetch(form.action, {
-                method: 'POST',
-                body: formData
-            })
-                .then(response => {
-                    // Sprawdź typ odpowiedzi (JSON czy HTML?)
-                    const contentType = response.headers.get("content-type");
-
-                    if (contentType && contentType.indexOf("application/json") !== -1) {
-                        // To jest JSON (błąd logiczny z kontrolera)
-                        return response.json().then(data => {
-                            if (!data.success) {
-                                errorDiv.textContent = data.message;
-                                errorDiv.style.display = 'block';
-                            }
-                        });
-                    } else {
-                        // To jest HTML (widok _CreateOrderStep2)
-                        return response.text().then(html => {
-                            modalContent.innerHTML = html;
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    errorDiv.textContent = "Wystąpił błąd serwera.";
-                    errorDiv.style.display = 'block';
-                })
-                .finally(() => {
-                    // Jeśli formularz nadal istnieje (błąd), przywróć przycisk
-                    if (document.body.contains(submitBtn)) {
-                        submitBtn.disabled = false;
-                        submitBtn.innerHTML = originalBtnText;
-                    }
-                });
-        }
-    });
-
-    // Funkcja pomocnicza do obsługi +/- (z poprzedniego rozwiązania)
-    function handleMenuClicks(e, menuItem) {
-        const qtyDisplay = menuItem.querySelector('.qty-display');
-        const quantityInput = menuItem.querySelector('.item-quantity-value');
-        const addBtn = menuItem.querySelector('.add-item-btn');
-        let current = parseInt(qtyDisplay.textContent);
-
-        if (e.target.classList.contains('decrease-qty')) {
-            updateQuantity(current - 1, qtyDisplay, quantityInput, addBtn);
-        } else if (e.target.classList.contains('increase-qty')) {
-            updateQuantity(current + 1, qtyDisplay, quantityInput, addBtn);
-        } else if (e.target.classList.contains('add-item-btn')) {
-            if (current === 0) updateQuantity(1, qtyDisplay, quantityInput, addBtn);
         }
     }
 
+    // 5. Inicjalizacja przycisków ilości (+/-)
+    function initQuantityButtons() {
+        const menuBody = document.querySelector('.menu-body');
+        if (!menuBody) {
+            console.warn('Nie znaleziono .menu-body');
+            return;
+        }
+
+        menuBody.addEventListener('click', function (e) {
+            const decreaseBtn = e.target.closest('.decrease-qty');
+            const increaseBtn = e.target.closest('.increase-qty');
+            const addBtn = e.target.closest('.add-item-btn');
+
+            if (!decreaseBtn && !increaseBtn && !addBtn) return;
+
+            e.stopPropagation();
+            e.preventDefault();
+
+            const menuItem = e.target.closest('.menu-item-card');
+            if (!menuItem) return;
+
+            const qtyDisplay = menuItem.querySelector('.qty-val');
+            const quantityInput = menuItem.querySelector('.item-quantity-value');
+            const addButton = menuItem.querySelector('.add-item-btn');
+
+            if (!qtyDisplay || !quantityInput || !addButton) {
+                console.error('Brak wymaganych elementów w karcie menu');
+                return;
+            }
+
+            let current = parseInt(qtyDisplay.textContent) || 0;
+
+            if (decreaseBtn) {
+                updateQuantity(Math.max(0, current - 1), qtyDisplay, quantityInput, addButton);
+            } else if (increaseBtn) {
+                updateQuantity(current + 1, qtyDisplay, quantityInput, addButton);
+            } else if (addBtn && current === 0) {
+                updateQuantity(1, qtyDisplay, quantityInput, addButton);
+            }
+        });
+    }
+
+    // 6. Aktualizacja ilości produktu
     function updateQuantity(newQty, displayEl, inputEl, btnEl) {
         if (newQty < 0) newQty = 0;
+
         displayEl.textContent = newQty;
         inputEl.value = newQty;
 
         if (newQty > 0) {
             btnEl.classList.remove('btn-primary');
-            btnEl.classList.add('btn-success');
+            btnEl.classList.add('added');
             btnEl.textContent = '✓ ' + newQty;
         } else {
-            btnEl.classList.remove('btn-success');
+            btnEl.classList.remove('added');
             btnEl.classList.add('btn-primary');
             btnEl.textContent = 'Dodaj';
         }
+
+        console.log(`Zaktualizowano ilość: ${newQty}`);
     }
 });

@@ -52,29 +52,33 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    <!-- Navigation Dropdown Script - MUSI BYĆ ZAŁADOWANY -->
+    <script src="~/js/navigation.js" asp-append-version="true"></script>
 
     <!-- Theme Switcher Script -->
     <script>
-
-                // Obsługa modala z motywami
+        // Obsługa modala z motywami
         const openModalBtn = document.getElementById('openThemeModal');
         const closeModalBtn = document.getElementById('closeThemeModal');
         const themeModal = document.getElementById('themeModal');
 
-        openModalBtn.addEventListener('click', () => {
-            themeModal.classList.remove('hidden');
-        });
+        if (openModalBtn && closeModalBtn && themeModal) {
+            openModalBtn.addEventListener('click', () => {
+                themeModal.classList.remove('hidden');
+            });
 
-        closeModalBtn.addEventListener('click', () => {
-            themeModal.classList.add('hidden');
-        });
-
-        // Zamknięcie po kliknięciu tła
-        window.addEventListener('click', (e) => {
-            if (e.target === themeModal) {
+            closeModalBtn.addEventListener('click', () => {
                 themeModal.classList.add('hidden');
-            }
-        });
+            });
+
+            // Zamknięcie po kliknięciu tła
+            window.addEventListener('click', (e) => {
+                if (e.target === themeModal) {
+                    themeModal.classList.add('hidden');
+                }
+            });
+        }
 
         // Theme switching functionality
         const themeButtons = document.querySelectorAll('.theme-btn');

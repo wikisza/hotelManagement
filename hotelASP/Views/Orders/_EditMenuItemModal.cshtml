@@ -1,0 +1,110 @@
+@model hotelASP.Entities.MenuItem
+
+<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Edytuj pozycję menu</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form asp-action="EditMenuItem" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label w-100">Nazwa *</label>
+                    <input asp-for="Name" class="form-control form-control-lg w-100" required placeholder="np. Carpaccio z Pieczonego Buraka" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label w-100">Opis *</label>
+                    <textarea asp-for="Description" class="form-control w-100" rows="4" required placeholder="Dokładny opis dania..."></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Price" class="form-label w-100">Cena (zł) *</label>
+                    <div class="input-group input-group-lg w-100">
+                        <input asp-for="Price"
+                               type="text"
+                               class="form-control"
+                               required
+                               pattern="^\d+([,\.]\d{1,2})?$"
+                               placeholder="0,00"
+                               Value="@Model.Price.ToString("F2")" />
+                        <span class="input-group-text">zł</span>
+                    </div>
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="MenuCategoryId" class="form-label w-100">Kategoria *</label>
+                    <select asp-for="MenuCategoryId" class="form-select form-select-lg w-100" asp-items="@(new SelectList(ViewBag.Categories, "Id", "Name"))" required>
+                        <option value="">-- Wybierz kategorię --</option>
+                    </select>
+                    <span asp-validation-for="MenuCategoryId" class="text-danger"></span>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="form-check form-switch">
+                            <input asp-for="IsAvailable" class="form-check-input" type="checkbox" role="switch" id="isAvailableSwitch" />
+                            <label class="form-check-label" for="isAvailableSwitch">
+                                <strong>Dostępne w menu</strong>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="form-check form-switch">
+                            <input asp-for="ContainsAlcohol" class="form-check-input" type="checkbox" role="switch" id="containsAlcoholSwitch" />
+                            <label class="form-check-label" for="containsAlcoholSwitch">
+                                <strong>Zawiera alkohol</strong>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-lg" data-bs-dismiss="modal">Anuluj</button>
+                <button type="submit" class="btn btn-primary btn-lg">Zapisz zmiany</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const modalContent = document.querySelector('.modal-content');
+
+        const priceInput = document.querySelector('input[name="Price"]');
+
+        if (!priceInput) return;
+
+        function formatPrice(input) {
+            let val = input.value.replace(',', '.');
+            let num = parseFloat(val);
+            if (!isNaN(num)) {
+                input.value = num.toFixed(2).replace('.', ',');
+            }
+        }
+
+        priceInput.addEventListener('blur', function() {
+            formatPrice(this);
+        });
+
+        priceInput.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9,\.]/g, '');
+        });
+
+        const form = priceInput.closest('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                if (priceInput.value) {
+                    priceInput.value = priceInput.value.replace(',', '.');
+                }
+            });
+        }
+    })();
+</script>

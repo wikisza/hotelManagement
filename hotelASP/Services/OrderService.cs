@@ -152,7 +152,6 @@ namespace hotelASP.Services
             }
 
             _context.Orders.Add(newOrder);
-
             await _context.SaveChangesAsync();
 
             return newOrder;
@@ -178,6 +177,74 @@ namespace hotelASP.Services
         {
             _context.MenuCategories.Add(menuCategory);
             await _context.SaveChangesAsync();
+        }
+
+        // Nowe metody
+        public async Task<MenuItem?> GetMenuItemByIdAsync(int id)
+        {
+            return await _context.MenuItems
+                .Include(mi => mi.MenuCategory)
+                .FirstOrDefaultAsync(mi => mi.Id == id);
+        }
+
+        public async Task<MenuCategory?> GetMenuCategoryByIdAsync(int id)
+        {
+            return await _context.MenuCategories
+                .Include(c => c.MenuItems)
+                .FirstOrDefaultAsync(c => c.Id == id);
+        }
+
+        public async Task UpdateMenuItemAsync(MenuItem menuItem)
+        {
+            _context.MenuItems.Update(menuItem);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateMenuCategoryAsync(MenuCategory menuCategory)
+        {
+            _context.MenuCategories.Update(menuCategory);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<bool> DeleteMenuItemAsync(int id)
+        {
+            var menuItem = await _context.MenuItems.FindAsync(id);
+            if (menuItem == null)
+                return false;
+
+            // Sprawdź czy pozycja nie jest używana w zamówieniach
+            var hasOrders = await _context.OrderDetails.AnyAsync(od => od.MenuItemId == id);
+            if (hasOrders)
+            {
+                // Zamiast usuwać, oznacz jako niedostępne
+                menuItem.IsAvailable = false;
+                await _context.SaveChangesAsync();
+                return true;
+            }
+
+            _context.MenuItems.Remove(menuItem);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task<bool> DeleteMenuCategoryAsync(int id)
+        {
+            var category = await _context.MenuCategories
+                .Include(c => c.MenuItems)
+                .FirstOrDefaultAsync(c => c.Id == id);
+
+            if (category == null)
+                return false;
+
+            // Sprawdź czy kategoria ma pozycje
+            if (category.MenuItems != null && category.MenuItems.Any())
+            {
+                return false; // Nie można usunąć kategorii z pozycjami
+            }
+
+            _context.MenuCategories.Remove(category);
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

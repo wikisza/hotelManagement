@@ -21,7 +21,7 @@
     <div class="optionsBox">
         <div class="selectedReservationActions">
             <button id="detailsBtn" class="addRoomStandardTypeBtn" disabled>Szczegóły</button>
-            @if (User.IsInRole("manager") || User.IsInRole("admin"))
+            @if (User.IsInRole("Manager") || User.IsInRole("Admin"))
             {
                 <button id="editBtn" class="addRoomStandardTypeBtn" disabled>Edytuj</button>
                 <button id="deleteBtn" class="addRoomStandardTypeBtn" disabled>Usuń</button>

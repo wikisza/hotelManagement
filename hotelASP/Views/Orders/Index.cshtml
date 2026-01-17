@@ -19,7 +19,7 @@
         <div class="headerMain-actions">
             <button class="btnMainSecondary" data-bs-toggle="modal" data-bs-target="#createOrderModal">Dodaj Zamówienie</button>
             <a asp-action="History" class="btnMainSecondary">Historia Zamówień</a>
-            @if (User.IsInRole("manager") || User.IsInRole("admin"))
+            @if (User.IsInRole("Manager") || User.IsInRole("Admin"))
             {
                 <a asp-action="ManageMenu" class="btnMainSecondary">Zarządzaj Menu</a>
             }

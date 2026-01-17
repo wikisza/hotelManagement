@@ -92,7 +92,7 @@
                             <a asp-action="Edit" asp-route-id="@customer.Id" class="btn btn-sm btn-warning" title="Edytuj">
                                 ✏️
                             </a>
-                            @if (User.IsInRole("admin") || User.IsInRole("manager"))
+                            @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
                             {
                                 <a asp-action="Delete" asp-route-id="@customer.Id" class="btn btn-sm btn-danger" title="Usuń">
                                     🗑️
