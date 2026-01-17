@@ -1,0 +1,242 @@
+﻿@model hotelASP.Models.RoleManagement.RoleViewModel
+
+@{
+    ViewData["Title"] = Model.Id == 0 ? "Tworzenie Nowej Roli" : "Edycja Roli";
+    var isEdit = Model.Id > 0;
+}
+
+<style>
+    .permission-selection {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 20px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .permission-category {
+        margin-bottom: 25px;
+    }
+
+    .category-header {
+        background: linear-gradient(135deg, #2f3b5e 0%, #3b73af 100%);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .category-header:hover {
+        background: linear-gradient(135deg, #1a2a4a 0%, #2f5a8f 100%);
+    }
+
+    .permission-checkbox-item {
+        padding: 12px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        border-left: 4px solid #28a745;
+        transition: all 0.2s;
+    }
+
+    .permission-checkbox-item:hover {
+        background-color: #e9ecef;
+        transform: translateX(5px);
+    }
+
+    .permission-checkbox-item input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        margin-right: 12px;
+        cursor: pointer;
+        accent-color: #28a745;
+    }
+
+    .permission-checkbox-label {
+        cursor: pointer;
+        margin: 0;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+    }
+
+    .permission-desc {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin-left: 32px;
+        margin-top: 5px;
+    }
+
+    .select-all-btn {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        cursor: pointer;
+    }
+
+    .select-all-btn:hover {
+        background-color: #218838;
+    }
+</style>
+
+<div class="mainPage">
+    <div class="headerMain">
+        <h3>@(isEdit ? "Edycja Roli" : "Tworzenie Nowej Roli")</h3>
+        <a asp-action="Index" class="btnMainSecondary">Powrót</a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <form asp-action="@(isEdit ? "Edit" : "Create")" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" asp-for="Id" />
+
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="card mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Podstawowe Informacje</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">Nazwa Roli *</label>
+                            <input asp-for="Name"
+                                   class="form-control form-control-lg"
+                                   placeholder="np. Recepcjonista, Kucharz..."
+                                   readonly="@(Model.IsSystemRole ? "readonly" : null)" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Opis</label>
+                            <textarea asp-for="Description" class="form-control" rows="3" 
+                                      placeholder="Krótki opis roli i jej przeznaczenia..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        @if (Model.IsSystemRole)
+                        {
+                            <div class="alert alert-warning">
+                                <strong>⚠️ Uwaga:</strong> To jest rola systemowa. Możesz zmieniać tylko jej uprawnienia.
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="permission-selection">
+                    <h5 class="mb-4">Przypisz Uprawnienia</h5>
+                    
+                    @{
+                        var permissionsByCategory = Model.AvailablePermissions
+                            .GroupBy(p => p.Category)
+                            .OrderBy(g => g.Key);
+                    }
+
+                    @foreach (var category in permissionsByCategory)
+                    {
+                        <div class="permission-category">
+                            <div class="category-header" onclick="toggleCategory(this)">
+                                <span>@category.Key</span>
+                                <div>
+                                    <button type="button" class="select-all-btn" 
+                                            onclick="event.stopPropagation(); selectAllInCategory(this)">
+                                        Zaznacz wszystkie
+                                    </button>
+                                    <span class="toggle-icon">▼</span>
+                                </div>
+                            </div>
+                            <div class="category-content">
+                                @foreach (var permission in category)
+                                {
+                                    <div class="permission-checkbox-item">
+                                        <label class="permission-checkbox-label">
+                                            <input type="checkbox" 
+                                                   name="SelectedPermissionIds" 
+                                                   value="@permission.Id" 
+                                                   @(permission.IsSelected ? "checked" : "") />
+                                            <span>@permission.Name <small class="text-muted">[@permission.Code]</small></span>
+                                        </label>
+                                        @if (!string.IsNullOrEmpty(permission.Description))
+                                        {
+                                            <div class="permission-desc">@permission.Description</div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a asp-action="Index" class="btn btn-secondary btn-lg">Anuluj</a>
+                    <button type="submit" class="btn btn-success btn-lg">
+                        @(isEdit ? "Zapisz Zmiany" : "Utwórz Rolę")
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">Wskazówki</h6>
+                </div>
+                <div class="card-body">
+                    <p><strong>Nazwa roli</strong> powinna być krótka i opisowa.</p>
+                    <p><strong>Opis</strong> pomaga zrozumieć przeznaczenie roli.</p>
+                    <p><strong>Uprawnienia</strong> określają co użytkownik z tą rolą może robić w systemie.</p>
+                    <hr />
+                    <p class="mb-0"><small class="text-muted">Roli systemowych nie można usunąć, ale można zmieniać ich uprawnienia.</small></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        function toggleCategory(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('.toggle-icon');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                icon.textContent = '▼';
+            } else {
+                content.style.display = 'none';
+                icon.textContent = '▶';
+            }
+        }
+
+        function selectAllInCategory(button) {
+            const category = button.closest('.permission-category');
+            const checkboxes = category.querySelectorAll('input[type="checkbox"]');
+            const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+            
+            checkboxes.forEach(cb => cb.checked = !allChecked);
+            button.textContent = allChecked ? 'Zaznacz wszystkie' : 'Odznacz wszystkie';
+        }
+
+        // Domyślnie zwiń wszystkie kategorie oprócz pierwszej
+        document.addEventListener('DOMContentLoaded', function() {
+            const categories = document.querySelectorAll('.category-content');
+            categories.forEach((content, index) => {
+                if (index > 0) {
+                    content.style.display = 'none';
+                    content.previousElementSibling.querySelector('.toggle-icon').textContent = '▶';
+                }
+            });
+        });
+    </script>
+}

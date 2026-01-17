@@ -2,6 +2,9 @@
 
 namespace hotelASP.Entities
 {
+    /// <summary>
+    /// Rola użytkownika w systemie
+    /// </summary>
     public class Role
     {
         [Key]
@@ -9,8 +12,19 @@ namespace hotelASP.Entities
 
         [Required]
         [MaxLength(50)]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
-        public ICollection<UserAccount> Users { get; set; }
+        [MaxLength(200)]
+        public string? Description { get; set; }
+
+        public bool IsSystemRole { get; set; } // Czy rola jest systemowa (nie można usunąć)
+
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+        public DateTime? UpdatedAt { get; set; }
+
+        // Relacje
+        public virtual ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
+        public virtual ICollection<UserAccount> Users { get; set; } = new List<UserAccount>();
     }
 }

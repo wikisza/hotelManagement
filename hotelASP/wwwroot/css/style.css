@@ -257,7 +257,7 @@ h1, h2, h3, h4, h5, h6 {
             transform: translateX(5px);
         }
 
-/* Main Window - zajmuje całą pozostałą przestrzeń */
+/* Main Window - zajmuje całą pozostała przestrzeń */
 .mainWindow {
     flex: 1;
     padding: 10px;
@@ -344,7 +344,7 @@ section {
     width: 50%;
     margin-top: 30px;
     padding: 20px;
-    box-shadow: 0px 0px 20px rgba(26, 25, 25, 0.658);
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.658);
 }
 
 form {
@@ -746,12 +746,6 @@ select:hover {
     border-radius: 10px;
 }
 
-.close-btn {
-    float: right;
-    font-size: 24px;
-    cursor: pointer;
-}
-
 /*Rooms*/
 
 .create-room-container {
@@ -874,3 +868,96 @@ select:hover {
     .fc-daygrid-event:hover {
         filter: brightness(120%); /* Zwiększa jasność o 20% */
     }
+/* ========== DROPDOWN MENU W NAWIGACJI - NAPRAWIONA WERSJA ========== */
+.nav-dropdown {
+    position: relative;
+}
+
+.nav-dropdown-toggle {
+    cursor: pointer;
+    padding: 15px 20px;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    display: block;
+    user-select: none;
+}
+
+.nav-dropdown-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.nav-dropdown-toggle h4 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    color: inherit;
+    pointer-events: none;
+}
+
+.dropdown-arrow {
+    font-size: 0.8em;
+    transition: transform 0.3s ease;
+    display: inline-block;
+    pointer-events: none;
+}
+
+.nav-dropdown.active .dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+/* KLUCZOWA ZMIANA: Usunięto display: none, używamy tylko max-height i opacity */
+.nav-dropdown-menu {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    padding-left: 15px;
+    margin-top: 0;
+    border-left: 3px solid rgba(255, 255, 255, 0.3);
+    transition: max-height 0.4s ease, opacity 0.3s ease, margin-top 0.3s ease;
+}
+
+.nav-dropdown.active .nav-dropdown-menu {
+    max-height: 500px;
+    opacity: 1;
+    margin-top: 5px;
+}
+
+.nav-dropdown-menu a {
+    display: block;
+    padding: 10px 15px;
+    margin: 5px 0;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    border-left: 3px solid transparent;
+}
+
+.nav-dropdown-menu a:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+    transform: translateX(5px);
+    border-left-color: var(--hoverColor);
+}
+
+.nav-dropdown-menu h5 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: inherit;
+}
+
+/* Responsywność */
+@media (max-width: 768px) {
+    .nav-dropdown-menu {
+        padding-left: 10px;
+    }
+    
+    .nav-dropdown-toggle h4 {
+        font-size: 1rem;
+    }
+    
+    .nav-dropdown-menu h5 {
+        font-size: 0.85rem;
+    }
+}

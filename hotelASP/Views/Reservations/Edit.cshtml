@@ -114,6 +114,7 @@
     }
     <script>
         let rfidActive = false;
+        let rfidTimeout = null;
 
         function activateRfidReader() {
             rfidActive = true;
@@ -127,6 +128,10 @@
             rfidActive = false;
             document.getElementById('rfidReaderSection').style.display = 'none';
             document.getElementById('rfidHiddenInput').value = '';
+            if (rfidTimeout) {
+                clearTimeout(rfidTimeout);
+                rfidTimeout = null;
+            }
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -134,19 +139,32 @@
             const keyCodeInput = document.getElementById('keyCodeInput');
 
             rfidInput.addEventListener('input', function() {
-                if (rfidActive && this.value.length >= 8) {
-                    setTimeout(() => {
-                        if (this.value.trim().length > 0) {
-                            const cardCode = this.value.trim();
+                if (rfidActive) {
+                    // Anuluj poprzedni timeout
+                    if (rfidTimeout) {
+                        clearTimeout(rfidTimeout);
+                    }
+                    
+                    // Poczekaj 200ms na zakończenie wpisywania przez czytnik RFID
+                    rfidTimeout = setTimeout(() => {
+                        const cardCode = this.value.trim();
+                        if (cardCode.length > 0) {
                             assignRfidCard(cardCode);
                         }
-                    }, 100);
+                    }, 200);
                 }
             });
 
             rfidInput.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter' && rfidActive) {
                     e.preventDefault();
+                    
+                    // Anuluj timeout, jeśli był ustawiony
+                    if (rfidTimeout) {
+                        clearTimeout(rfidTimeout);
+                        rfidTimeout = null;
+                    }
+                    
                     const cardCode = this.value.trim();
                     if (cardCode.length > 0) {
                         assignRfidCard(cardCode);

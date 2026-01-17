@@ -1,0 +1,260 @@
+﻿@model hotelASP.Models.RoleManagement.RoleListViewModel
+
+@{
+    ViewData["Title"] = "Zarządzanie Rolami i Uprawnieniami";
+}
+
+<style>
+    .role-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+        padding: 20px;
+        margin-bottom: 20px;
+        border-left: 5px solid #2f3b5e;
+    }
+
+    .role-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .role-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #2f3b5e;
+        margin: 0;
+    }
+
+    .system-badge {
+        background-color: #ffc107;
+        color: #000;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .permission-badge {
+        background-color: #28a745;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-left: 10px;
+    }
+
+    .permission-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .permission-tag {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 5px 12px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        color: #495057;
+    }
+
+    .btn-action {
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s;
+        display: inline-block;
+        margin: 0 5px;
+    }
+
+    .btn-edit {
+        background-color: #2f3b5e;
+        color: white;
+    }
+
+    .btn-edit:hover {
+        background-color: #1a2a4a;
+        transform: translateY(-2px);
+    }
+
+    .btn-delete {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-delete:hover {
+        background-color: #c82333;
+    }
+
+    .btn-delete:disabled {
+        background-color: #6c757d;
+        cursor: not-allowed;
+    }
+
+    .category-section {
+        margin-bottom: 30px;
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .category-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #2f3b5e;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #2f3b5e;
+    }
+
+    .permission-item {
+        padding: 12px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        border-left: 4px solid #28a745;
+    }
+
+    .permission-name {
+        font-weight: 600;
+        color: #2f3b5e;
+        margin-bottom: 5px;
+    }
+
+    .permission-description {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin: 0;
+    }
+
+    .permission-code {
+        font-size: 0.8rem;
+        color: #28a745;
+        font-family: monospace;
+        font-weight: 600;
+    }
+</style>
+
+<div class="mainPage">
+    <div class="headerMain">
+        <h3>🔐 Zarządzanie Rolami i Uprawnieniami</h3>
+        <a asp-action="Create" class="btnMainPrimary">Dodaj Nową Rolę</a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>✓ Sukces!</strong> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>⚠️ Błąd!</strong> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    <!-- Lista ról -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h4 class="mb-4">Istniejące Role</h4>
+            @foreach (var role in Model.Roles.OrderBy(r => r.Id))
+            {
+                <div class="role-card">
+                    <div class="role-header">
+                        <div>
+                            <h5 class="role-title">
+                                @role.Name
+                                @if (role.IsSystemRole)
+                                {
+                                    <span class="system-badge">Rola Systemowa</span>
+                                }
+                                <span class="permission-badge">@role.PermissionCount uprawnień</span>
+                            </h5>
+                            @if (!string.IsNullOrEmpty(role.Description))
+                            {
+                                <p class="text-muted mb-0">@role.Description</p>
+                            }
+                        </div>
+                        <div>
+                            <a asp-action="Edit" asp-route-id="@role.Id" class="btn-action btn-edit">✏️ Edytuj</a>
+                            @if (!role.IsSystemRole)
+                            {
+                                <form asp-action="Delete" method="post" class="d-inline" 
+                                      onsubmit="return confirm('Czy na pewno chcesz usunąć tę rolę? Tej operacji nie można cofnąć!');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@role.Id" />
+                                    <button type="submit" class="btn-action btn-delete">🗑️ Usuń</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn-action btn-delete" disabled title="Nie można usunąć roli systemowej">
+                                    🔒 Zablokowane
+                                </button>
+                            }
+                        </div>
+                    </div>
+
+                    @if (role.PermissionNames.Any())
+                    {
+                        <div class="permission-list">
+                            @foreach (var permission in role.PermissionNames.Take(10))
+                            {
+                                <span class="permission-tag">@permission</span>
+                            }
+                            @if (role.PermissionNames.Count > 10)
+                            {
+                                <span class="permission-tag"><strong>+ @(role.PermissionNames.Count - 10) więcej...</strong></span>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted mb-0"><em>Brak przypisanych uprawnień</em></p>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Lista uprawnień pogrupowanych po kategoriach -->
+    <div class="row">
+        <div class="col-12">
+            <h4 class="mb-4">Wszystkie Dostępne Uprawnienia</h4>
+            @foreach (var category in Model.PermissionsByCategory.OrderBy(c => c.Key))
+            {
+                <div class="category-section">
+                    <h5 class="category-title">@category.Key</h5>
+                    @foreach (var permission in category.Value)
+                    {
+                        <div class="permission-item">
+                            <div class="permission-name">
+                                @permission.Name
+                                <span class="permission-code">[@permission.Code]</span>
+                            </div>
+                            @if (!string.IsNullOrEmpty(permission.Description))
+                            {
+                                <p class="permission-description">@permission.Description</p>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,4 +1,7 @@
-﻿<nav class="nav-bar">
+﻿@inject hotelASP.Data.ApplicationDbContext DbContext
+@using hotelASP.Authorization
+
+<nav class="nav-bar">
 	<a asp-controller="Rooms" asp-action="Index"> <h4>Pokoje</h4> </a>
 	<a asp-controller="Reservations" asp-action="Index"> <h4>Rezerwacje</h4> </a>
 	<a asp-controller="Reservations" asp-action="Create"> <h4>Zakwaterowanie</h4> </a>
@@ -6,8 +9,32 @@
 	<a asp-controller="Orders" asp-action="Index"> <h4>Zamówienia</h4></a>
 	<a asp-controller="Rooms" asp-action="CheckRoomStatus"> <h4>Stan pokojów</h4></a>
 	
-	@if (User.IsInRole("admin"))
+	@{
+		var hasUserManagement = AuthorizationHelper.UserHasPermission(User, PermissionCodes.UserView, DbContext);
+		var hasRoleManagement = AuthorizationHelper.UserHasPermission(User, PermissionCodes.RoleManage, DbContext);
+		var hasAnyAdminPermission = hasUserManagement || hasRoleManagement;
+	}
+	
+	@if (hasAnyAdminPermission)
 	{
-		<a asp-controller="Account" asp-action="Index"><h4>Zarządzaj użytkownikami</h4></a>
+		<div class="nav-dropdown">
+			<div class="nav-dropdown-toggle">
+				<h4>Administracja <span class="dropdown-arrow">▼</span></h4>
+			</div>
+			<div class="nav-dropdown-menu">
+				@if (hasUserManagement)
+				{
+					<a asp-controller="Account" asp-action="Index">
+						<h5>👥 Zarządzaj użytkownikami</h5>
+					</a>
+				}
+				@if (hasRoleManagement)
+				{
+					<a asp-controller="RoleManagement" asp-action="Index">
+						<h5>🔐 Zarządzanie rolami</h5>
+					</a>
+				}
+			</div>
+		</div>
 	}
 </nav>

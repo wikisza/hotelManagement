@@ -1,4 +1,6 @@
-﻿@model hotelASP.Models.ManageMenuViewModel
+﻿@using hotelASP.Authorization
+@model hotelASP.Models.ManageMenuViewModel
+@inject hotelASP.Data.ApplicationDbContext DbContext
 
 @{
     ViewData["Title"] = "Zarządzanie Menu";
@@ -10,157 +12,228 @@
 
 <div class="mainPage">
     <div class="headerMain">
-        <h3>📋 Zarządzanie Menu</h3>
+        <h3>Zarządzanie Menu Restauracji</h3>
         <a asp-action="Index" class="btnMainSecondary">Powrót</a>
     </div>
 
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>✓ Sukces!</strong> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <strong>⚠️ Błąd!</strong> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
     <div class="menu-management-container">
-
-        <div class="menu-section">
-            <div class="card-header-menu">
-                <h4>➕ Dodaj kategorię</h4>
-            </div>
-            <div class="card-body-menu">
-                <form asp-action="AddMenuCategory" method="post" class="form-menu">
-                    @if (TempData["CategoryError"] != null)
-                    {
-                        <div class="alert alert-danger">
-                            <strong>⚠️ Błąd:</strong> @TempData["CategoryError"]
-                        </div>
-                    }
-                    <div class="form-group-menu">
-                        <label asp-for="NewCategory.Name" class="label-menu">Nazwa kategorii</label>
-                        <input asp-for="NewCategory.Name" class="input-menu" placeholder="np. Przystawki, Dania główne..." />
-                        <span asp-validation-for="NewCategory.Name" class="text-danger"></span>
-                    </div>
-                    <button type="submit" class="btn-menu btn-primary-menu">Dodaj kategorię</button>
-                </form>
-            </div>
-
-            <div class="categories-list">
-                <h5>Istniejące kategorie</h5>
-                @if (Model.Categories.Any())
-                {
-                    <ul class="category-items">
-                        @foreach (var category in Model.Categories.OrderBy(c => c.Name))
+        <!-- Sekcja kategorii -->
+        @if (AuthorizationHelper.UserHasPermission(User, PermissionCodes.MenuCategoryAdd, DbContext))
+        {
+            <div class="menu-section">
+                <div class="card-header-menu">
+                    <h4>Dodaj kategorię</h4>
+                </div>
+                <div class="card-body-menu">
+                    <form asp-action="AddMenuCategory" method="post" class="form-menu">
+                        @Html.AntiForgeryToken()
+                        @if (TempData["CategoryError"] != null)
                         {
-                            <li class="category-item">
-                                <span class="category-badge">📂</span>
-                                <span>@category.Name</span>
-                                <span class="item-count">
-                                    (@Model.MenuItems.Count(i => i.MenuCategoryId == category.Id))
-                                </span>
-                            </li>
-                        }
-                    </ul>
-                }
-                else
-                {
-                    <p class="empty-message">Brak kategorii. Dodaj pierwszą kategorię!</p>
-                }
-            </div>
-        </div>
-
-        <div class="menu-section">
-            <div class="card-header-menu">
-                <h4>🍽️ Dodaj pozycję do menu</h4>
-            </div>
-            <div class="card-body-menu">
-                <form asp-action="AddMenuItem" method="post" class="form-menu">
-                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
-
-                    <div class="form-group-menu">
-                        <label asp-for="NewMenuItem.Name" class="label-menu">Nazwa pozycji *</label>
-                        <input asp-for="NewMenuItem.Name" class="input-menu" placeholder="np. Barszcz ukraiński" />
-                        <span asp-validation-for="NewMenuItem.Name" class="text-danger small"></span>
-                    </div>
-
-                    <div class="form-group-menu">
-                        <label asp-for="NewMenuItem.Description" class="label-menu">Opis *</label>
-                        <textarea asp-for="NewMenuItem.Description" class="textarea-menu" placeholder="Krótki opis dania..." rows="3"></textarea>
-                        <span asp-validation-for="NewMenuItem.Description" class="text-danger small"></span>
-                    </div>
-
-                    <div class="form-group-menu">
-                        <label asp-for="NewMenuItem.Price" class="label-menu">Cena (zł) *</label>
-                        <input asp-for="NewMenuItem.Price" type="number" step="0.01" class="input-menu" placeholder="0.00" />
-                        <span asp-validation-for="NewMenuItem.Price" class="text-danger small"></span>
-                    </div>
-
-                    <div class="form-group-menu">
-                        <label asp-for="NewMenuItem.MenuCategoryId" class="label-menu">Kategoria *</label>
-                        <select asp-for="NewMenuItem.MenuCategoryId" class="select-menu" asp-items="@(new SelectList(Model.Categories, "Id", "Name"))">
-                            <option value="">-- Wybierz kategorię --</option>
-                        </select>
-                        <span asp-validation-for="NewMenuItem.MenuCategoryId" class="text-danger small"></span>
-                    </div>
-
-                    <div class="form-group-menu checkbox-group">
-                        <div class="checkbox-menu">
-                            <input type="checkbox" asp-for="NewMenuItem.IsAvailable" id="isAvailable" />
-                            <label for="isAvailable">✓ Dostępne</label>
-                        </div>
-                        <div class="checkbox-menu">
-                            <input type="checkbox" asp-for="NewMenuItem.ContainsAlcohol" id="containsAlcohol" />
-                            <label for="containsAlcohol">🍷 Zawiera alkohol</label>
-                        </div>
-                    </div>
-
-                    <button type="submit" class="btn-menu btn-success-menu w-100">Dodaj do Menu</button>
-                </form>
-            </div>
-        </div>
-
-        <div class="menu-section">
-            <div class="card-header-menu">
-                <h4>📖 Aktualne Menu</h4>
-            </div>
-            <div class="menu-list-container">
-                @if (Model.MenuItems.Any())
-                {
-                    @foreach (var category in Model.Categories.OrderBy(c => c.Name))
-                    {
-                        var categoryItems = Model.MenuItems.Where(i => i.MenuCategoryId == category.Id).OrderBy(i => i.Name).ToList();
-
-                        @if (categoryItems.Any())
-                        {
-                            <div class="menu-category-section">
-                                <div class="category-header">
-                                    <h5>@category.Name</h5>
-                                    <span class="badge-count">@categoryItems.Count</span>
-                                </div>
-
-                                @foreach (var item in categoryItems)
-                                {
-                                    <div class="menu-item-card">
-                                        <div class="menu-item-top">
-                                            <h6>@item.Name</h6>
-                                            <span class="price-badge">@item.Price.ToString("0.00") zł</span>
-                                        </div>
-                                        <p class="menu-item-description">@item.Description</p>
-                                        <div class="menu-item-flags">
-                                            @if (!item.IsAvailable)
-                                            {
-                                                <span class="flag unavailable">❌ Niedostępne</span>
-                                            }
-                                            @if (item.ContainsAlcohol)
-                                            {
-                                                <span class="flag alcohol">🍷 Z alkoholem</span>
-                                            }
-                                        </div>
-                                    </div>
-                                }
+                            <div class="alert alert-danger">
+                                <strong>⚠️ Błąd:</strong> @TempData["CategoryError"]
                             </div>
                         }
+                        <div class="form-group-menu">
+                            <label asp-for="NewCategory.Name" class="label-menu">Nazwa kategorii</label>
+                            <input asp-for="NewCategory.Name" class="input-menu" placeholder="np. Przystawki, Dania główne..." />
+                            <span asp-validation-for="NewCategory.Name" class="text-danger"></span>
+                        </div>
+                        <button type="submit" class="btn-menu btn-primary-menu">Dodaj kategorię</button>
+                    </form>
+                </div>
+
+                <div class="categories-list">
+                    <h5>Istniejące kategorie</h5>
+                    @if (Model.Categories.Any())
+                    {
+                        <ul class="category-items">
+                            @foreach (var category in Model.Categories.OrderBy(c => c.Name))
+                            {
+                                <li class="category-item">
+                                    <span class="category-badge">📂</span>
+                                    <span>@category.Name</span>
+                                    <span class="item-count">
+                                        (@Model.MenuItems.Count(i => i.MenuCategoryId == category.Id))
+                                    </span>
+                                    <div class="category-actions">
+                                        @if (AuthorizationHelper.UserHasPermission(User, PermissionCodes.MenuCategoryEdit, DbContext))
+                                        {
+                                            <button class="btn-icon edit-category" data-id="@category.Id" title="Edytuj">
+                                                ✏️
+                                            </button>
+                                        }
+                                        @if (AuthorizationHelper.UserHasPermission(User, PermissionCodes.MenuCategoryDelete, DbContext) && 
+                                             !Model.MenuItems.Any(i => i.MenuCategoryId == category.Id))
+                                        {
+                                            <form asp-action="DeleteCategory" method="post" class="d-inline" onsubmit="return confirm('Czy na pewno chcesz usunąć tę kategorię?');">
+                                                @Html.AntiForgeryToken()
+                                                <input type="hidden" name="id" value="@category.Id" />
+                                                <button type="submit" class="btn-icon delete-btn" title="Usuń">
+                                                    🗑️
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                </li>
+                            }
+                        </ul>
                     }
-                }
-                else
-                {
-                    <p class="empty-message">Brak pozycji w menu. Dodaj pierwszą pozycję!</p>
-                }
+                    else
+                    {
+                        <p class="empty-message">Brak kategorii. Dodaj pierwszą kategorię!</p>
+                    }
+                </div>
             </div>
-        </div>
+        }
+
+        <!-- Sekcja dodawania pozycji menu -->
+        @if (AuthorizationHelper.UserHasPermission(User, PermissionCodes.MenuItemAdd, DbContext))
+        {
+            <div class="menu-section">
+                <div class="card-header-menu">
+                    <h4>Dodaj pozycję do menu</h4>
+                </div>
+                <div class="card-body-menu">
+                    <form asp-action="AddMenuItem" method="post" class="form-menu">
+                        @Html.AntiForgeryToken()
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="form-group-menu">
+                            <label asp-for="NewMenuItem.Name" class="label-menu">Nazwa pozycji *</label>
+                            <input asp-for="NewMenuItem.Name" class="input-menu" placeholder="np. Barszcz ukraiński" />
+                            <span asp-validation-for="NewMenuItem.Name" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-group-menu">
+                            <label asp-for="NewMenuItem.Description" class="label-menu">Opis *</label>
+                            <textarea asp-for="NewMenuItem.Description" class="textarea-menu" placeholder="Krótki opis dania..." rows="3"></textarea>
+                            <span asp-validation-for="NewMenuItem.Description" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-group-menu">
+                            <label asp-for="NewMenuItem.Price" class="label-menu">Cena (zł) *</label>
+                            <input asp-for="NewMenuItem.Price" type="number" step="0.01" class="input-menu" placeholder="0.00" />
+                            <span asp-validation-for="NewMenuItem.Price" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-group-menu">
+                            <label asp-for="NewMenuItem.MenuCategoryId" class="label-menu">Kategoria *</label>
+                            <select asp-for="NewMenuItem.MenuCategoryId" class="select-menu" asp-items="@(new SelectList(Model.Categories, "Id", "Name"))">
+                                <option value="">-- Wybierz kategorię --</option>
+                            </select>
+                            <span asp-validation-for="NewMenuItem.MenuCategoryId" class="text-danger small"></span>
+                        </div>
+
+                        <div class="form-group-menu checkbox-group">
+                            <div class="checkbox-menu">
+                                <input type="checkbox" asp-for="NewMenuItem.IsAvailable" id="isAvailable" />
+                                <label for="isAvailable">✓ Dostępne</label>
+                            </div>
+                            <div class="checkbox-menu">
+                                <input type="checkbox" asp-for="NewMenuItem.ContainsAlcohol" id="containsAlcohol" />
+                                <label for="containsAlcohol">🍷 Zawiera alkohol</label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-menu btn-success-menu w-100">Dodaj do Menu</button>
+                    </form>
+                </div>
+            </div>
+        }
+
+        <!-- Sekcja listy menu -->
+        @if (AuthorizationHelper.UserHasPermission(User, PermissionCodes.MenuView, DbContext))
+        {
+            <div class="menu-section">
+                <div class="card-header-menu">
+                    <h4>Aktualne Menu</h4>
+                </div>
+                <div class="menu-list-container">
+                    @if (Model.MenuItems.Any())
+                    {
+                        @foreach (var category in Model.Categories.OrderBy(c => c.Name))
+                        {
+                            var categoryItems = Model.MenuItems.Where(i => i.MenuCategoryId == category.Id).OrderBy(i => i.Name).ToList();
+
+                            @if (categoryItems.Any())
+                            {
+                                <div class="menu-category-section">
+                                    <div class="category-header">
+                                        <h5>@category.Name</h5>
+                                        <span class="badge-count">@categoryItems.Count</span>
+                                    </div>
+
+                                    @foreach (var item in categoryItems)
+                                    {
+                                        <div class="menu-item-card">
+                                            <div class="menu-item-top">
+                                                <h6>@item.Name</h6>
+                                                <span class="price-badge">@item.Price.ToString("0.00") zł</span>
+                                            </div>
+                                            <p class="menu-item-description">@item.Description</p>
+                                            <div class="menu-item-flags">
+                                                @if (!item.IsAvailable)
+                                                {
+                                                    <span class="flag unavailable">❌ Niedostępne</span>
+                                                }
+                                                @if (item.ContainsAlcohol)
+                                                {
+                                                    <span class="flag alcohol">🍷 Z alkoholem</span>
+                                                }
+                                            </div>
+                                            <div class="menu-item-actions-row">
+                                                @if (AuthorizationHelper.UserHasPermission(User, PermissionCodes.MenuItemEdit, DbContext))
+                                                {
+                                                    <button class="btn-icon-action edit-menu-item" data-id="@item.Id" title="Edytuj">
+                                                        ✏️ Edytuj
+                                                    </button>
+                                                }
+                                                @if (AuthorizationHelper.UserHasPermission(User, PermissionCodes.MenuItemDelete, DbContext))
+                                                {
+                                                    <form asp-action="DeleteMenuItem" method="post" class="d-inline" onsubmit="return confirm('Czy na pewno chcesz usunąć tę pozycję?');">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="id" value="@item.Id" />
+                                                        <button type="submit" class="btn-icon-action delete-btn" title="Usuń">
+                                                            🗑️ Usuń
+                                                        </button>
+                                                    </form>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                        }
+                    }
+                    else
+                    {
+                        <p class="empty-message">Brak pozycji w menu. Dodaj pierwszą pozycję!</p>
+                    }
+                </div>
+            </div>
+        }
     </div>
+</div>
+
+<!-- Modal dla edycji -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div id="modalContentContainer"></div>
 </div>
 
 @section Scripts {
@@ -168,4 +241,33 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script src="~/js/menuManagement.js"></script>
+    <script>
+        // Obsługa edycji kategorii
+        document.querySelectorAll('.edit-category').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                fetch(`/Orders/EditCategory/${id}`)
+                    .then(res => res.text())
+                    .then(html => {
+                        document.getElementById('modalContentContainer').innerHTML = html;
+                        const modal = new bootstrap.Modal(document.getElementById('editModal'));
+                        modal.show();
+                    });
+            });
+        });
+
+        // Obsługa edycji pozycji menu
+        document.querySelectorAll('.edit-menu-item').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const id = this.getAttribute('data-id');
+                fetch(`/Orders/EditMenuItem/${id}`)
+                    .then(res => res.text())
+                    .then(html => {
+                        document.getElementById('modalContentContainer').innerHTML = html;
+                        const modal = new bootstrap.Modal(document.getElementById('editModal'));
+                        modal.show();
+                    });
+            });
+        });
+    </script>
 }

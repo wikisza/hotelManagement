@@ -268,7 +268,7 @@
                 if (cardAssignmentActive && this.value.length > 0) {
                     // Sprawdź czy wartość została w pełni wczytana (zakładamy Enter na końcu)
                     setTimeout(() => {
-                        if (this.value.trim().length >= 8) {
+                        if (this.value.trim().length >= 10) {
                             const cardCode = this.value.trim();
                             assignCard(cardCode);
                         }

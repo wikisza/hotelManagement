@@ -115,7 +115,7 @@ namespace hotelASP.Controllers
         }
 
         // GET: Customers/Delete/5
-        [Authorize(Roles = "admin,manager")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -136,7 +136,7 @@ namespace hotelASP.Controllers
         // POST: Customers/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "admin,manager")]
+        [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var result = await _customerService.DeleteCustomerAsync(id);
