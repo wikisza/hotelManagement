@@ -1,22 +1,11 @@
 using ClosedXML.Excel;
 using hotelASP.Models.Reports;
 using hotelASP.Interfaces;
-using QuestPDF.Fluent;
-using QuestPDF.Helpers;
-using QuestPDF.Infrastructure;
 
 namespace hotelASP.Services
 {
     public class ReportExportService : IReportExportService
     {
-        public ReportExportService()
-        {
-            // Konfiguracja QuestPDF - wymagane dla wersji Community
-            QuestPDF.Settings.License = LicenseType.Community;
-        }
-
-        #region Excel Export Methods
-
         public byte[] ExportIncomeReportToExcel(IncomeReportViewModel report)
         {
             using var workbook = new XLWorkbook();
@@ -88,7 +77,6 @@ namespace hotelASP.Services
                 currentRow++;
             }
 
-            // Formatowanie
             worksheet.Columns().AdjustToContents();
 
             using var stream = new MemoryStream();
@@ -247,228 +235,25 @@ namespace hotelASP.Services
             return stream.ToArray();
         }
 
-        #endregion
-
-        #region PDF Export Methods
+        #region PDF Export Methods (Placeholder)
 
         public byte[] ExportIncomeReportToPdf(IncomeReportViewModel report)
         {
-            var document = Document.Create(container =>
-            {
-                container.Page(page =>
-                {
-                    page.Size(PageSizes.A4);
-                    page.Margin(2, Unit.Centimetre);
-                    page.DefaultTextStyle(x => x.FontSize(10));
-
-                    page.Header().Element(HeaderStyle).Text("RAPORT PRZYCHODÓW").Bold().FontSize(20);
-
-                    page.Content().Column(column =>
-                    {
-                        column.Item().Text($"Okres: {report.DateFrom:dd.MM.yyyy} - {report.DateTo:dd.MM.yyyy}");
-                        column.Item().PaddingVertical(10);
-
-                        // Podsumowanie
-                        column.Item().Background(Colors.Grey.Lighten3).Padding(10).Column(summary =>
-                        {
-                            summary.Item().Text($"Ca³kowity przychód: {report.TotalIncome:C}").Bold();
-                            summary.Item().Text($"Przychód z rezerwacji: {report.ReservationIncome:C}");
-                            summary.Item().Text($"Przychód z zamówieñ: {report.OrdersIncome:C}");
-                            summary.Item().Text($"Liczba rezerwacji: {report.TotalReservations}");
-                            summary.Item().Text($"Liczba zamówieñ: {report.TotalOrders}");
-                        });
-
-                        column.Item().PaddingVertical(10);
-
-                        // Tabela miesiêczna
-                        column.Item().Text("Podzia³ miesiêczny").Bold().FontSize(14);
-                        column.Item().PaddingVertical(5);
-
-                        column.Item().Table(table =>
-                        {
-                            table.ColumnsDefinition(columns =>
-                            {
-                                columns.RelativeColumn();
-                                columns.RelativeColumn();
-                                columns.RelativeColumn();
-                                columns.RelativeColumn();
-                            });
-
-                            table.Header(header =>
-                            {
-                                header.Cell().Background(Colors.Grey.Lighten2).Padding(5).Text("Miesi¹c").Bold();
-                                header.Cell().Background(Colors.Grey.Lighten2).Padding(5).Text("Rezerwacje").Bold();
-                                header.Cell().Background(Colors.Grey.Lighten2).Padding(5).Text("Zamówienia").Bold();
-                                header.Cell().Background(Colors.Grey.Lighten2).Padding(5).Text("Razem").Bold();
-                            });
-
-                            foreach (var month in report.MonthlyBreakdown)
-                            {
-                                table.Cell().Padding(5).Text(month.Month);
-                                table.Cell().Padding(5).Text($"{month.ReservationIncome:C}");
-                                table.Cell().Padding(5).Text($"{month.OrdersIncome:C}");
-                                table.Cell().Padding(5).Text($"{month.TotalIncome:C}").Bold();
-                            }
-                        });
-                    });
-
-                    page.Footer().AlignCenter().Text(text =>
-                    {
-                        text.Span("Strona ");
-                        text.CurrentPageNumber();
-                        text.Span(" z ");
-                        text.TotalPages();
-                    });
-                });
-            });
-
-            return document.GeneratePdf();
+            // Tymczasowo zwróæ pusty PDF z informacj¹
+            var message = $"Eksport PDF bêdzie dostêpny wkrótce.\nRaport przychodów: {report.DateFrom:dd.MM.yyyy} - {report.DateTo:dd.MM.yyyy}";
+            return System.Text.Encoding.UTF8.GetBytes(message);
         }
 
         public byte[] ExportCustomerReportToPdf(CustomerReportViewModel report)
         {
-            var document = Document.Create(container =>
-            {
-                container.Page(page =>
-                {
-                    page.Size(PageSizes.A4);
-                    page.Margin(2, Unit.Centimetre);
-                    page.DefaultTextStyle(x => x.FontSize(10));
-
-                    page.Header().Element(HeaderStyle).Text("RAPORT KLIENTÓW").Bold().FontSize(20);
-
-                    page.Content().Column(column =>
-                    {
-                        column.Item().Text($"Okres: {report.DateFrom:dd.MM.yyyy} - {report.DateTo:dd.MM.yyyy}");
-                        column.Item().PaddingVertical(10);
-
-                        // Podsumowanie
-                        column.Item().Background(Colors.Grey.Lighten3).Padding(10).Column(summary =>
-                        {
-                            summary.Item().Text($"£¹czna liczba klientów: {report.TotalCustomers}").Bold();
-                            summary.Item().Text($"Nowi klienci: {report.NewCustomers}");
-                            summary.Item().Text($"Powracaj¹cy klienci: {report.ReturningCustomers}");
-                        });
-
-                        column.Item().PaddingVertical(10);
-
-                        // Top klienci
-                        column.Item().Text("Top klienci").Bold().FontSize(14);
-                        column.Item().PaddingVertical(5);
-
-                        column.Item().Table(table =>
-                        {
-                            table.ColumnsDefinition(columns =>
-                            {
-                                columns.RelativeColumn(2);
-                                columns.RelativeColumn(2);
-                                columns.RelativeColumn(1);
-                                columns.RelativeColumn(1);
-                            });
-
-                            table.Header(header =>
-                            {
-                                header.Cell().Background(Colors.Grey.Lighten2).Padding(5).Text("Imiê i nazwisko").Bold();
-                                header.Cell().Background(Colors.Grey.Lighten2).Padding(5).Text("Email").Bold();
-                                header.Cell().Background(Colors.Grey.Lighten2).Padding(5).Text("Rezerwacje").Bold();
-                                header.Cell().Background(Colors.Grey.Lighten2).Padding(5).Text("Wydano").Bold();
-                            });
-
-                            foreach (var customer in report.TopCustomers)
-                            {
-                                table.Cell().Padding(5).Text(customer.CustomerName);
-                                table.Cell().Padding(5).Text(customer.Email);
-                                table.Cell().Padding(5).Text(customer.ReservationsCount.ToString());
-                                table.Cell().Padding(5).Text($"{customer.TotalSpent:C}");
-                            }
-                        });
-                    });
-
-                    page.Footer().AlignCenter().Text(text =>
-                    {
-                        text.Span("Strona ");
-                        text.CurrentPageNumber();
-                        text.Span(" z ");
-                        text.TotalPages();
-                    });
-                });
-            });
-
-            return document.GeneratePdf();
+            var message = $"Eksport PDF bêdzie dostêpny wkrótce.\nRaport klientów: {report.DateFrom:dd.MM.yyyy} - {report.DateTo:dd.MM.yyyy}";
+            return System.Text.Encoding.UTF8.GetBytes(message);
         }
 
         public byte[] ExportOrderReportToPdf(OrderReportViewModel report)
         {
-            var document = Document.Create(container =>
-            {
-                container.Page(page =>
-                {
-                    page.Size(PageSizes.A4);
-                    page.Margin(2, Unit.Centimetre);
-                    page.DefaultTextStyle(x => x.FontSize(10));
-
-                    page.Header().Element(HeaderStyle).Text("RAPORT ZAMÓWIEÑ").Bold().FontSize(20);
-
-                    page.Content().Column(column =>
-                    {
-                        column.Item().Text($"Okres: {report.DateFrom:dd.MM.yyyy} - {report.DateTo:dd.MM.yyyy}");
-                        column.Item().PaddingVertical(10);
-
-                        // Podsumowanie
-                        column.Item().Background(Colors.Grey.Lighten3).Padding(10).Column(summary =>
-                        {
-                            summary.Item().Text($"£¹czna liczba zamówieñ: {report.TotalOrders}").Bold();
-                            summary.Item().Text($"Wartoœæ zamówieñ: {report.TotalOrdersValue:C}");
-                            summary.Item().Text($"Œrednia wartoœæ: {report.AverageOrderValue:C}");
-                        });
-
-                        column.Item().PaddingVertical(10);
-
-                        // Najpopularniejsze pozycje
-                        column.Item().Text("Najpopularniejsze pozycje").Bold().FontSize(14);
-                        column.Item().PaddingVertical(5);
-
-                        column.Item().Table(table =>
-                        {
-                            table.ColumnsDefinition(columns =>
-                            {
-                                columns.RelativeColumn(2);
-                                columns.RelativeColumn(1);
-                                columns.RelativeColumn(1);
-                            });
-
-                            table.Header(header =>
-                            {
-                                header.Cell().Background(Colors.Grey.Lighten2).Padding(5).Text("Nazwa").Bold();
-                                header.Cell().Background(Colors.Grey.Lighten2).Padding(5).Text("Zamówienia").Bold();
-                                header.Cell().Background(Colors.Grey.Lighten2).Padding(5).Text("Przychód").Bold();
-                            });
-
-                            foreach (var item in report.PopularItems)
-                            {
-                                table.Cell().Padding(5).Text(item.ItemName);
-                                table.Cell().Padding(5).Text(item.OrderCount.ToString());
-                                table.Cell().Padding(5).Text($"{item.Revenue:C}");
-                            }
-                        });
-                    });
-
-                    page.Footer().AlignCenter().Text(text =>
-                    {
-                        text.Span("Strona ");
-                        text.CurrentPageNumber();
-                        text.Span(" z ");
-                        text.TotalPages();
-                    });
-                });
-            });
-
-            return document.GeneratePdf();
-        }
-
-        private static IContainer HeaderStyle(IContainer container)
-        {
-            return container.Background(Colors.Blue.Lighten3).Padding(10);
+            var message = $"Eksport PDF bêdzie dostêpny wkrótce.\nRaport zamówieñ: {report.DateFrom:dd.MM.yyyy} - {report.DateTo:dd.MM.yyyy}";
+            return System.Text.Encoding.UTF8.GetBytes(message);
         }
 
         #endregion

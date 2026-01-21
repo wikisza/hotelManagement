@@ -1,7 +1,6 @@
 using hotelASP.Authorization;
 using hotelASP.Models.Reports;
 using hotelASP.Interfaces;
-using hotelASP.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -77,108 +76,39 @@ namespace hotelASP.Controllers
             };
         }
 
-        #region Import/Export Actions
+        #region Excel Export Actions
 
-        [HttpPost]
+        [HttpGet]
         [HasPermission(PermissionCodes.ReportView)]
-        public async Task<IActionResult> ImportIncomeReport(IFormFile file)
+        public async Task<IActionResult> ExportIncomeReportToExcel(DateTime dateFrom, DateTime dateTo)
         {
-            if (file == null || file.Length == 0)
-            {
-                ModelState.AddModelError("", "Wybierz plik do za³adowania");
-                return View("Index", new ReportFilterViewModel());
-            }
-
-            if (Path.GetExtension(file.FileName).ToLower() != ".xlsx")
-            {
-                ModelState.AddModelError("", "Nieprawid³owy format pliku. Wymagany format: .xlsx");
-                return View("Index", new ReportFilterViewModel());
-            }
-
-            try
-            {
-                using (var stream = new MemoryStream())
-                {
-                    await file.CopyToAsync(stream);
-                    // Przetwarzanie pliku
-                    await _reportService.ImportIncomeReportAsync(stream);
-                }
-                TempData["SuccessMessage"] = "Raport przychodów zosta³ pomyœlnie zaimportowany";
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("", $"Wyst¹pi³ b³¹d podczas importowania raportu: {ex.Message}");
-            }
-
-            return View("Index", new ReportFilterViewModel());
+            var report = await _reportService.GenerateIncomeReportAsync(dateFrom, dateTo);
+            var fileContent = _exportService.ExportIncomeReportToExcel(report);
+            var fileName = $"Raport_Przychodow_{dateFrom:yyyy-MM-dd}_{dateTo:yyyy-MM-dd}.xlsx";
+            
+            return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }
 
-        [HttpPost]
+        [HttpGet]
         [HasPermission(PermissionCodes.ReportView)]
-        public async Task<IActionResult> ImportCustomerReport(IFormFile file)
+        public async Task<IActionResult> ExportCustomerReportToExcel(DateTime dateFrom, DateTime dateTo)
         {
-            if (file == null || file.Length == 0)
-            {
-                ModelState.AddModelError("", "Wybierz plik do za³adowania");
-                return View("Index", new ReportFilterViewModel());
-            }
-
-            if (Path.GetExtension(file.FileName).ToLower() != ".xlsx")
-            {
-                ModelState.AddModelError("", "Nieprawid³owy format pliku. Wymagany format: .xlsx");
-                return View("Index", new ReportFilterViewModel());
-            }
-
-            try
-            {
-                using (var stream = new MemoryStream())
-                {
-                    await file.CopyToAsync(stream);
-                    // Przetwarzanie pliku
-                    await _reportService.ImportCustomerReportAsync(stream);
-                }
-                TempData["SuccessMessage"] = "Raport klientów zosta³ pomyœlnie zaimportowany";
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("", $"Wyst¹pi³ b³¹d podczas importowania raportu: {ex.Message}");
-            }
-
-            return View("Index", new ReportFilterViewModel());
+            var report = await _reportService.GenerateCustomerReportAsync(dateFrom, dateTo);
+            var fileContent = _exportService.ExportCustomerReportToExcel(report);
+            var fileName = $"Raport_Klientow_{dateFrom:yyyy-MM-dd}_{dateTo:yyyy-MM-dd}.xlsx";
+            
+            return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }
 
-        [HttpPost]
+        [HttpGet]
         [HasPermission(PermissionCodes.ReportView)]
-        public async Task<IActionResult> ImportOrderReport(IFormFile file)
+        public async Task<IActionResult> ExportOrderReportToExcel(DateTime dateFrom, DateTime dateTo)
         {
-            if (file == null || file.Length == 0)
-            {
-                ModelState.AddModelError("", "Wybierz plik do za³adowania");
-                return View("Index", new ReportFilterViewModel());
-            }
-
-            if (Path.GetExtension(file.FileName).ToLower() != ".xlsx")
-            {
-                ModelState.AddModelError("", "Nieprawid³owy format pliku. Wymagany format: .xlsx");
-                return View("Index", new ReportFilterViewModel());
-            }
-
-            try
-            {
-                using (var stream = new MemoryStream())
-                {
-                    await file.CopyToAsync(stream);
-                    // Przetwarzanie pliku
-                    await _reportService.ImportOrderReportAsync(stream);
-                }
-                TempData["SuccessMessage"] = "Raport zamówieñ zosta³ pomyœlnie zaimportowany";
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("", $"Wyst¹pi³ b³¹d podczas importowania raportu: {ex.Message}");
-            }
-
-            return View("Index", new ReportFilterViewModel());
+            var report = await _reportService.GenerateOrderReportAsync(dateFrom, dateTo);
+            var fileContent = _exportService.ExportOrderReportToExcel(report);
+            var fileName = $"Raport_Zamowien_{dateFrom:yyyy-MM-dd}_{dateTo:yyyy-MM-dd}.xlsx";
+            
+            return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }
 
         #endregion

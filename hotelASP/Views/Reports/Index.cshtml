@@ -1,91 +1,140 @@
 ﻿@model hotelASP.Models.Reports.ReportFilterViewModel
 
 @{
-    ViewData["Title"] = "Raporty Hotelowe";
+    ViewData["Title"] = "System Raportów";
+    Layout = "~/Views/Shared/_ReportsLayout.cshtml";
 }
 
-<div class="mainPage">
-    <div class="headerMain">
-        <h3>📊 System Raportów</h3>
+<div class="container py-5">
+    <!-- Header -->
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold text-dark mb-2">System Raportów</h1>
+        <p class="lead text-muted">Generuj szczegółowe analizy działalności hotelu</p>
     </div>
 
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Generuj Raport</h5>
-                </div>
-                <div class="card-body">
+    <!-- Main Form -->
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card border-0 shadow-lg">
+                <div class="card-body p-4 p-lg-5">
                     <form asp-action="GenerateReport" method="post">
                         @Html.AntiForgeryToken()
                         
-                        <div class="row mb-3">
+                        <!-- Date Range Selection -->
+                        <div class="row g-4 mb-5">
                             <div class="col-md-6">
-                                <label asp-for="DateFrom" class="form-label">Data od</label>
-                                <input asp-for="DateFrom" type="date" class="form-control" />
-                                <span asp-validation-for="DateFrom" class="text-danger"></span>
+                                <label asp-for="DateFrom" class="form-label fw-bold">
+                                    <i class="bi bi-calendar-event me-2"></i>Data od
+                                </label>
+                                <input asp-for="DateFrom" type="date" class="form-control form-control-lg" />
+                                <span asp-validation-for="DateFrom" class="text-danger small"></span>
                             </div>
                             <div class="col-md-6">
-                                <label asp-for="DateTo" class="form-label">Data do</label>
-                                <input asp-for="DateTo" type="date" class="form-control" />
-                                <span asp-validation-for="DateTo" class="text-danger"></span>
+                                <label asp-for="DateTo" class="form-label fw-bold">
+                                    <i class="bi bi-calendar-check me-2"></i>Data do
+                                </label>
+                                <input asp-for="DateTo" type="date" class="form-control form-control-lg" />
+                                <span asp-validation-for="DateTo" class="text-danger small"></span>
                             </div>
                         </div>
 
-                        <div class="mb-4">
-                            <label asp-for="ReportType" class="form-label">Wybierz typ raportu</label>
-                            <div class="report-type-cards">
-                                <div class="report-card">
-                                    <input type="radio" asp-for="ReportType" value="Income" id="reportIncome" checked />
-                                    <label for="reportIncome">
-                                        <div class="report-icon">💰</div>
-                                        <h6>Raport Przychodów</h6>
-                                        <p>Analiza przychodów z rezerwacji i zamówień</p>
+                        <!-- Report Type Selection -->
+                        <div class="mb-5">
+                            <h5 class="fw-bold mb-4 text-center">Wybierz typ raportu</h5>
+                            <div class="row g-4">
+                                <!-- Income Report -->
+                                <div class="col-lg-4">
+                                    <input type="radio" asp-for="ReportType" value="Income" id="reportIncome" 
+                                           class="btn-check" checked />
+                                    <label for="reportIncome" class="report-card-selectable">
+                                        <div class="report-icon-wrapper bg-success bg-opacity-10">
+                                            <i class="bi bi-graph-up-arrow text-success"></i>
+                                        </div>
+                                        <h5 class="fw-bold mt-3 mb-2">Raport Przychodów</h5>
+                                        <p class="text-muted small mb-0">
+                                            Szczegółowa analiza przychodów z rezerwacji, zamówień i podziałem na kategorie
+                                        </p>
                                     </label>
                                 </div>
 
-                                <div class="report-card">
-                                    <input type="radio" asp-for="ReportType" value="Customers" id="reportCustomers" />
-                                    <label for="reportCustomers">
-                                        <div class="report-icon">👥</div>
-                                        <h6>Raport Klientów</h6>
-                                        <p>Statystyki odwiedzających i ich aktywności</p>
+                                <!-- Customer Report -->
+                                <div class="col-lg-4">
+                                    <input type="radio" asp-for="ReportType" value="Customers" id="reportCustomers" 
+                                           class="btn-check" />
+                                    <label for="reportCustomers" class="report-card-selectable">
+                                        <div class="report-icon-wrapper bg-primary bg-opacity-10">
+                                            <i class="bi bi-people text-primary"></i>
+                                        </div>
+                                        <h5 class="fw-bold mt-3 mb-2">Raport Klientów</h5>
+                                        <p class="text-muted small mb-0">
+                                            Statystyki klientów, ranking najlepszych gości i analiza lojalności
+                                        </p>
                                     </label>
                                 </div>
 
-                                <div class="report-card">
-                                    <input type="radio" asp-for="ReportType" value="Orders" id="reportOrders" />
-                                    <label for="reportOrders">
-                                        <div class="report-icon">🍽️</div>
-                                        <h6>Raport Zamówień</h6>
-                                        <p>Analiza zamówień i popularnych pozycji</p>
+                                <!-- Order Report -->
+                                <div class="col-lg-4">
+                                    <input type="radio" asp-for="ReportType" value="Orders" id="reportOrders" 
+                                           class="btn-check" />
+                                    <label for="reportOrders" class="report-card-selectable">
+                                        <div class="report-icon-wrapper bg-warning bg-opacity-10">
+                                            <i class="bi bi-cart-check text-warning"></i>
+                                        </div>
+                                        <h5 class="fw-bold mt-3 mb-2">Raport Zamówień</h5>
+                                        <p class="text-muted small mb-0">
+                                            Analiza zamówień, popularne pozycje menu i dzienny rozkład sprzedaży
+                                        </p>
                                     </label>
                                 </div>
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-success btn-lg w-100">
-                            📈 Generuj Raport
-                        </button>
+                        <!-- Submit Button -->
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-lg px-5 py-3">
+                                <i class="bi bi-file-earmark-bar-graph me-2"></i>
+                                Generuj Raport
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
-        </div>
 
-        <div class="col-lg-4">
-            <div class="card">
-                <div class="card-header bg-info text-white">
-                    <h6 class="mb-0">💡 Informacje</h6>
-                </div>
-                <div class="card-body">
-                    <h6>Dostępne raporty:</h6>
-                    <ul>
-                        <li><strong>Przychody</strong> - przychody z rezerwacji i zamówień, podział według miesięcy i typów pokoi</li>
-                        <li><strong>Klienci</strong> - liczba nowych i powracających klientów, top klienci</li>
-                        <li><strong>Zamówienia</strong> - statystyki zamówień, popularne pozycje menu</li>
-                    </ul>
-                    <hr />
-                    <p class="mb-0"><small class="text-muted">Wybierz zakres dat i typ raportu, aby wygenerować szczegółową analizę.</small></p>
+            <!-- Info Card -->
+            <div class="card border-0 shadow-sm mt-4 bg-light">
+                <div class="card-body p-4">
+                    <h6 class="fw-bold mb-3">
+                        <i class="bi bi-info-circle me-2"></i>Informacje o raportach
+                    </h6>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                                <div>
+                                    <strong class="d-block">Eksport PDF i Excel</strong>
+                                    <small class="text-muted">Pobierz raporty w wygodnym formacie</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                                <div>
+                                    <strong class="d-block">Wydruk bezpośredni</strong>
+                                    <small class="text-muted">Drukuj raporty jednym kliknięciem</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="d-flex align-items-start">
+                                <i class="bi bi-check-circle-fill text-success me-2 mt-1"></i>
+                                <div>
+                                    <strong class="d-block">Dane w czasie rzeczywistym</strong>
+                                    <small class="text-muted">Zawsze aktualne informacje</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -93,53 +142,40 @@
 </div>
 
 <style>
-    .report-type-cards {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 15px;
-        margin-top: 10px;
-    }
-
-    .report-card {
-        position: relative;
-    }
-
-    .report-card input[type="radio"] {
-        position: absolute;
-        opacity: 0;
-    }
-
-    .report-card label {
+    .report-card-selectable {
         display: block;
-        padding: 20px;
-        border: 2px solid #dee2e6;
-        border-radius: 12px;
+        padding: 2rem;
+        border: 3px solid #e9ecef;
+        border-radius: 16px;
         cursor: pointer;
-        transition: all 0.3s;
-        text-align: center;
+        transition: all 0.3s ease;
         background: white;
+        height: 100%;
+        text-align: center;
     }
 
-    .report-card input[type="radio"]:checked + label {
-        border-color: #28a745;
-        background: #f0f9f3;
-        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
+    .report-card-selectable:hover {
+        border-color: #0d6efd;
+        box-shadow: 0 8px 24px rgba(13, 110, 253, 0.15);
+        transform: translateY(-4px);
     }
 
-    .report-icon {
+    .btn-check:checked + .report-card-selectable {
+        border-color: #0d6efd;
+        background: linear-gradient(135deg, #ffffff 0%, #e7f1ff 100%);
+        box-shadow: 0 8px 24px rgba(13, 110, 253, 0.25);
+        transform: translateY(-2px);
+    }
+
+    .report-icon-wrapper {
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 20px;
         font-size: 2.5rem;
-        margin-bottom: 10px;
-    }
-
-    .report-card h6 {
-        margin-bottom: 8px;
-        color: #2f3b5e;
-    }
-
-    .report-card p {
-        font-size: 0.85rem;
-        color: #6c757d;
-        margin: 0;
+        margin: 0 auto;
     }
 </style>
 

@@ -7,7 +7,6 @@
 	<a asp-controller="Reservations" asp-action="Create"> <h4>Zakwaterowanie</h4> </a>
 	<a asp-controller="Customers" asp-action="Index"> <h4>Klienci</h4> </a>
 	<a asp-controller="Orders" asp-action="Index"> <h4>Zamówienia</h4></a>
-	<a asp-controller="Rooms" asp-action="CheckRoomStatus"> <h4>Stan pokojów</h4></a>
 	
 	@{
 		var hasUserManagement = AuthorizationHelper.UserHasPermission(User, PermissionCodes.UserView, DbContext);
@@ -26,19 +25,19 @@
 				@if (hasUserManagement)
 				{
 					<a asp-controller="Account" asp-action="Index">
-						<h5>👥 Zarządzaj użytkownikami</h5>
+						<h5>Zarządzaj użytkownikami</h5>
 					</a>
 				}
 				@if (hasRoleManagement)
 				{
 					<a asp-controller="RoleManagement" asp-action="Index">
-						<h5>🔐 Zarządzanie rolami</h5>
+						<h5>Zarządzanie rolami</h5>
 					</a>
 				}
 				@if (hasReportView)
 				{
 					<a asp-controller="Reports" asp-action="Index">
-						<h5>📊 Raporty</h5>
+						<h5>Raporty</h5>
 					</a>
 				}
 			</div>

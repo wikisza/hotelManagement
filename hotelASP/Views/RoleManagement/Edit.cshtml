@@ -101,6 +101,7 @@
             <form asp-action="Edit" method="post" id="editRoleForm">
                 @Html.AntiForgeryToken()
                 <input type="hidden" asp-for="Id" />
+                <input type="hidden" asp-for="IsSystemRole" />
 
                 <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 

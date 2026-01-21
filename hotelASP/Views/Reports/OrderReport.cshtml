@@ -2,319 +2,247 @@
 
 @{
     ViewData["Title"] = "Raport Zamówień";
+    Layout = "~/Views/Shared/_ReportsLayout.cshtml";
 }
 
-<div class="mainPage">
-    <div class="headerMain">
-        <h3>🍽️ Raport Zamówień</h3>
+<div class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom">
         <div>
-            <div class="btn-group">
-                <a asp-action="ExportOrderReportToPdf" 
-                   asp-route-dateFrom="@Model.DateFrom.ToString("yyyy-MM-dd")" 
-                   asp-route-dateTo="@Model.DateTo.ToString("yyyy-MM-dd")" 
-                   class="btn btn-danger">
-                    📄 Eksport PDF
-                </a>
-                <a asp-action="ExportOrderReportToExcel" 
-                   asp-route-dateFrom="@Model.DateFrom.ToString("yyyy-MM-dd")" 
-                   asp-route-dateTo="@Model.DateTo.ToString("yyyy-MM-dd")" 
-                   class="btn btn-success">
-                    📊 Eksport Excel
-                </a>
-            </div>
-            <a asp-action="Index" class="btnMainSecondary">Nowy Raport</a>
+            <h2 class="fw-bold text-dark mb-0">Raport Zamówień</h2>
+            <small class="text-muted">
+                Okres: <span class="fw-semibold">@Model.DateFrom.ToString("dd.MM.yyyy")</span> - <span class="fw-semibold">@Model.DateTo.ToString("dd.MM.yyyy")</span>
+            </small>
+        </div>
+        <div class="d-flex gap-2 mt-2 mt-md-0">
+            <a asp-action="ExportOrderReportToExcel" 
+               asp-route-dateFrom="@Model.DateFrom.ToString("yyyy-MM-dd")" 
+               asp-route-dateTo="@Model.DateTo.ToString("yyyy-MM-dd")" 
+               class="btn btn-outline-success">
+                <i class="bi bi-file-excel"></i> Excel
+            </a>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Wróć
+            </a>
+            <button onclick="window.print()" class="btn btn-primary">
+                <i class="bi bi-printer"></i> Drukuj
+            </button>
         </div>
     </div>
 
-    <div class="alert alert-info">
-        <strong>Okres:</strong> @Model.DateFrom.ToString("dd.MM.yyyy") - @Model.DateTo.ToString("dd.MM.yyyy")
-    </div>
-
-    <div class="row mb-4">
+    <div class="row g-4 mb-5">
         <div class="col-md-4">
-            <div class="stat-card bg-primary">
-                <div class="stat-icon">📦</div>
-                <div class="stat-content">
-                    <h3>@Model.TotalOrders</h3>
-                    <p>Łączna liczba zamówień</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="stat-card bg-success">
-                <div class="stat-icon">💵</div>
-                <div class="stat-content">
-                    <h3>@Model.TotalOrdersValue.ToString("C")</h3>
-                    <p>Wartość zamówień</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="stat-card bg-info">
-                <div class="stat-icon">📊</div>
-                <div class="stat-content">
-                    <h3>@Model.AverageOrderValue.ToString("C")</h3>
-                    <p>Średnia wartość zamówienia</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">🏆 Najpopularniejsze pozycje menu</h5>
-                </div>
-                <div class="card-body">
-                    @if (Model.PopularItems.Any())
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Nazwa pozycji</th>
-                                        <th>Liczba zamówień</th>
-                                        <th>Przychód</th>
-                                        <th>Popularność</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @{
-                                        int rank = 1;
-                                        var maxOrders = Model.PopularItems.Max(p => p.OrderCount);
-                                    }
-                                    @foreach (var item in Model.PopularItems)
-                                    {
-                                        <tr>
-                                            <td>
-                                                @if (rank <= 3)
-                                                {
-                                                    <span class="badge bg-warning">@rank</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-light text-dark">@rank</span>
-                                                }
-                                            </td>
-                                            <td><strong>@item.ItemName</strong></td>
-                                            <td><span class="badge bg-primary">@item.OrderCount szt.</span></td>
-                                            <td><strong class="text-success">@item.Revenue.ToString("C")</strong></td>
-                                            <td>
-                                                <div class="progress" style="height: 20px;">
-                                                    <div class="progress-bar bg-success" 
-                                                         style="width: @((item.OrderCount / (double)maxOrders * 100))%">
-                                                        @((item.OrderCount / (double)maxOrders * 100).ToString("F0"))%
-                                                    </div>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        rank++;
-                                    }
-                                </tbody>
-                            </table>
+            <div class="card h-100 border-0 shadow-sm border-start border-4 border-primary">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-uppercase text-muted small fw-bold mb-1">Łączna liczba</p>
+                            <h2 class="fw-bold text-dark mb-0">@Model.TotalOrders</h2>
+                            <small class="text-muted">zamówień</small>
                         </div>
-                    }
-                    else
-                    {
-                        <p class="text-muted">Brak zamówień w wybranym okresie.</p>
-                    }
+                        <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-3 fs-3">
+                            <i class="bi bi-receipt"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm border-start border-4 border-success">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-uppercase text-muted small fw-bold mb-1">Wartość zamówień</p>
+                            <h2 class="fw-bold text-dark mb-0">@Model.TotalOrdersValue.ToString("C0")</h2>
+                        </div>
+                        <div class="bg-success bg-opacity-10 text-success p-3 rounded-3 fs-3">
+                            <i class="bi bi-currency-dollar"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm border-start border-4 border-info">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-uppercase text-muted small fw-bold mb-1">Średnia wartość</p>
+                            <h2 class="fw-bold text-dark mb-0">@Model.AverageOrderValue.ToString("C0")</h2>
+                            <small class="text-muted">na zamówienie</small>
+                        </div>
+                        <div class="bg-info bg-opacity-10 text-info p-3 rounded-3 fs-3">
+                            <i class="bi bi-graph-up"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h6 class="m-0 fw-bold text-dark">
+                        <i class="bi bi-star-fill text-warning me-2"></i>Najpopularniejsze pozycje menu
+                    </h6>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4 py-3 text-secondary small text-uppercase">Pozycja</th>
+                                <th class="text-secondary small text-uppercase">Nazwa</th>
+                                <th class="text-center text-secondary small text-uppercase">Zamówienia</th>
+                                <th class="text-end text-secondary small text-uppercase">Przychód</th>
+                                <th class="text-end pe-4 text-secondary small text-uppercase">Popularność</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.PopularItems.Any())
+                            {
+                                int rank = 1;
+                                var maxOrders = Model.PopularItems.Max(p => p.OrderCount);
+                                foreach (var item in Model.PopularItems)
+                                {
+                                    <tr>
+                                        <td class="ps-4">
+                                            @if (rank <= 3)
+                                            {
+                                                <span class="badge bg-warning text-dark">@rank</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-light text-dark">@rank</span>
+                                            }
+                                        </td>
+                                        <td><strong>@item.ItemName</strong></td>
+                                        <td class="text-center">
+                                            <span class="badge bg-primary">@item.OrderCount szt.</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <strong class="text-success">@item.Revenue.ToString("C")</strong>
+                                        </td>
+                                        <td class="text-end pe-4" style="width: 200px;">
+                                            <div class="d-flex align-items-center justify-content-end">
+                                                <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                                    <div class="progress-bar bg-success" 
+                                                         style="width: @((item.OrderCount / (double)maxOrders * 100))%"></div>
+                                                </div>
+                                                <small class="text-muted">@((item.OrderCount / (double)maxOrders * 100).ToString("F0"))%</small>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    rank++;
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="5" class="text-center py-5 text-muted">Brak zamówień w wybranym okresie.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0">📅 Dzienny rozkład zamówień</h5>
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h6 class="m-0 fw-bold text-dark">
+                        <i class="bi bi-calendar-day me-2"></i>Dzienny rozkład zamówień
+                    </h6>
                 </div>
-                <div class="card-body">
+                <div class="card-body" style="max-height: 400px; overflow-y: auto;">
                     @if (Model.DailyBreakdown.Any())
                     {
-                        <div class="daily-chart">
-                            @{
-                                var maxDailyValue = Model.DailyBreakdown.Max(d => d.TotalValue);
-                            }
-                            @foreach (var day in Model.DailyBreakdown.OrderBy(d => d.Date))
-                            {
-                                <div class="daily-bar">
-                                    <div class="bar-label">
-                                        <small>@day.Date.ToString("dd.MM")</small>
-                                        <small class="text-muted">@day.OrdersCount zam.</small>
-                                    </div>
-                                    <div class="bar-container">
-                                        <div class="bar-fill" 
-                                             style="width: @((day.TotalValue / maxDailyValue * 100))%"
-                                             title="@day.TotalValue.ToString("C")">
-                                            <span class="bar-value">@day.TotalValue.ToString("C")</span>
-                                        </div>
+                        var maxDailyValue = Model.DailyBreakdown.Max(d => d.TotalValue);
+                        foreach (var day in Model.DailyBreakdown.OrderBy(d => d.Date))
+                        {
+                            var percentage = maxDailyValue > 0 ? day.TotalValue / maxDailyValue * 100 : 0;
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span class="fw-semibold">@day.Date.ToString("dd.MM.yyyy")</span>
+                                    <span class="text-muted small">@day.OrdersCount zamówień</span>
+                                </div>
+                                <div class="progress" style="height: 32px;">
+                                    <div class="progress-bar bg-gradient" 
+                                         style="width: @percentage%; background: linear-gradient(90deg, #28a745, #20c997);"
+                                         role="progressbar">
+                                        <span class="fw-bold">@day.TotalValue.ToString("C")</span>
                                     </div>
                                 </div>
-                            }
-                        </div>
+                            </div>
+                        }
                     }
                     else
                     {
-                        <p class="text-muted">Brak danych.</p>
+                        <p class="text-muted text-center py-3">Brak danych.</p>
                     }
                 </div>
             </div>
         </div>
 
         <div class="col-lg-4">
-            <div class="card mb-4">
-                <div class="card-header bg-warning text-dark">
-                    <h5 class="mb-0">📋 Zamówienia według statusu</h5>
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h6 class="m-0 fw-bold text-dark">
+                        <i class="bi bi-list-check me-2"></i>Zamówienia według statusu
+                    </h6>
                 </div>
                 <div class="card-body">
                     @if (Model.OrdersByStatus.Any())
                     {
-                        <div class="status-list">
-                            @{
-                                var totalOrders = Model.OrdersByStatus.Sum(o => o.Count);
-                            }
-                            @foreach (var status in Model.OrdersByStatus)
-                            {
-                                <div class="status-item">
-                                    <div class="d-flex justify-content-between align-items-center mb-2">
-                                        <strong>@status.Status</strong>
-                                        <span class="badge bg-primary">@status.Count</span>
-                                    </div>
-                                    <div class="mb-2">
-                                        <small class="text-success">Wartość: @status.TotalValue.ToString("C")</small>
-                                    </div>
-                                    <div class="progress" style="height: 8px;">
-                                        <div class="progress-bar" 
-                                             style="width: @((status.Count / (double)totalOrders * 100))%"></div>
-                                    </div>
+                        var totalOrders = Model.OrdersByStatus.Sum(o => o.Count);
+                        foreach (var status in Model.OrdersByStatus)
+                        {
+                            var percentage = totalOrders > 0 ? status.Count / (double)totalOrders * 100 : 0;
+                            <div class="mb-3 pb-3 border-bottom">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <strong class="text-dark">@status.Status</strong>
+                                    <span class="badge bg-primary">@status.Count</span>
                                 </div>
-                            }
-                        </div>
+                                <div class="mb-2">
+                                    <small class="text-success">@status.TotalValue.ToString("C")</small>
+                                </div>
+                                <div class="progress" style="height: 6px;">
+                                    <div class="progress-bar bg-primary" 
+                                         style="width: @percentage%"></div>
+                                </div>
+                            </div>
+                        }
                     }
                     else
                     {
-                        <p class="text-muted">Brak danych.</p>
+                        <p class="text-muted text-center py-3">Brak danych.</p>
                     }
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-header bg-info text-white">
-                    <h6 class="mb-0">📊 Statystyki</h6>
+            <div class="card border-0 shadow-sm bg-light">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h6 class="m-0 fw-bold text-dark">
+                        <i class="bi bi-bar-chart me-2"></i>Statystyki
+                    </h6>
                 </div>
                 <div class="card-body">
-                    <div class="summary-item">
-                        <span>Średnia dzienna zamówień:</span>
-                        <strong>@(Model.DailyBreakdown.Any() ? (Model.TotalOrders / Model.DailyBreakdown.Count).ToString("F1") : "0")</strong>
-                    </div>
-                    <div class="summary-item">
-                        <span>Najlepszy dzień:</span>
-                        <strong>
-                            @if (Model.DailyBreakdown.Any())
-                            {
-                                var bestDay = Model.DailyBreakdown.OrderByDescending(d => d.TotalValue).First();
-                                @bestDay.Date.ToString("dd.MM.yyyy")
-                                <br />
-                                <small class="text-success">@bestDay.TotalValue.ToString("C")</small>
-                            }
-                            else
-                            {
-                                <span>-</span>
-                            }
+                    <div class="d-flex justify-content-between py-2 border-bottom">
+                        <span class="text-muted">Średnia dzienna:</span>
+                        <strong class="text-primary">
+                            @(Model.DailyBreakdown.Any() ? (Model.TotalOrders / Model.DailyBreakdown.Count).ToString("F1") : "0") zam.
                         </strong>
                     </div>
+                    @if (Model.DailyBreakdown.Any())
+                    {
+                        var bestDay = Model.DailyBreakdown.OrderByDescending(d => d.TotalValue).First();
+                        <div class="py-2">
+                            <div class="text-muted mb-1">Najlepszy dzień:</div>
+                            <strong class="text-success d-block">@bestDay.Date.ToString("dd.MM.yyyy")</strong>
+                            <small class="text-muted">@bestDay.TotalValue.ToString("C")</small>
+                        </div>
+                    }
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<style>
-    .stat-card {
-        padding: 20px;
-        border-radius: 12px;
-        color: white;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-
-    .stat-icon {
-        font-size: 2.5rem;
-    }
-
-    .stat-content h3 {
-        margin: 0;
-        font-size: 1.8rem;
-        font-weight: bold;
-    }
-
-    .stat-content p {
-        margin: 0;
-        font-size: 0.9rem;
-        opacity: 0.9;
-    }
-
-    .status-item {
-        padding: 15px;
-        background: #f8f9fa;
-        border-radius: 8px;
-        margin-bottom: 12px;
-    }
-
-    .summary-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 10px 0;
-        border-bottom: 1px solid #e9ecef;
-    }
-
-    .summary-item:last-child {
-        border-bottom: none;
-    }
-
-    .btn-group {
-        display: inline-flex;
-        gap: 10px;
-        margin-right: 10px;
-    }
-
-    .daily-chart {
-        max-height: 400px;
-        overflow-y: auto;
-    }
-
-    .daily-bar {
-        margin-bottom: 15px;
-    }
-
-    .bar-label {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 5px;
-        font-weight: 500;
-    }
-
-    .bar-container {
-        background: #e9ecef;
-        border-radius: 5px;
-        height: 30px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .bar-fill {
-        background: linear-gradient(90deg, #28a745, #20c997);
-        height: 100%;
-        display: flex;
-        align-items: center;
-        padding-left: 10px;
-        transition: width 0.3s ease;
-    }
-
-    .bar-value {
-        color: white;
-        font-weight: bold;
-        font-size: 0.85rem;
-    }
-</style>

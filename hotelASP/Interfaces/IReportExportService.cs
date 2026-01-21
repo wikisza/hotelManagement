@@ -7,8 +7,5 @@ namespace hotelASP.Interfaces
         byte[] ExportIncomeReportToExcel(IncomeReportViewModel report);
         byte[] ExportCustomerReportToExcel(CustomerReportViewModel report);
         byte[] ExportOrderReportToExcel(OrderReportViewModel report);
-        byte[] ExportIncomeReportToPdf(IncomeReportViewModel report);
-        byte[] ExportCustomerReportToPdf(CustomerReportViewModel report);
-        byte[] ExportOrderReportToPdf(OrderReportViewModel report);
     }
 }

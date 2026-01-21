@@ -2,229 +2,223 @@
 
 @{
     ViewData["Title"] = "Raport Klientów";
+    Layout = "~/Views/Shared/_ReportsLayout.cshtml";
 }
 
-<div class="mainPage">
-    <div class="headerMain">
-        <h3>👥 Raport Klientów</h3>
+<div class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 pb-3 border-bottom">
         <div>
-            <div class="btn-group">
-                <a asp-action="ExportCustomerReportToPdf" 
-                   asp-route-dateFrom="@Model.DateFrom.ToString("yyyy-MM-dd")" 
-                   asp-route-dateTo="@Model.DateTo.ToString("yyyy-MM-dd")" 
-                   class="btn btn-danger">
-                    📄 Eksport PDF
-                </a>
-                <a asp-action="ExportCustomerReportToExcel" 
-                   asp-route-dateFrom="@Model.DateFrom.ToString("yyyy-MM-dd")" 
-                   asp-route-dateTo="@Model.DateTo.ToString("yyyy-MM-dd")" 
-                   class="btn btn-success">
-                    📊 Eksport Excel
-                </a>
-            </div>
-            <a asp-action="Index" class="btnMainSecondary">Nowy Raport</a>
+            <h2 class="fw-bold text-dark mb-0">Raport Klientów</h2>
+            <small class="text-muted">
+                Okres: <span class="fw-semibold">@Model.DateFrom.ToString("dd.MM.yyyy")</span> - <span class="fw-semibold">@Model.DateTo.ToString("dd.MM.yyyy")</span>
+            </small>
+        </div>
+        <div class="d-flex gap-2 mt-2 mt-md-0">
+            <a asp-action="ExportCustomerReportToExcel" 
+               asp-route-dateFrom="@Model.DateFrom.ToString("yyyy-MM-dd")" 
+               asp-route-dateTo="@Model.DateTo.ToString("yyyy-MM-dd")" 
+               class="btn btn-outline-success">
+                <i class="bi bi-file-excel"></i> Excel
+            </a>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Wróć
+            </a>
+            <button onclick="window.print()" class="btn btn-primary">
+                <i class="bi bi-printer"></i> Drukuj
+            </button>
         </div>
     </div>
 
-    <div class="alert alert-info">
-        <strong>Okres:</strong> @Model.DateFrom.ToString("dd.MM.yyyy") - @Model.DateTo.ToString("dd.MM.yyyy")
-    </div>
-
-    <div class="row mb-4">
+    <div class="row g-4 mb-5">
         <div class="col-md-4">
-            <div class="stat-card bg-primary">
-                <div class="stat-icon">👥</div>
-                <div class="stat-content">
-                    <h3>@Model.TotalCustomers</h3>
-                    <p>Łączna liczba klientów</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="stat-card bg-success">
-                <div class="stat-icon">✨</div>
-                <div class="stat-content">
-                    <h3>@Model.NewCustomers</h3>
-                    <p>Nowi klienci</p>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="stat-card bg-info">
-                <div class="stat-icon">🔄</div>
-                <div class="stat-content">
-                    <h3>@Model.ReturningCustomers</h3>
-                    <p>Powracający klienci</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-8">
-            <div class="card mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">🏆 Top 10 Klientów</h5>
-                </div>
-                <div class="card-body">
-                    @if (Model.TopCustomers.Any())
-                    {
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Klient</th>
-                                        <th>Email</th>
-                                        <th>Rezerwacje</th>
-                                        <th>Wydano</th>
-                                        <th>Ostatnia wizyta</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @{
-                                        int rank = 1;
-                                    }
-                                    @foreach (var customer in Model.TopCustomers)
-                                    {
-                                        <tr>
-                                            <td>
-                                                @if (rank == 1) { <span class="badge bg-warning">🥇</span> }
-                                                else if (rank == 2) { <span class="badge bg-secondary">🥈</span> }
-                                                else if (rank == 3) { <span class="badge bg-danger">🥉</span> }
-                                                else { <span class="badge bg-light text-dark">@rank</span> }
-                                            </td>
-                                            <td><strong>@customer.CustomerName</strong></td>
-                                            <td><small>@customer.Email</small></td>
-                                            <td><span class="badge bg-primary">@customer.ReservationsCount</span></td>
-                                            <td><strong class="text-success">@customer.TotalSpent.ToString("C")</strong></td>
-                                            <td><small class="text-muted">@customer.LastVisit.ToString("dd.MM.yyyy")</small></td>
-                                        </tr>
-                                        rank++;
-                                    }
-                                </tbody>
-                            </table>
+            <div class="card h-100 border-0 shadow-sm border-start border-4 border-primary">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-uppercase text-muted small fw-bold mb-1">Łączna liczba</p>
+                            <h2 class="fw-bold text-dark mb-0">@Model.TotalCustomers</h2>
+                            <small class="text-muted">klientów</small>
                         </div>
-                    }
-                    else
-                    {
-                        <p class="text-muted">Brak danych dla wybranego okresu.</p>
-                    }
+                        <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-3 fs-3">
+                            <i class="bi bi-people"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm border-start border-4 border-success">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-uppercase text-muted small fw-bold mb-1">Nowi Klienci</p>
+                            <h2 class="fw-bold text-dark mb-0">@Model.NewCustomers</h2>
+                            <small class="text-success">
+                                @(Model.TotalCustomers > 0 ? ((decimal)Model.NewCustomers / Model.TotalCustomers * 100).ToString("F0") : "0")% bazy
+                            </small>
+                        </div>
+                        <div class="bg-success bg-opacity-10 text-success p-3 rounded-3 fs-3">
+                            <i class="bi bi-person-plus"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 border-0 shadow-sm border-start border-4 border-info">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-uppercase text-muted small fw-bold mb-1">Powracający</p>
+                            <h2 class="fw-bold text-dark mb-0">@Model.ReturningCustomers</h2>
+                            <small class="text-info">
+                                @(Model.TotalCustomers > 0 ? ((decimal)Model.ReturningCustomers / Model.TotalCustomers * 100).ToString("F0") : "0")% retencji
+                            </small>
+                        </div>
+                        <div class="bg-info bg-opacity-10 text-info p-3 rounded-3 fs-3">
+                            <i class="bi bi-arrow-repeat"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h6 class="m-0 fw-bold text-dark">
+                        <i class="bi bi-trophy me-2 text-warning"></i>Top 10 Klientów
+                    </h6>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4 py-3 text-secondary small text-uppercase">Pozycja</th>
+                                <th class="text-secondary small text-uppercase">Klient</th>
+                                <th class="text-secondary small text-uppercase">Email</th>
+                                <th class="text-center text-secondary small text-uppercase">Rezerwacje</th>
+                                <th class="text-end text-secondary small text-uppercase">Wydano</th>
+                                <th class="text-end pe-4 text-secondary small text-uppercase">Ostatnia wizyta</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (Model.TopCustomers.Any())
+                            {
+                                int rank = 1;
+                                foreach (var customer in Model.TopCustomers)
+                                {
+                                    <tr>
+                                        <td class="ps-4">
+                                            @if (rank == 1)
+                                            {
+                                                <span class="badge bg-warning text-dark">
+                                                    <i class="bi bi-award-fill"></i> 1
+                                                </span>
+                                            }
+                                            else if (rank == 2)
+                                            {
+                                                <span class="badge bg-secondary">
+                                                    <i class="bi bi-award"></i> 2
+                                                </span>
+                                            }
+                                            else if (rank == 3)
+                                            {
+                                                <span class="badge bg-danger">
+                                                    <i class="bi bi-award"></i> 3
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-light text-dark">@rank</span>
+                                            }
+                                        </td>
+                                        <td><strong>@customer.CustomerName</strong></td>
+                                        <td><small class="text-muted">@customer.Email</small></td>
+                                        <td class="text-center">
+                                            <span class="badge bg-primary">@customer.ReservationsCount</span>
+                                        </td>
+                                        <td class="text-end">
+                                            <strong class="text-success">@customer.TotalSpent.ToString("C")</strong>
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            <small class="text-muted">@customer.LastVisit.ToString("dd.MM.yyyy")</small>
+                                        </td>
+                                    </tr>
+                                    rank++;
+                                }
+                            }
+                            else
+                            {
+                                <tr>
+                                    <td colspan="6" class="text-center py-5 text-muted">Brak danych w wybranym okresie.</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
         <div class="col-lg-4">
-            <div class="card mb-4">
-                <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0">📅 Miesięczna statystyka</h5>
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h6 class="m-0 fw-bold text-dark">
+                        <i class="bi bi-calendar3 me-2"></i>Miesięczna Statystyka
+                    </h6>
                 </div>
                 <div class="card-body">
                     @if (Model.MonthlyBreakdown.Any())
                     {
-                        <div class="monthly-stats">
-                            @foreach (var month in Model.MonthlyBreakdown)
-                            {
-                                <div class="monthly-item">
-                                    <div class="d-flex justify-content-between mb-2">
-                                        <strong>@month.Month</strong>
-                                    </div>
-                                    <div class="row g-2">
-                                        <div class="col-6">
-                                            <div class="mini-stat">
-                                                <small class="text-muted">Nowi</small>
-                                                <div class="badge bg-success w-100">@month.NewCustomers</div>
-                                            </div>
+                        foreach (var month in Model.MonthlyBreakdown)
+                        {
+                            <div class="mb-3 pb-3 border-bottom">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <strong class="text-dark">@month.Month</strong>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <div class="p-2 bg-success bg-opacity-10 rounded text-center">
+                                            <small class="text-muted d-block">Nowi</small>
+                                            <strong class="text-success">@month.NewCustomers</strong>
                                         </div>
-                                        <div class="col-6">
-                                            <div class="mini-stat">
-                                                <small class="text-muted">Wizyty</small>
-                                                <div class="badge bg-info w-100">@month.TotalVisits</div>
-                                            </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="p-2 bg-info bg-opacity-10 rounded text-center">
+                                            <small class="text-muted d-block">Wizyty</small>
+                                            <strong class="text-info">@month.TotalVisits</strong>
                                         </div>
                                     </div>
                                 </div>
-                            }
-                        </div>
+                            </div>
+                        }
                     }
                     else
                     {
-                        <p class="text-muted">Brak danych.</p>
+                        <p class="text-muted text-center py-3">Brak danych.</p>
                     }
                 </div>
             </div>
 
-            <div class="card">
-                <div class="card-header bg-info text-white">
-                    <h6 class="mb-0">📊 Podsumowanie</h6>
+            <div class="card border-0 shadow-sm bg-light">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h6 class="m-0 fw-bold text-dark">
+                        <i class="bi bi-bar-chart me-2"></i>Podsumowanie
+                    </h6>
                 </div>
                 <div class="card-body">
-                    <div class="summary-item">
-                        <span>Wskaźnik powracających klientów:</span>
-                        <strong>@(Model.TotalCustomers > 0 ? ((decimal)Model.ReturningCustomers / Model.TotalCustomers * 100).ToString("F1") : "0")%</strong>
+                    <div class="d-flex justify-content-between py-2 border-bottom">
+                        <span class="text-muted">Wskaźnik powracających:</span>
+                        <strong class="text-info">@(Model.TotalCustomers > 0 ? ((decimal)Model.ReturningCustomers / Model.TotalCustomers * 100).ToString("F1") : "0")%</strong>
                     </div>
-                    <div class="summary-item">
-                        <span>Wskaźnik nowych klientów:</span>
-                        <strong>@(Model.TotalCustomers > 0 ? ((decimal)Model.NewCustomers / Model.TotalCustomers * 100).ToString("F1") : "0")%</strong>
+                    <div class="d-flex justify-content-between py-2">
+                        <span class="text-muted">Wskaźnik nowych:</span>
+                        <strong class="text-success">@(Model.TotalCustomers > 0 ? ((decimal)Model.NewCustomers / Model.TotalCustomers * 100).ToString("F1") : "0")%</strong>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-<style>
-    .stat-card {
-        padding: 20px;
-        border-radius: 12px;
-        color: white;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-
-    .stat-icon {
-        font-size: 2.5rem;
-    }
-
-    .stat-content h3 {
-        margin: 0;
-        font-size: 1.8rem;
-        font-weight: bold;
-    }
-
-    .stat-content p {
-        margin: 0;
-        font-size: 0.9rem;
-        opacity: 0.9;
-    }
-
-    .monthly-item {
-        padding: 15px;
-        background: #f8f9fa;
-        border-radius: 8px;
-        margin-bottom: 12px;
-    }
-
-    .mini-stat {
-        text-align: center;
-    }
-
-    .summary-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 10px 0;
-        border-bottom: 1px solid #e9ecef;
-    }
-
-    .summary-item:last-child {
-        border-bottom: none;
-    }
-
-    .btn-group {
-        display: inline-flex;
-        gap: 10px;
-        margin-right: 10px;
-    }
-</style>

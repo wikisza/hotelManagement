@@ -1,4 +1,4 @@
-using hotelASP.Data;
+ï»¿using hotelASP.Data;
 using hotelASP.Models.Reports;
 using hotelASP.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -33,7 +33,7 @@ namespace hotelASP.Services
 
             var ordersIncome = orders.Sum(o => o.TotalAmount);
 
-            // Podzia³ miesiêczny
+            // PodziaÅ‚ miesiÄ™czny - wszystko w pamiÄ™ci
             var monthlyData = reservations
                 .GroupBy(r => new { r.Date_from.Year, r.Date_from.Month })
                 .Select(g => new MonthlyIncomeData
@@ -50,7 +50,7 @@ namespace hotelASP.Services
                 .OrderBy(m => m.Month)
                 .ToList();
 
-            // Podzia³ wed³ug typu pokoju
+            // PodziaÅ‚ wedÅ‚ug typu pokoju
             var roomTypeData = reservations
                 .Where(r => r.Room?.RoomType != null)
                 .GroupBy(r => r.Room.RoomType.DisplayName)
@@ -108,22 +108,37 @@ namespace hotelASP.Services
                 .Take(10)
                 .ToList();
 
-            // Miesiêczny podzia³
-            var monthlyData = await _context.Reservations
+            // NAPRAWIONE: MiesiÄ™czny podziaÅ‚ - pobieramy dane najpierw do pamiÄ™ci
+            var reservationsInPeriod = await _context.Reservations
                 .Where(r => r.Date_from >= dateFrom && r.Date_from <= dateTo)
-                .GroupBy(r => new { r.Date_from.Year, r.Date_from.Month })
+                .Select(r => new 
+                { 
+                    r.Date_from.Year, 
+                    r.Date_from.Month,
+                    r.CustomerId 
+                })
+                .ToListAsync();
+
+            var allCustomersInPeriod = await _context.Customers
+                .Where(c => c.CreatedDate >= dateFrom && c.CreatedDate <= dateTo)
+                .Select(c => new 
+                { 
+                    c.CreatedDate.Year, 
+                    c.CreatedDate.Month 
+                })
+                .ToListAsync();
+
+            // Grupowanie w pamiÄ™ci
+            var monthlyData = reservationsInPeriod
+                .GroupBy(r => new { r.Year, r.Month })
                 .Select(g => new MonthlyCustomerData
                 {
-                    Month = $"{g.Key.Year}-{g.Key.Month:D2}",
-                    NewCustomers = _context.Customers
-                        .Count(c => c.CreatedDate.Year == g.Key.Year && 
-                                   c.CreatedDate.Month == g.Key.Month &&
-                                   c.CreatedDate >= dateFrom && 
-                                   c.CreatedDate <= dateTo),
+                    Month = $"{g.Key.Year}-{g.Key.Month:D2}", // âœ… DziaÅ‚a w pamiÄ™ci
+                    NewCustomers = allCustomersInPeriod.Count(c => c.Year == g.Key.Year && c.Month == g.Key.Month), // âœ… Poprawne
                     TotalVisits = g.Count()
                 })
                 .OrderBy(m => m.Month)
-                .ToListAsync();
+                .ToList();
 
             return new CustomerReportViewModel
             {
@@ -148,7 +163,7 @@ namespace hotelASP.Services
             var totalValue = orders.Sum(o => o.TotalAmount);
             var averageValue = orders.Any() ? totalValue / orders.Count : 0;
 
-            // Zamówienia wed³ug statusu
+            // ZamÃ³wienia wedÅ‚ug statusu
             var ordersByStatus = orders
                 .GroupBy(o => o.Status)
                 .Select(g => new OrderStatusData
@@ -174,7 +189,7 @@ namespace hotelASP.Services
                 .Take(10)
                 .ToList();
 
-            // Dzienny podzia³
+            // Dzienny podziaÅ‚
             var dailyData = orders
                 .GroupBy(o => o.OrderDate.Date)
                 .Select(g => new DailyOrderData
@@ -199,20 +214,20 @@ namespace hotelASP.Services
             };
         }
 
-        // Metody importu - placeholder (opcjonalnie do implementacji)
+        // Metody importu - placeholder
         public Task ImportIncomeReportAsync(Stream stream)
         {
-            throw new NotImplementedException("Import funkcjonalnoœæ nie jest jeszcze zaimplementowana.");
+            throw new NotImplementedException("Import funkcjonalnoÅ›Ä‡ nie jest jeszcze zaimplementowana.");
         }
 
         public Task ImportCustomerReportAsync(Stream stream)
         {
-            throw new NotImplementedException("Import funkcjonalnoœæ nie jest jeszcze zaimplementowana.");
+            throw new NotImplementedException("Import funkcjonalnoÅ›Ä‡ nie jest jeszcze zaimplementowana.");
         }
 
         public Task ImportOrderReportAsync(Stream stream)
         {
-            throw new NotImplementedException("Import funkcjonalnoœæ nie jest jeszcze zaimplementowana.");
+            throw new NotImplementedException("Import funkcjonalnoÅ›Ä‡ nie jest jeszcze zaimplementowana.");
         }
     }
 }
