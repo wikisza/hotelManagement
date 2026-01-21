@@ -199,31 +199,54 @@ namespace hotelASP.Services
         {
             try
             {
+                // Zabezpieczenie przed null
+                permissionIds ??= new List<int>();
+
                 var role = await _context.Roles
                     .Include(r => r.RolePermissions)
                     .FirstOrDefaultAsync(r => r.Id == roleId);
 
                 if (role == null)
+                {
+                    Console.WriteLine($"Role with ID {roleId} not found");
                     return false;
+                }
+
+                Console.WriteLine($"Updating permissions for role: {role.Name} (ID: {roleId})");
+                Console.WriteLine($"Current permissions count: {role.RolePermissions.Count}");
+                Console.WriteLine($"New permissions count: {permissionIds.Count}");
+                Console.WriteLine($"New permission IDs: {string.Join(", ", permissionIds)}");
 
                 // Usuñ wszystkie obecne uprawnienia
-                _context.RolePermissions.RemoveRange(role.RolePermissions);
+                if (role.RolePermissions.Any())
+                {
+                    _context.RolePermissions.RemoveRange(role.RolePermissions);
+                    Console.WriteLine($"Removed {role.RolePermissions.Count} existing permissions");
+                }
 
                 // Dodaj nowe uprawnienia
-                var newRolePermissions = permissionIds.Select(permId => new RolePermission
+                if (permissionIds.Any())
                 {
-                    RoleId = roleId,
-                    PermissionId = permId,
-                    AssignedAt = DateTime.Now
-                });
+                    var newRolePermissions = permissionIds.Select(permId => new RolePermission
+                    {
+                        RoleId = roleId,
+                        PermissionId = permId,
+                        AssignedAt = DateTime.Now
+                    }).ToList();
 
-                _context.RolePermissions.AddRange(newRolePermissions);
-                await _context.SaveChangesAsync();
+                    await _context.RolePermissions.AddRangeAsync(newRolePermissions);
+                    Console.WriteLine($"Added {newRolePermissions.Count} new permissions");
+                }
+
+                var savedChanges = await _context.SaveChangesAsync();
+                Console.WriteLine($"SaveChanges returned: {savedChanges}");
 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                Console.WriteLine($"Error updating role permissions: {ex.Message}");
+                Console.WriteLine($"Stack trace: {ex.StackTrace}");
                 return false;
             }
         }

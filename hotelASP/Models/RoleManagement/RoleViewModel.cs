@@ -7,20 +7,18 @@ namespace hotelASP.Models.RoleManagement
         public int Id { get; set; }
 
         [Required(ErrorMessage = "Nazwa roli jest wymagana")]
-        [MaxLength(50, ErrorMessage = "Nazwa mo¿e mieæ maksymalnie 50 znaków")]
-        [Display(Name = "Nazwa roli")]
+        [StringLength(100, ErrorMessage = "Nazwa roli nie mo¿e przekraczaæ 100 znaków")]
         public string Name { get; set; } = string.Empty;
 
-        [MaxLength(200, ErrorMessage = "Opis mo¿e mieæ maksymalnie 200 znaków")]
-        [Display(Name = "Opis")]
+        [StringLength(500, ErrorMessage = "Opis nie mo¿e przekraczaæ 500 znaków")]
         public string? Description { get; set; }
 
-        [Display(Name = "Rola systemowa")]
         public bool IsSystemRole { get; set; }
 
-        public List<int> SelectedPermissionIds { get; set; } = new();
-        
-        public List<PermissionViewModel> AvailablePermissions { get; set; } = new();
+        // WA¯NE: Zainicjalizuj jako pust¹ listê zamiast null
+        public List<int> SelectedPermissionIds { get; set; } = new List<int>();
+
+        public List<PermissionViewModel> AvailablePermissions { get; set; } = new List<PermissionViewModel>();
     }
 
     public class PermissionViewModel

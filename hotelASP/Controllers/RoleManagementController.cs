@@ -60,77 +60,109 @@ namespace hotelASP.Controllers
         [HasPermission(PermissionCodes.RoleManage)]
         public async Task<IActionResult> Edit(int id)
         {
-            try
+            var model = await _roleService.GetRoleByIdAsync(id);
+            if (model == null)
             {
-                var model = await _roleService.GetRoleByIdAsync(id);
-                if (model == null)
-                {
-                    TempData["ErrorMessage"] = "Nie znaleziono roli.";
-                    return RedirectToAction(nameof(Index));
-                }
-
-                // DEBUGGING - sprawdŸ w konsoli czy dane s¹ ³adowane
-                Console.WriteLine($"Editing role: {model.Name}, Permissions count: {model.AvailablePermissions?.Count ?? 0}");
-                
-                return View(model);
-            }
-            catch (Exception ex)
-            {
-                TempData["ErrorMessage"] = $"B³¹d podczas ³adowania roli: {ex.Message}";
+                TempData["ErrorMessage"] = "Nie znaleziono roli.";
                 return RedirectToAction(nameof(Index));
             }
-        }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [HasPermission(PermissionCodes.RoleManage)]
-        public async Task<IActionResult> Edit(RoleViewModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                // Aktualizuj podstawowe informacje roli
-                var updateResult = await _roleService.UpdateRoleAsync(model);
-                if (!updateResult)
-                {
-                    ModelState.AddModelError("", "Nie mo¿na edytowaæ roli systemowej lub wyst¹pi³ b³¹d.");
-                    model.AvailablePermissions = await _roleService.GetAllPermissionsAsync();
-                    return View(model);
-                }
-
-                // Aktualizuj uprawnienia
-                var permissionsResult = await _roleService.UpdateRolePermissionsAsync(
-                    model.Id, 
-                    model.SelectedPermissionIds ?? new List<int>()
-                );
-
-                if (permissionsResult)
-                {
-                    TempData["SuccessMessage"] = "Rola i uprawnienia zosta³y zaktualizowane!";
-                    return RedirectToAction(nameof(Index));
-                }
-                else
-                {
-                    TempData["ErrorMessage"] = "Rola zosta³a zaktualizowana, ale wyst¹pi³ problem z aktualizacj¹ uprawnieñ.";
-                    return RedirectToAction(nameof(Index));
-                }
-            }
-
-            model.AvailablePermissions = await _roleService.GetAllPermissionsAsync();
             return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         [HasPermission(PermissionCodes.RoleManage)]
-        public async Task<IActionResult> UpdatePermissions(int roleId, [FromBody] List<int> permissionIds)
+        public async Task<IActionResult> Edit(RoleViewModel model, List<int> SelectedPermissionIds)
         {
-            var result = await _roleService.UpdateRolePermissionsAsync(roleId, permissionIds);
-            if (result)
+            // DEBUGGING - sprawdŸ co przychodzi z formularza
+            Console.WriteLine($"=== EDIT POST CALLED ===");
+            Console.WriteLine($"Role ID: {model.Id}");
+            Console.WriteLine($"Role Name: {model.Name}");
+            Console.WriteLine($"Is System Role: {model.IsSystemRole}");
+            Console.WriteLine($"SelectedPermissionIds from model: {model.SelectedPermissionIds?.Count ?? 0}");
+            Console.WriteLine($"SelectedPermissionIds from parameter: {SelectedPermissionIds?.Count ?? 0}");
+            
+            if (SelectedPermissionIds != null && SelectedPermissionIds.Any())
             {
-                return Json(new { success = true, message = "Uprawnienia zosta³y zaktualizowane!" });
+                Console.WriteLine($"Permission IDs: {string.Join(", ", SelectedPermissionIds)}");
+                model.SelectedPermissionIds = SelectedPermissionIds;
+            }
+            else
+            {
+                Console.WriteLine("WARNING: No permission IDs received!");
+                model.SelectedPermissionIds = new List<int>();
             }
 
-            return Json(new { success = false, message = "Wyst¹pi³ b³¹d podczas aktualizacji uprawnieñ." });
+            // SprawdŸ ModelState
+            if (!ModelState.IsValid)
+            {
+                Console.WriteLine("ModelState is INVALID:");
+                foreach (var key in ModelState.Keys)
+                {
+                    var state = ModelState[key];
+                    if (state.Errors.Count > 0)
+                    {
+                        foreach (var error in state.Errors)
+                        {
+                            Console.WriteLine($"  {key}: {error.ErrorMessage}");
+                        }
+                    }
+                }
+            }
+            else
+            {
+                Console.WriteLine("ModelState is VALID");
+            }
+
+            // Usuñ b³êdy zwi¹zane z AvailablePermissions z ModelState
+            ModelState.Remove("AvailablePermissions");
+
+            if (ModelState.IsValid)
+            {
+                // Aktualizuj podstawowe informacje roli (tylko dla ról niebêd¹cych systemowymi)
+                if (!model.IsSystemRole)
+                {
+                    Console.WriteLine("Updating role basic info...");
+                    var updateResult = await _roleService.UpdateRoleAsync(model);
+                    if (!updateResult)
+                    {
+                        Console.WriteLine("Failed to update role basic info");
+                        ModelState.AddModelError("", "Nie mo¿na edytowaæ roli lub wyst¹pi³ b³¹d.");
+                        model.AvailablePermissions = await _roleService.GetAllPermissionsAsync();
+                        return View(model);
+                    }
+                    Console.WriteLine("Role basic info updated successfully");
+                }
+
+                // Aktualizuj uprawnienia (zawsze, nawet dla ról systemowych)
+                Console.WriteLine($"Updating permissions... Count: {model.SelectedPermissionIds.Count}");
+                var permissionsResult = await _roleService.UpdateRolePermissionsAsync(
+                    model.Id, 
+                    model.SelectedPermissionIds
+                );
+
+                if (permissionsResult)
+                {
+                    Console.WriteLine("Permissions updated successfully!");
+                    TempData["SuccessMessage"] = "Rola i uprawnienia zosta³y zaktualizowane pomyœlnie!";
+                    return RedirectToAction(nameof(Index));
+                }
+                
+                Console.WriteLine("Failed to update permissions");
+                TempData["ErrorMessage"] = "Wyst¹pi³ problem z aktualizacj¹ uprawnieñ.";
+            }
+
+            Console.WriteLine("Reloading permissions for view...");
+            model.AvailablePermissions = await _roleService.GetAllPermissionsAsync();
+            
+            // Zaznacz checkboxy na podstawie SelectedPermissionIds
+            foreach (var perm in model.AvailablePermissions)
+            {
+                perm.IsSelected = model.SelectedPermissionIds.Contains(perm.Id);
+            }
+            
+            return View(model);
         }
 
         [HttpPost]

@@ -1,0 +1,173 @@
+﻿@model hotelASP.Models.Reports.IncomeReportViewModel
+
+@{
+    ViewData["Title"] = "Raport Przychodów";
+}
+
+<div class="mainPage">
+    <div class="headerMain">
+        <h3>💰 Raport Przychodów</h3>
+        <div>
+            <a asp-action="Index" class="btnMainSecondary">Nowy Raport</a>
+        </div>
+    </div>
+
+    <div class="alert alert-info">
+        <strong>Okres:</strong> @Model.DateFrom.ToString("dd.MM.yyyy") - @Model.DateTo.ToString("dd.MM.yyyy")
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="stat-card bg-success">
+                <div class="stat-icon">💵</div>
+                <div class="stat-content">
+                    <h3>@Model.TotalIncome.ToString("C")</h3>
+                    <p>Całkowity Przychód</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card bg-primary">
+                <div class="stat-icon">🏨</div>
+                <div class="stat-content">
+                    <h3>@Model.ReservationIncome.ToString("C")</h3>
+                    <p>Przychód z Rezerwacji</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card bg-warning">
+                <div class="stat-icon">🍽️</div>
+                <div class="stat-content">
+                    <h3>@Model.OrdersIncome.ToString("C")</h3>
+                    <p>Przychód z Zamówień</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card bg-info">
+                <div class="stat-icon">📊</div>
+                <div class="stat-content">
+                    <h3>@Model.TotalReservations</h3>
+                    <p>Liczba Rezerwacji</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Przychody według miesięcy</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.MonthlyBreakdown.Any())
+                    {
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Miesiąc</th>
+                                    <th>Rezerwacje</th>
+                                    <th>Zamówienia</th>
+                                    <th>Razem</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var month in Model.MonthlyBreakdown)
+                                {
+                                    <tr>
+                                        <td><strong>@month.Month</strong></td>
+                                        <td>@month.ReservationIncome.ToString("C")</td>
+                                        <td>@month.OrdersIncome.ToString("C")</td>
+                                        <td><strong>@month.TotalIncome.ToString("C")</strong></td>
+                                    </tr>
+                                }
+                            </tbody>
+                            <tfoot>
+                                <tr class="table-dark">
+                                    <td><strong>SUMA</strong></td>
+                                    <td><strong>@Model.ReservationIncome.ToString("C")</strong></td>
+                                    <td><strong>@Model.OrdersIncome.ToString("C")</strong></td>
+                                    <td><strong>@Model.TotalIncome.ToString("C")</strong></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Brak danych dla wybranego okresu.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">Przychody według typów pokoi</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.RoomTypeBreakdown.Any())
+                    {
+                        <div class="room-type-list">
+                            @foreach (var roomType in Model.RoomTypeBreakdown)
+                            {
+                                <div class="room-type-item">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <strong>@roomType.RoomType</strong>
+                                        <span class="badge bg-success">@roomType.Income.ToString("C")</span>
+                                    </div>
+                                    <small class="text-muted">Rezerwacji: @roomType.ReservationsCount</small>
+                                    <div class="progress mt-2" style="height: 8px;">
+                                        <div class="progress-bar bg-success" 
+                                             style="width: @((roomType.Income / Model.ReservationIncome * 100))%"></div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Brak danych.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .stat-card {
+        padding: 20px;
+        border-radius: 12px;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .stat-icon {
+        font-size: 2.5rem;
+    }
+
+    .stat-content h3 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: bold;
+    }
+
+    .stat-content p {
+        margin: 0;
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .room-type-item {
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 12px;
+    }
+</style>
