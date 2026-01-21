@@ -58,5 +58,8 @@ namespace hotelASP.Authorization
         public const string SystemConfig = "SYSTEM_CONFIG";
         public const string ReportsView = "REPORTS_VIEW";
         public const string SettingsManage = "SETTINGS_MANAGE";
+
+        // Raporty
+        public const string ReportView = "REPORT_VIEW";
     }
 }

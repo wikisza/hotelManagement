@@ -1,0 +1,320 @@
+﻿@model hotelASP.Models.Reports.OrderReportViewModel
+
+@{
+    ViewData["Title"] = "Raport Zamówień";
+}
+
+<div class="mainPage">
+    <div class="headerMain">
+        <h3>🍽️ Raport Zamówień</h3>
+        <div>
+            <div class="btn-group">
+                <a asp-action="ExportOrderReportToPdf" 
+                   asp-route-dateFrom="@Model.DateFrom.ToString("yyyy-MM-dd")" 
+                   asp-route-dateTo="@Model.DateTo.ToString("yyyy-MM-dd")" 
+                   class="btn btn-danger">
+                    📄 Eksport PDF
+                </a>
+                <a asp-action="ExportOrderReportToExcel" 
+                   asp-route-dateFrom="@Model.DateFrom.ToString("yyyy-MM-dd")" 
+                   asp-route-dateTo="@Model.DateTo.ToString("yyyy-MM-dd")" 
+                   class="btn btn-success">
+                    📊 Eksport Excel
+                </a>
+            </div>
+            <a asp-action="Index" class="btnMainSecondary">Nowy Raport</a>
+        </div>
+    </div>
+
+    <div class="alert alert-info">
+        <strong>Okres:</strong> @Model.DateFrom.ToString("dd.MM.yyyy") - @Model.DateTo.ToString("dd.MM.yyyy")
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="stat-card bg-primary">
+                <div class="stat-icon">📦</div>
+                <div class="stat-content">
+                    <h3>@Model.TotalOrders</h3>
+                    <p>Łączna liczba zamówień</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card bg-success">
+                <div class="stat-icon">💵</div>
+                <div class="stat-content">
+                    <h3>@Model.TotalOrdersValue.ToString("C")</h3>
+                    <p>Wartość zamówień</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card bg-info">
+                <div class="stat-icon">📊</div>
+                <div class="stat-content">
+                    <h3>@Model.AverageOrderValue.ToString("C")</h3>
+                    <p>Średnia wartość zamówienia</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">🏆 Najpopularniejsze pozycje menu</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.PopularItems.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Nazwa pozycji</th>
+                                        <th>Liczba zamówień</th>
+                                        <th>Przychód</th>
+                                        <th>Popularność</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        int rank = 1;
+                                        var maxOrders = Model.PopularItems.Max(p => p.OrderCount);
+                                    }
+                                    @foreach (var item in Model.PopularItems)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @if (rank <= 3)
+                                                {
+                                                    <span class="badge bg-warning">@rank</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-light text-dark">@rank</span>
+                                                }
+                                            </td>
+                                            <td><strong>@item.ItemName</strong></td>
+                                            <td><span class="badge bg-primary">@item.OrderCount szt.</span></td>
+                                            <td><strong class="text-success">@item.Revenue.ToString("C")</strong></td>
+                                            <td>
+                                                <div class="progress" style="height: 20px;">
+                                                    <div class="progress-bar bg-success" 
+                                                         style="width: @((item.OrderCount / (double)maxOrders * 100))%">
+                                                        @((item.OrderCount / (double)maxOrders * 100).ToString("F0"))%
+                                                    </div>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        rank++;
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Brak zamówień w wybranym okresie.</p>
+                    }
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">📅 Dzienny rozkład zamówień</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.DailyBreakdown.Any())
+                    {
+                        <div class="daily-chart">
+                            @{
+                                var maxDailyValue = Model.DailyBreakdown.Max(d => d.TotalValue);
+                            }
+                            @foreach (var day in Model.DailyBreakdown.OrderBy(d => d.Date))
+                            {
+                                <div class="daily-bar">
+                                    <div class="bar-label">
+                                        <small>@day.Date.ToString("dd.MM")</small>
+                                        <small class="text-muted">@day.OrdersCount zam.</small>
+                                    </div>
+                                    <div class="bar-container">
+                                        <div class="bar-fill" 
+                                             style="width: @((day.TotalValue / maxDailyValue * 100))%"
+                                             title="@day.TotalValue.ToString("C")">
+                                            <span class="bar-value">@day.TotalValue.ToString("C")</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Brak danych.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">📋 Zamówienia według statusu</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.OrdersByStatus.Any())
+                    {
+                        <div class="status-list">
+                            @{
+                                var totalOrders = Model.OrdersByStatus.Sum(o => o.Count);
+                            }
+                            @foreach (var status in Model.OrdersByStatus)
+                            {
+                                <div class="status-item">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <strong>@status.Status</strong>
+                                        <span class="badge bg-primary">@status.Count</span>
+                                    </div>
+                                    <div class="mb-2">
+                                        <small class="text-success">Wartość: @status.TotalValue.ToString("C")</small>
+                                    </div>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar" 
+                                             style="width: @((status.Count / (double)totalOrders * 100))%"></div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Brak danych.</p>
+                    }
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">📊 Statystyki</h6>
+                </div>
+                <div class="card-body">
+                    <div class="summary-item">
+                        <span>Średnia dzienna zamówień:</span>
+                        <strong>@(Model.DailyBreakdown.Any() ? (Model.TotalOrders / Model.DailyBreakdown.Count).ToString("F1") : "0")</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>Najlepszy dzień:</span>
+                        <strong>
+                            @if (Model.DailyBreakdown.Any())
+                            {
+                                var bestDay = Model.DailyBreakdown.OrderByDescending(d => d.TotalValue).First();
+                                @bestDay.Date.ToString("dd.MM.yyyy")
+                                <br />
+                                <small class="text-success">@bestDay.TotalValue.ToString("C")</small>
+                            }
+                            else
+                            {
+                                <span>-</span>
+                            }
+                        </strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .stat-card {
+        padding: 20px;
+        border-radius: 12px;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .stat-icon {
+        font-size: 2.5rem;
+    }
+
+    .stat-content h3 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: bold;
+    }
+
+    .stat-content p {
+        margin: 0;
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .status-item {
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 12px;
+    }
+
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .summary-item:last-child {
+        border-bottom: none;
+    }
+
+    .btn-group {
+        display: inline-flex;
+        gap: 10px;
+        margin-right: 10px;
+    }
+
+    .daily-chart {
+        max-height: 400px;
+        overflow-y: auto;
+    }
+
+    .daily-bar {
+        margin-bottom: 15px;
+    }
+
+    .bar-label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+
+    .bar-container {
+        background: #e9ecef;
+        border-radius: 5px;
+        height: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .bar-fill {
+        background: linear-gradient(90deg, #28a745, #20c997);
+        height: 100%;
+        display: flex;
+        align-items: center;
+        padding-left: 10px;
+        transition: width 0.3s ease;
+    }
+
+    .bar-value {
+        color: white;
+        font-weight: bold;
+        font-size: 0.85rem;
+    }
+</style>

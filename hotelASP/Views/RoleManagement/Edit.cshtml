@@ -98,7 +98,7 @@
 
     <div class="row">
         <div class="col-lg-8">
-            <form asp-action="Edit" method="post">
+            <form asp-action="Edit" method="post" id="editRoleForm">
                 @Html.AntiForgeryToken()
                 <input type="hidden" asp-for="Id" />
 
@@ -164,7 +164,8 @@
                                             <input type="checkbox"
                                                    name="SelectedPermissionIds"
                                                    value="@permission.Id"
-                                                   @(permission.IsSelected ? "checked" : "") />
+                                                   @(permission.IsSelected ? "checked" : "")
+                                                   data-permission-id="@permission.Id" />
                                             <span>@permission.Name <small class="text-muted">[@permission.Code]</small></span>
                                         </label>
                                         @if (!string.IsNullOrEmpty(permission.Description))
@@ -180,7 +181,7 @@
 
                 <div class="d-flex justify-content-between mt-4">
                     <a asp-action="Index" class="btn btn-secondary btn-lg">Anuluj</a>
-                    <button type="submit" class="btn btn-success btn-lg">
+                    <button type="submit" class="btn btn-success btn-lg" id="saveButton">
                         💾 Zapisz Zmiany
                     </button>
                 </div>
@@ -195,7 +196,7 @@
                 <div class="card-body">
                     <p><strong>ID Roli:</strong> @Model.Id</p>
                     <p><strong>Typ:</strong> @(Model.IsSystemRole ? "Rola systemowa" : "Rola użytkownika")</p>
-                    <p><strong>Wybrane uprawnienia:</strong> @Model.SelectedPermissionIds.Count</p>
+                    <p><strong>Wybrane uprawnienia:</strong> <span id="selectedCount">@Model.SelectedPermissionIds.Count</span></p>
                     <hr />
                     <p><strong>Nazwa roli</strong> może być zmieniana tylko dla ról niebędących systemowymi.</p>
                     <p><strong>Uprawnienia</strong> określają co użytkownik z tą rolą może robić w systemie.</p>
@@ -232,6 +233,15 @@
 
             checkboxes.forEach(cb => cb.checked = !allChecked);
             button.textContent = allChecked ? 'Zaznacz wszystkie' : 'Odznacz wszystkie';
+            updateSelectedCount();
+        }
+
+        function updateSelectedCount() {
+            const checkedCount = document.querySelectorAll('input[name="SelectedPermissionIds"]:checked').length;
+            const countElement = document.getElementById('selectedCount');
+            if (countElement) {
+                countElement.textContent = checkedCount;
+            }
         }
 
         // Domyślnie zwiń wszystkie kategorie oprócz pierwszej
@@ -245,6 +255,22 @@
                     content.style.display = 'none';
                     content.previousElementSibling.querySelector('.toggle-icon').textContent = '▶';
                 }
+            });
+
+            // Nasłuchuj zmian w checkboxach
+            document.querySelectorAll('input[name="SelectedPermissionIds"]').forEach(cb => {
+                cb.addEventListener('change', updateSelectedCount);
+            });
+
+            // Debugging - wyświetl obecny stan
+            const checkedCount = document.querySelectorAll('input[name="SelectedPermissionIds"]:checked').length;
+            console.log('Initially selected permissions:', checkedCount);
+
+            // Przed wysłaniem formularza - sprawdź co jest zaznaczone
+            document.getElementById('editRoleForm').addEventListener('submit', function(e) {
+                const selectedIds = Array.from(document.querySelectorAll('input[name="SelectedPermissionIds"]:checked'))
+                    .map(cb => cb.value);
+                console.log('Submitting with permissions:', selectedIds);
             });
         });
     </script>

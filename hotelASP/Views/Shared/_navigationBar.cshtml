@@ -12,7 +12,8 @@
 	@{
 		var hasUserManagement = AuthorizationHelper.UserHasPermission(User, PermissionCodes.UserView, DbContext);
 		var hasRoleManagement = AuthorizationHelper.UserHasPermission(User, PermissionCodes.RoleManage, DbContext);
-		var hasAnyAdminPermission = hasUserManagement || hasRoleManagement;
+		var hasReportView = AuthorizationHelper.UserHasPermission(User, PermissionCodes.ReportView, DbContext);
+		var hasAnyAdminPermission = hasUserManagement || hasRoleManagement || hasReportView;
 	}
 	
 	@if (hasAnyAdminPermission)
@@ -32,6 +33,12 @@
 				{
 					<a asp-controller="RoleManagement" asp-action="Index">
 						<h5>🔐 Zarządzanie rolami</h5>
+					</a>
+				}
+				@if (hasReportView)
+				{
+					<a asp-controller="Reports" asp-action="Index">
+						<h5>📊 Raporty</h5>
 					</a>
 				}
 			</div>

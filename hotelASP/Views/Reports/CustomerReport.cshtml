@@ -1,0 +1,230 @@
+﻿@model hotelASP.Models.Reports.CustomerReportViewModel
+
+@{
+    ViewData["Title"] = "Raport Klientów";
+}
+
+<div class="mainPage">
+    <div class="headerMain">
+        <h3>👥 Raport Klientów</h3>
+        <div>
+            <div class="btn-group">
+                <a asp-action="ExportCustomerReportToPdf" 
+                   asp-route-dateFrom="@Model.DateFrom.ToString("yyyy-MM-dd")" 
+                   asp-route-dateTo="@Model.DateTo.ToString("yyyy-MM-dd")" 
+                   class="btn btn-danger">
+                    📄 Eksport PDF
+                </a>
+                <a asp-action="ExportCustomerReportToExcel" 
+                   asp-route-dateFrom="@Model.DateFrom.ToString("yyyy-MM-dd")" 
+                   asp-route-dateTo="@Model.DateTo.ToString("yyyy-MM-dd")" 
+                   class="btn btn-success">
+                    📊 Eksport Excel
+                </a>
+            </div>
+            <a asp-action="Index" class="btnMainSecondary">Nowy Raport</a>
+        </div>
+    </div>
+
+    <div class="alert alert-info">
+        <strong>Okres:</strong> @Model.DateFrom.ToString("dd.MM.yyyy") - @Model.DateTo.ToString("dd.MM.yyyy")
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="stat-card bg-primary">
+                <div class="stat-icon">👥</div>
+                <div class="stat-content">
+                    <h3>@Model.TotalCustomers</h3>
+                    <p>Łączna liczba klientów</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card bg-success">
+                <div class="stat-icon">✨</div>
+                <div class="stat-content">
+                    <h3>@Model.NewCustomers</h3>
+                    <p>Nowi klienci</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card bg-info">
+                <div class="stat-icon">🔄</div>
+                <div class="stat-content">
+                    <h3>@Model.ReturningCustomers</h3>
+                    <p>Powracający klienci</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">🏆 Top 10 Klientów</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.TopCustomers.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Klient</th>
+                                        <th>Email</th>
+                                        <th>Rezerwacje</th>
+                                        <th>Wydano</th>
+                                        <th>Ostatnia wizyta</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        int rank = 1;
+                                    }
+                                    @foreach (var customer in Model.TopCustomers)
+                                    {
+                                        <tr>
+                                            <td>
+                                                @if (rank == 1) { <span class="badge bg-warning">🥇</span> }
+                                                else if (rank == 2) { <span class="badge bg-secondary">🥈</span> }
+                                                else if (rank == 3) { <span class="badge bg-danger">🥉</span> }
+                                                else { <span class="badge bg-light text-dark">@rank</span> }
+                                            </td>
+                                            <td><strong>@customer.CustomerName</strong></td>
+                                            <td><small>@customer.Email</small></td>
+                                            <td><span class="badge bg-primary">@customer.ReservationsCount</span></td>
+                                            <td><strong class="text-success">@customer.TotalSpent.ToString("C")</strong></td>
+                                            <td><small class="text-muted">@customer.LastVisit.ToString("dd.MM.yyyy")</small></td>
+                                        </tr>
+                                        rank++;
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Brak danych dla wybranego okresu.</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">📅 Miesięczna statystyka</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.MonthlyBreakdown.Any())
+                    {
+                        <div class="monthly-stats">
+                            @foreach (var month in Model.MonthlyBreakdown)
+                            {
+                                <div class="monthly-item">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <strong>@month.Month</strong>
+                                    </div>
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <div class="mini-stat">
+                                                <small class="text-muted">Nowi</small>
+                                                <div class="badge bg-success w-100">@month.NewCustomers</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="mini-stat">
+                                                <small class="text-muted">Wizyty</small>
+                                                <div class="badge bg-info w-100">@month.TotalVisits</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Brak danych.</p>
+                    }
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h6 class="mb-0">📊 Podsumowanie</h6>
+                </div>
+                <div class="card-body">
+                    <div class="summary-item">
+                        <span>Wskaźnik powracających klientów:</span>
+                        <strong>@(Model.TotalCustomers > 0 ? ((decimal)Model.ReturningCustomers / Model.TotalCustomers * 100).ToString("F1") : "0")%</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>Wskaźnik nowych klientów:</span>
+                        <strong>@(Model.TotalCustomers > 0 ? ((decimal)Model.NewCustomers / Model.TotalCustomers * 100).ToString("F1") : "0")%</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .stat-card {
+        padding: 20px;
+        border-radius: 12px;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .stat-icon {
+        font-size: 2.5rem;
+    }
+
+    .stat-content h3 {
+        margin: 0;
+        font-size: 1.8rem;
+        font-weight: bold;
+    }
+
+    .stat-content p {
+        margin: 0;
+        font-size: 0.9rem;
+        opacity: 0.9;
+    }
+
+    .monthly-item {
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 12px;
+    }
+
+    .mini-stat {
+        text-align: center;
+    }
+
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .summary-item:last-child {
+        border-bottom: none;
+    }
+
+    .btn-group {
+        display: inline-flex;
+        gap: 10px;
+        margin-right: 10px;
+    }
+</style>
