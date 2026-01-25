@@ -34,11 +34,36 @@ if (editBtn) {
     });
 }
 
+
+// Funkcja zamykająca modal
+function closeDeleteModal() {
+    const modal = document.getElementById("deleteModal");
+    if (modal) {
+        modal.style.display = "none";
+    }
+}
+
+// Zamykanie modala po kliknięciu w tło (obszar poza okienkiem)
+window.onclick = function (event) {
+    const deleteModal = document.getElementById("deleteModal");
+    if (event.target === deleteModal) {
+        closeDeleteModal();
+    }
+}
+
 const deleteBtn = document.getElementById('deleteBtn');
 if (deleteBtn) {
     deleteBtn.addEventListener('click', () => {
-        if (selectedRoomId && confirm("Czy na pewno chcesz usunąć ten pokój?")) {
-            window.location.href = `/Rooms/DeleteRoom/${selectedRoomId}`;
+        // Sprawdź czy wybrano pokój
+        if (selectedRoomId) {
+            // Ustaw ID pokoju w ukrytym polu formularza w modalu
+            document.getElementById('deleteRoomId').value = selectedRoomId;
+
+            // Pokaż modal, ustawiając style flex, aby wyśrodkować go tak jak w przykładzie
+            const modal = document.getElementById("deleteModal");
+            modal.style.display = "flex";
+            modal.style.alignItems = "center";
+            modal.style.justifyContent = "center";
         }
     });
 }

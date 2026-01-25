@@ -1,4 +1,7 @@
-﻿@model IEnumerable<hotelASP.Models.ReservationViewModel>
+﻿@using hotelASP.Authorization
+@using hotelASP.Data
+@inject ApplicationDbContext Context
+@model IEnumerable<hotelASP.Models.ReservationViewModel>
 
 @{
     ViewData["Title"] = "Aktualne rezerwacje";
@@ -21,9 +24,14 @@
     <div class="optionsBox">
         <div class="selectedReservationActions">
             <button id="detailsBtn" class="addRoomStandardTypeBtn" disabled>Szczegóły</button>
-            @if (User.IsInRole("Manager") || User.IsInRole("Admin"))
+
+            @if (AuthorizationHelper.UserHasPermission(User, PermissionCodes.ReservationEdit, Context))
             {
                 <button id="editBtn" class="addRoomStandardTypeBtn" disabled>Edytuj</button>
+            }
+
+            @if (AuthorizationHelper.UserHasPermission(User, PermissionCodes.ReservationCancel, Context))
+            {
                 <button id="deleteBtn" class="addRoomStandardTypeBtn" disabled>Usuń</button>
             }
         </div>

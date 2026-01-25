@@ -1,21 +1,26 @@
+/* ========== BEIGE & BROWN RESERVATION WIZARD ========== */
+
 .wizard-container {
     max-width: 1000px;
     margin: 20px auto;
     background: white;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(62, 39, 35, 0.15);
     overflow: hidden;
+    border: 1px solid rgba(212, 175, 55, 0.2);
 }
 
 .wizard-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #4e342e 0%, #6d4c41 100%);
     padding: 30px;
     color: white;
+    border-bottom: 3px solid #d4af37;
 }
 
 .wizard-header h2 {
     margin: 0 0 20px 0;
     font-size: 2rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .wizard-steps {
@@ -30,6 +35,7 @@
     align-items: center;
     gap: 10px;
     opacity: 0.5;
+    transition: opacity 0.3s ease;
 }
 
 .step.active {
@@ -50,16 +56,17 @@
     justify-content: center;
     font-weight: bold;
     font-size: 1.2rem;
+    transition: all 0.3s ease;
 }
 
 .step.active .step-number {
     background: white;
-    color: #667eea;
+    color: #4e342e;
 }
 
 .step.completed .step-number {
-    background: white;
-    color: #28a745;
+    background: #d4af37;
+    color: white;
 }
 
 .step-label {
@@ -68,22 +75,24 @@
 
 .wizard-body {
     padding: 30px;
+    background: #faf8f3;
 }
 
 .step-info {
     margin-bottom: 30px;
     padding-bottom: 20px;
-    border-bottom: 2px solid #e9ecef;
+    border-bottom: 2px solid #d4af37;
 }
 
 .step-info h3 {
     margin: 0 0 10px 0;
-    color: #333;
+    color: #4e342e;
+    font-weight: 700;
 }
 
 .step-info p {
     margin: 0;
-    color: #6c757d;
+    color: #6d4c41;
 }
 
 .form-row {
@@ -100,41 +109,42 @@
 
 .control-label {
     font-weight: 600;
-    color: #495057;
+    color: #4e342e;
     margin-bottom: 8px;
 }
 
 .form-control {
     padding: 12px;
-    border: 2px solid #e9ecef;
+    border: 2px solid #deb887;
     border-radius: 8px;
     font-size: 1rem;
-    transition: border-color 0.3s;
+    transition: all 0.3s;
+    background: white;
 }
 
 .form-control:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: #d4af37;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
 }
 
 .info-box {
-    background-color: #e7f3ff;
-    border-left: 4px solid #2196F3;
+    background-color: #fff3e0;
+    border-left: 4px solid #d4af37;
     padding: 15px;
     margin: 20px 0;
-    border-radius: 4px;
+    border-radius: 8px;
 }
 
 .info-box strong {
     display: block;
     margin-bottom: 5px;
-    color: #0c5460;
+    color: #4e342e;
 }
 
 .info-box p {
     margin: 0;
-    color: #004085;
+    color: #6d4c41;
 }
 
 /* Room cards */
@@ -147,21 +157,23 @@
 
 .room-card {
     position: relative;
-    border: 2px solid #dee2e6;
+    border: 2px solid #deb887;
     border-radius: 12px;
     transition: all 0.3s;
     cursor: pointer;
+    background: white;
 }
 
 .room-card:hover {
-    border-color: #667eea;
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+    border-color: #d4af37;
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+    transform: translateY(-2px);
 }
 
 .room-card.selected {
-    border-color: #667eea;
-    background-color: #f0f3ff;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    border-color: #d4af37;
+    background-color: #fff8e1;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
 }
 
 .room-card input[type="radio"] {
@@ -182,17 +194,17 @@
     align-items: center;
     margin-bottom: 15px;
     padding-bottom: 15px;
-    border-bottom: 2px solid #e9ecef;
+    border-bottom: 2px solid #f5f5dc;
 }
 
 .room-number {
     font-size: 1.3rem;
     font-weight: bold;
-    color: #333;
+    color: #4e342e;
 }
 
 .room-standard {
-    background: #667eea;
+    background: linear-gradient(135deg, #4e342e 0%, #6d4c41 100%);
     color: white;
     padding: 4px 12px;
     border-radius: 12px;
@@ -208,7 +220,7 @@
     display: flex;
     gap: 15px;
     margin-bottom: 10px;
-    color: #6c757d;
+    color: #6d4c41;
 }
 
 .room-options {
@@ -218,11 +230,12 @@
 }
 
 .option-badge {
-    background: #e9ecef;
+    background: #f5f5dc;
     padding: 4px 10px;
     border-radius: 6px;
     font-size: 0.85rem;
-    color: #495057;
+    color: #4e342e;
+    border: 1px solid #deb887;
 }
 
 .room-pricing {
@@ -230,18 +243,18 @@
     justify-content: space-between;
     align-items: center;
     padding-top: 15px;
-    border-top: 2px solid #e9ecef;
+    border-top: 2px solid #f5f5dc;
 }
 
 .price-breakdown {
-    color: #6c757d;
+    color: #6d4c41;
     font-size: 0.9rem;
 }
 
 .total-price {
     font-size: 1.5rem;
     font-weight: bold;
-    color: #667eea;
+    color: #d4af37;
 }
 
 /* Guest selection */
@@ -258,29 +271,32 @@
 .tab-button {
     flex: 1;
     padding: 12px 20px;
-    border: 2px solid #dee2e6;
+    border: 2px solid #deb887;
     background: white;
     border-radius: 8px;
     cursor: pointer;
     font-weight: 600;
     transition: all 0.3s;
+    color: #4e342e;
 }
 
 .tab-button:hover {
-    border-color: #667eea;
+    border-color: #d4af37;
+    background: #fff8e1;
 }
 
 .tab-button.active {
-    background: #667eea;
+    background: linear-gradient(135deg, #4e342e 0%, #6d4c41 100%);
     color: white;
-    border-color: #667eea;
+    border-color: #4e342e;
 }
 
 .customer-panel {
     display: none;
     padding: 20px;
-    background: #f8f9fa;
+    background: white;
     border-radius: 8px;
+    border: 2px solid #deb887;
 }
 
 .customer-panel.active {
@@ -295,7 +311,7 @@
     width: 100%;
     padding: 12px;
     background: white;
-    border: 2px solid #dee2e6;
+    border: 2px solid #deb887;
     border-radius: 8px;
     cursor: pointer;
     text-align: left;
@@ -304,10 +320,12 @@
     justify-content: space-between;
     align-items: center;
     transition: all 0.3s;
+    color: #4e342e;
 }
 
 .collapse-toggle:hover {
-    border-color: #667eea;
+    border-color: #d4af37;
+    background: #fff8e1;
 }
 
 .collapse-content {
@@ -323,26 +341,30 @@
 }
 
 .reservation-summary {
-    background: #f8f9fa;
+    background: white;
     padding: 20px;
     border-radius: 8px;
     margin-bottom: 20px;
+    border: 2px solid #deb887;
 }
 
 .reservation-summary h4 {
     margin-top: 0;
-    color: #495057;
+    color: #4e342e;
+    font-weight: 700;
 }
 
 .summary-row {
     display: flex;
     justify-content: space-between;
     padding: 10px 0;
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1px solid #f5f5dc;
+    color: #4e342e;
 }
 
 .summary-row:last-child {
     border-bottom: none;
+    font-weight: bold;
 }
 
 .form-actions {
@@ -350,7 +372,7 @@
     gap: 15px;
     justify-content: flex-end;
     padding-top: 20px;
-    border-top: 2px solid #e9ecef;
+    border-top: 2px solid #d4af37;
 }
 
 .btn {
@@ -366,14 +388,15 @@
 }
 
 .btn-primary {
-    background: #667eea;
+    background: linear-gradient(135deg, #4e342e 0%, #6d4c41 100%);
     color: white;
+    box-shadow: 0 2px 4px rgba(62, 39, 35, 0.15);
 }
 
 .btn-primary:hover:not(:disabled) {
-    background: #5568d3;
+    background: linear-gradient(135deg, #3e2723 0%, #5d4037 100%);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    box-shadow: 0 4px 12px rgba(62, 39, 35, 0.25);
 }
 
 .btn-primary:disabled {
@@ -382,16 +405,18 @@
 }
 
 .btn-secondary {
-    background: #6c757d;
-    color: white;
+    background: #d4af37;
+    color: #4e342e;
+    font-weight: 700;
 }
 
 .btn-secondary:hover {
-    background: #5a6268;
+    background: #b8860b;
+    transform: translateY(-2px);
 }
 
 .text-danger {
-    color: #dc3545;
+    color: #c62828;
     font-size: 0.875rem;
     margin-top: 5px;
 }
@@ -400,13 +425,14 @@
     grid-column: 1 / -1;
     text-align: center;
     padding: 40px;
-    background: #f8f9fa;
+    background: white;
     border-radius: 12px;
+    border: 2px solid #deb887;
 }
 
 .no-rooms p {
     font-size: 1.2rem;
-    color: #dc3545;
+    color: #c62828;
     margin: 0;
 }
 
@@ -425,22 +451,23 @@
     }
 }
 
+/* Card Assignment Section */
 .card-assignment-section {
-    background: #f8f9fa;
+    background: white;
     padding: 25px;
     border-radius: 12px;
     margin: 30px 0;
-    border: 2px solid #e9ecef;
+    border: 2px solid #deb887;
 }
 
-    .card-assignment-section h4 {
-        margin-top: 0;
-        color: #495057;
-        font-size: 1.2rem;
-        margin-bottom: 20px;
-        padding-bottom: 10px;
-        border-bottom: 2px solid #dee2e6;
-    }
+.card-assignment-section h4 {
+    margin-top: 0;
+    color: #4e342e;
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #d4af37;
+}
 
 .card-status-container {
     position: relative;
@@ -451,22 +478,21 @@
     display: none;
     text-align: center;
     padding: 30px;
-    background: white;
+    background: #faf8f3;
     border-radius: 8px;
-    border: 2px solid #dee2e6;
+    border: 2px solid #deb887;
 }
 
-    .card-status.active {
-        display: block;
-        animation: fadeIn 0.3s ease;
-    }
+.card-status.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
 
 @keyframes fadeIn {
     from {
         opacity: 0;
         transform: translateY(-10px);
     }
-
     to {
         opacity: 1;
         transform: translateY(0);
@@ -479,16 +505,15 @@
     line-height: 1;
 }
 
-    .status-icon.pulsing {
-        animation: pulse 1.5s ease-in-out infinite;
-    }
+.status-icon.pulsing {
+    animation: pulse 1.5s ease-in-out infinite;
+}
 
 @keyframes pulse {
     0%, 100% {
         opacity: 1;
         transform: scale(1);
     }
-
     50% {
         opacity: 0.6;
         transform: scale(1.1);
@@ -496,7 +521,7 @@
 }
 
 .status-icon.success {
-    color: #28a745;
+    color: #7cb342;
     animation: successBounce 0.6s ease;
 }
 
@@ -504,7 +529,6 @@
     0%, 100% {
         transform: scale(1);
     }
-
     50% {
         transform: scale(1.2);
     }
@@ -512,29 +536,30 @@
 
 .card-status p {
     margin: 10px 0;
-    color: #495057;
+    color: #4e342e;
 }
 
 .card-status .hint {
-    color: #6c757d;
+    color: #6d4c41;
     font-size: 0.9rem;
     font-style: italic;
 }
 
 .card-code {
-    background: #e9ecef;
+    background: #fff8e1;
     padding: 10px 15px;
     border-radius: 6px;
     display: inline-block;
     margin: 10px 0;
     font-family: 'Courier New', monospace;
     font-size: 1.1rem;
+    border: 1px solid #d4af37;
 }
 
-    .card-code span {
-        color: #667eea;
-        font-weight: bold;
-    }
+.card-code span {
+    color: #d4af37;
+    font-weight: bold;
+}
 
 .rfid-hidden-input {
     position: absolute;
@@ -556,15 +581,15 @@
 
 /* Animacja dla aktywnego czytnika */
 #cardWaiting.active {
-    background: linear-gradient(135deg, #f0f3ff 0%, #e7f3ff 100%);
-    border-color: #667eea;
-    box-shadow: 0 0 20px rgba(102, 126, 234, 0.2);
+    background: linear-gradient(135deg, #fff8e1 0%, #f5f5dc 100%);
+    border-color: #d4af37;
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
 }
 
 /* Sukces */
 #cardAssigned.active {
-    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-    border-color: #28a745;
+    background: linear-gradient(135deg, #f1f8e9 0%, #dcedc8 100%);
+    border-color: #7cb342;
 }
 
 /* Responsive */
@@ -578,6 +603,10 @@
     }
 
     .card-status {
+        padding: 20px 15px;
+    }
+    
+    .wizard-body {
         padding: 20px 15px;
     }
 }

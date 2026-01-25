@@ -79,3 +79,21 @@
 </div>
 
 
+<div id="deleteModal" class="modal" style="display: none; background: rgba(0,0,0,0.5);">
+    <div class="modal-content text-center" style="border-radius: 15px; padding: 30px; max-width: 400px;">
+        <div class="mb-3 text-danger">
+            <i class="bi bi-exclamation-circle" style="font-size: 3rem;"></i>
+        </div>
+        <h4 class="mb-3">Czy na pewno usunąć?</h4>
+        <p class="text-muted mb-4">Tej operacji nie można cofnąć.</p>
+
+        <form id="deleteForm" method="post" asp-controller="Rooms" asp-action="DeleteRoom">
+            <input type="hidden" id="deleteRoomId" name="id" />
+
+            <div class="d-flex justify-content-center gap-3">
+                <button type="button" class="btn btn-light border px-4" onclick="closeDeleteModal()">Anuluj</button>
+                <input type="submit" value="Usuń" class="btn btn-danger px-4" />
+            </div>
+        </form>
+    </div>
+</div>

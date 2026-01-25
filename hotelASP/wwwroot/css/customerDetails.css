@@ -1,3 +1,5 @@
+/* ========== BEIGE & BROWN CUSTOMER DETAILS THEME ========== */
+
 .customer-details-container {
     padding: 20px;
     max-width: 1200px;
@@ -10,18 +12,21 @@
     align-items: center;
     margin-bottom: 30px;
     padding-bottom: 15px;
-    border-bottom: 2px solid #e0e0e0;
+    border-bottom: 3px solid #d4af37;
 }
 
 .details-header h2 {
     margin: 0;
-    color: #333;
+    color: #4e342e;
     font-size: 2rem;
+    font-weight: 700;
 }
 
 .customer-since {
-    color: #6c757d;
+    color: #8d6e63;
     margin: 5px 0 0 0;
+    font-style: italic;
+    font-size: 0.9rem;
 }
 
 .header-actions {
@@ -40,7 +45,14 @@
     background: white;
     padding: 20px;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(62, 39, 35, 0.1);
+    border: 1px solid rgba(212, 175, 55, 0.2);
+    transition: transform 0.3s ease;
+}
+
+.info-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(62, 39, 35, 0.15);
 }
 
 .info-card.full-width {
@@ -49,18 +61,19 @@
 
 .info-card h3 {
     margin-top: 0;
-    color: #495057;
+    color: #4e342e;
     font-size: 1.3rem;
+    font-weight: 700;
     margin-bottom: 15px;
     padding-bottom: 10px;
-    border-bottom: 2px solid #e9ecef;
+    border-bottom: 2px solid #d4af37;
 }
 
 .info-item {
     display: flex;
     justify-content: space-between;
     padding: 10px 0;
-    border-bottom: 1px solid #f1f3f5;
+    border-bottom: 1px solid #f5f5dc;
 }
 
 .info-item:last-child {
@@ -69,11 +82,11 @@
 
 .info-label {
     font-weight: 600;
-    color: #495057;
+    color: #4e342e;
 }
 
 .info-value {
-    color: #6c757d;
+    color: #6d4c41;
     text-align: right;
 }
 
@@ -87,14 +100,22 @@
 .stat-item {
     text-align: center;
     padding: 15px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #4e342e 0%, #6d4c41 100%);
     border-radius: 8px;
     color: white;
+    border-bottom: 3px solid #d4af37;
+    transition: transform 0.3s ease;
+}
+
+.stat-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(62, 39, 35, 0.2);
 }
 
 .stat-number {
     font-size: 2rem;
     font-weight: bold;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .stat-label {
@@ -106,15 +127,19 @@
     background: white;
     padding: 20px;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 8px rgba(62, 39, 35, 0.1);
     margin-bottom: 20px;
+    border: 1px solid rgba(212, 175, 55, 0.2);
 }
 
 .history-section h3 {
     margin-top: 0;
-    color: #495057;
+    color: #4e342e;
     font-size: 1.3rem;
+    font-weight: 700;
     margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #d4af37;
 }
 
 .history-table {
@@ -123,33 +148,47 @@
 }
 
 .history-table thead {
-    background: #f8f9fa;
+    background: linear-gradient(135deg, #4e342e 0%, #6d4c41 100%);
+    color: white;
 }
 
 .history-table th {
     padding: 12px;
     text-align: left;
     font-weight: 600;
-    color: #495057;
-    border-bottom: 2px solid #dee2e6;
+    border-bottom: 2px solid #d4af37;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
 }
 
 .history-table tbody tr {
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1px solid #deb887;
+    transition: background-color 0.2s;
+}
+
+.history-table tbody tr:hover {
+    background-color: #e8dcc4;
 }
 
 .history-table td {
     padding: 10px 12px;
+    color: #4e342e;
 }
 
 .order-items {
     margin: 0;
     padding-left: 20px;
+    color: #6d4c41;
+}
+
+.order-items li {
+    padding: 2px 0;
 }
 
 .no-data {
     text-align: center;
-    color: #6c757d;
+    color: #8d6e63;
     font-style: italic;
     padding: 20px;
 }
@@ -157,7 +196,7 @@
 .btn {
     padding: 10px 20px;
     border: none;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     text-decoration: none;
     display: inline-block;
@@ -166,21 +205,144 @@
 }
 
 .btn-primary {
-    background-color: #007bff;
+    background: linear-gradient(135deg, #4e342e 0%, #6d4c41 100%);
     color: white;
+    box-shadow: 0 2px 4px rgba(62, 39, 35, 0.15);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #3e2723 0%, #5d4037 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(62, 39, 35, 0.25);
 }
 
 .btn-warning {
-    background-color: #ffc107;
-    color: #333;
+    background-color: #d4af37;
+    color: #4e342e;
+}
+
+.btn-warning:hover {
+    background-color: #b8860b;
+    transform: translateY(-2px);
 }
 
 .btn-secondary {
-    background-color: #6c757d;
+    background-color: #6d4c41;
     color: white;
 }
 
-.btn:hover {
+.btn-secondary:hover {
+    background-color: #5d4037;
     transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.btn-danger {
+    background-color: #c62828;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #b71c1c;
+    transform: translateY(-2px);
+}
+
+/* Status badges */
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.status-active {
+    background-color: #7cb342;
+    color: white;
+}
+
+.status-pending {
+    background-color: #d4af37;
+    color: #4e342e;
+}
+
+.status-cancelled {
+    background-color: #c62828;
+    color: white;
+}
+
+.status-completed {
+    background-color: #cd853f;
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .details-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .customer-info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .customer-details-container {
+        padding: 15px;
+    }
+
+    .details-header h2 {
+        font-size: 1.5rem;
+    }
+
+    .history-table {
+        font-size: 0.9rem;
+    }
+
+    .history-table th,
+    .history-table td {
+        padding: 8px;
+    }
+
+    .header-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .header-actions .btn {
+        width: 100%;
+    }
+
+    .info-card {
+        padding: 15px;
+    }
+
+    .stat-number {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .details-header h2 {
+        font-size: 1.3rem;
+    }
+
+    .info-item {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .info-value {
+        text-align: left;
+    }
+
+    .history-table {
+        font-size: 0.8rem;
+    }
 }
