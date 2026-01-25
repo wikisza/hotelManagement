@@ -6,8 +6,12 @@
     <div class="headerMain">
         <h2>Szczegóły pokoju nr @Model.RoomNumber</h2>
         <div class="headerMain-actions">
-            <a asp-action="UpdateRoom" asp-route-id="@Model.IdRoom" class="btnMainSecondary">Edytuj</a>
-            <a asp-action="Index" class="btnMainSecondary">Powrót</a>
+            <a asp-controller="Rooms" asp-action="UpdateRoom" asp-route-id="@Model.IdRoom" class="btn btn-outline-secondary">
+                <i class="bi bi-list-ul me-2"></i> Edytuj
+            </a>
+            <a asp-action="Index" class="btn btnMainSecondary">
+                <i class="bi bi-arrow-left me-2"></i> Powrót
+            </a>
         </div>
     </div>
 

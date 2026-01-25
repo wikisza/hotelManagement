@@ -1,118 +1,150 @@
 ﻿@model hotelASP.Models.RoomTypeViewModel
 
 @{
-    ViewData["Title"] = "CreateType";
+    ViewData["Title"] = "Zarządzanie typami pokojów";
 }
 
 <div class="create-room-container">
 
     <div class="headerMain">
-        <h3>➕ Dodaj nowy typ</h3>
+        <div class="header-text">
+            <h2>Typy pokojów</h2>
+            <p class="text-muted mb-0">Definiuj konfiguracje łóżek, liczbę osób i ceny bazowe.</p>
+        </div>
         <div class="headerMain-actions">
-            <a asp-action="Index" class="btnMainSecondary">Powrót</a>
+            <a asp-action="Index" class="btn btnMainSecondary">
+                <i class="bi bi-arrow-left me-2"></i> Powrót
+            </a>
         </div>
     </div>
-    <div class="cardMain">
+
+    <div class="cardMain mb-5">
+        <h4 class="mb-4" style="color: var(--primary-color); font-weight: 600;">Dodaj nowy typ</h4>
         <form asp-action="CreateRoomType">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-groupMain">
-                <label asp-for="NewRoomType.PeopleNumber" class="control-label">Liczba ludzi:</label>
-                <input asp-for="NewRoomType.PeopleNumber" class="form-controlMain" />
-                <span asp-validation-for="NewRoomType.PeopleNumber" class="text-danger"></span>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-groupMain">
+                        <label asp-for="NewRoomType.PeopleNumber" class="control-label">Liczba osób</label>
+                        <input asp-for="NewRoomType.PeopleNumber" class="form-controlMain" placeholder="np. 2" min="1" />
+                        <span asp-validation-for="NewRoomType.PeopleNumber" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-groupMain">
+                        <label asp-for="NewRoomType.BedNumber" class="control-label">Liczba łóżek</label>
+                        <input asp-for="NewRoomType.BedNumber" class="form-controlMain" placeholder="np. 1" min="1" />
+                        <span asp-validation-for="NewRoomType.BedNumber" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
+
             <div class="form-groupMain">
-                <label asp-for="NewRoomType.BedNumber" class="control-label">Liczba łóżek:</label>
-                <input asp-for="NewRoomType.BedNumber" class="form-controlMain" />
-                <span asp-validation-for="NewRoomType.BedNumber" class="text-danger"></span>
-            </div>
-            <div class="form-groupMain">
-                <label asp-for="NewRoomType.BasePrice" class="control-label">Cena bazowa:</label>
-                <input asp-for="NewRoomType.BasePrice" class="form-controlMain" />
+                <label asp-for="NewRoomType.BasePrice" class="control-label">Cena bazowa (PLN)</label>
+                <div class="input-group">
+                    <input asp-for="NewRoomType.BasePrice" class="form-controlMain" placeholder="np. 250.00" type="number" step="0.01" />
+                </div>
                 <span asp-validation-for="NewRoomType.BasePrice" class="text-danger"></span>
             </div>
-            <div class="form-actions">
-                <input type="submit" value="✅ Dodaj" class="btn btn-primary" />
+
+            <div class="form-actions mt-4">
+                <input type="submit" value="Dodaj typ" class="btn-primaryRoom" />
             </div>
         </form>
     </div>
 
-    <h3>Obecne typy:</h3>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>
-                    Liczba osób
-                </th>
-                <th>
-                    Liczba łóżek
-                </th>
-                <th>
-                    Cena bazowa
-                </th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.RoomTypes)
-            {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.PeopleNumber)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.BedNumber)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.BasePrice) zł
-                    </td>
-                    <td>
-                        <a href="javascript:void(0)"
-                           onclick="openEditModal('@item.IdType', '@item.PeopleNumber', '@item.BedNumber', '@item.BasePrice')">
-                            Edytuj
-                        </a> |
-                        <a href="javascript:void(0)" onclick="openDeleteModal('@item.IdType')"> Usuń </a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div class="mt-5">
+        <h3 class="mb-3" style="color: #4a5568;">Obecne konfiguracje</h3>
+        <div class="table-responsive bg-white rounded shadow-sm p-3">
+            <table class="table table-hover align-middle">
+                <thead style="background-color: #f8f9fa;">
+                    <tr>
+                        <th class="py-3">Liczba osób</th>
+                        <th class="py-3">Liczba łóżek</th>
+                        <th class="py-3">Cena bazowa</th>
+                        <th class="text-end py-3">Akcje</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.RoomTypes)
+                    {
+                        <tr>
+                            <td>
+                                <span class="badge bg-info text-dark" style="font-size: 0.9em;">
+                                    <i class="bi bi-people-fill"></i> @item.PeopleNumber os.
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">
+                                    <i class="bi bi-hdd-stack"></i> @item.BedNumber łóżka
+                                </span>
+                            </td>
+                            <td class="fw-bold text-success">
+                                @item.BasePrice.ToString("N2") zł
+                            </td>
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-outline-primary me-1"
+                                        onclick="openEditModal('@item.IdType', '@item.PeopleNumber', '@item.BedNumber', '@item.BasePrice')">
+                                    <i class="bi bi-pencil"></i> Edytuj
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger"
+                                        onclick="openDeleteModal('@item.IdType')">
+                                    <i class="bi bi-trash"></i> Usuń
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
 
 </div>
-<!-- Edit Modal -->
-<div id="editModal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn" onclick="closeModal()">&times;</span>
-        <h3>Edytuj typ</h3>
+
+<div id="editModal" class="modal" style="display: none; background: rgba(0,0,0,0.5);">
+    <div class="modal-content" style="border-radius: 15px; padding: 25px; border: none;">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="m-0">Edytuj typ</h3>
+            <span class="close-btn fs-2" style="cursor: pointer;" onclick="closeModal()">&times;</span>
+        </div>
+
         <form id="editForm" method="post" asp-controller="Rooms" asp-action="EditRoomType">
             <input type="hidden" id="editId" name="IdType" />
 
-            <div>
-                <label>Liczba osób</label>
-                <input type="number" id="editPeople" name="PeopleNumber" required />
+            <div class="form-groupMain mb-3">
+                <label class="control-label">Liczba osób</label>
+                <input type="number" id="editPeople" name="PeopleNumber" class="form-controlMain" required />
             </div>
-            <div>
-                <label>Liczba łóżek</label>
-                <input type="number" id="editBeds" name="BedNumber" required />
+            <div class="form-groupMain mb-3">
+                <label class="control-label">Liczba łóżek</label>
+                <input type="number" id="editBeds" name="BedNumber" class="form-controlMain" required />
             </div>
-            <div>
-                <label>Cena bazowa</label>
-                <input type="number" id="editPrice" name="BasePrice" step="0.01" required />
+            <div class="form-groupMain mb-4">
+                <label class="control-label">Cena bazowa</label>
+                <input type="number" id="editPrice" name="BasePrice" step="0.01" class="form-controlMain" required />
             </div>
-            <input type="submit" value="Zapisz" class="btn btn-primary" />
+
+            <div class="d-grid">
+                <input type="submit" value="Zapisz zmiany" class="btn btn-primaryRoom py-2" style="border-radius: 10px;" />
+            </div>
         </form>
     </div>
 </div>
 
-<!-- Delete Modal -->
-<div id="deleteModal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn" onclick="closeModal()">&times;</span>
-        <h3>Czy na pewno chcesz usunąć ten typ?</h3>
+<div id="deleteModal" class="modal" style="display: none; background: rgba(0,0,0,0.5);">
+    <div class="modal-content text-center" style="border-radius: 15px; padding: 30px; max-width: 400px;">
+        <div class="mb-3 text-danger">
+            <i class="bi bi-exclamation-circle" style="font-size: 3rem;"></i>
+        </div>
+        <h4 class="mb-3">Czy na pewno usunąć?</h4>
+        <p class="text-muted mb-4">Tej operacji nie można cofnąć.</p>
+
         <form id="deleteForm" method="post" asp-controller="Rooms" asp-action="DeleteRoomType">
             <input type="hidden" id="deleteId" name="IdType" />
-            <div style="margin-top: 15px;">
-                <input type="submit" value="Tak, usuń" class="btn btn-danger" />
-                <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Anuluj</button>
+            <div class="d-flex justify-content-center gap-3">
+                <button type="button" class="btn btn-light border px-4" onclick="closeDeleteModal()">Anuluj</button>
+                <input type="submit" value="Usuń" class="btn btn-danger px-4" />
             </div>
         </form>
     </div>
@@ -128,36 +160,42 @@
             document.getElementById("editId").value = id;
             document.getElementById("editPeople").value = people;
             document.getElementById("editBeds").value = beds;
-            document.getElementById("editPrice").value = price;
 
-            document.getElementById("editModal").style.display = "block";
+            // Formatowanie ceny w inpucie (kropka zamiast przecinka dla JS)
+            let formattedPrice = price.toString().replace(',', '.');
+            document.getElementById("editPrice").value = formattedPrice;
+
+            document.getElementById("editModal").style.display = "flex";
+            document.getElementById("editModal").style.alignItems = "center";
+            document.getElementById("editModal").style.justifyContent = "center";
         }
 
         function closeModal() {
             document.getElementById("editModal").style.display = "none";
         }
 
-        window.onclick = function (event) {
-            var editModal = document.getElementById("editModal");
-            var deleteModal = document.getElementById("deleteModal");
-
-            if (event.target === editModal) {
-                editModal.style.display = "none";
-            }
-            if (event.target === deleteModal) {
-                deleteModal.style.display = "none";
-            }
-        }
-
         function openDeleteModal(id) {
             document.getElementById("deleteId").value = id;
-            document.getElementById("deleteModal").style.display = "block";
+            document.getElementById("deleteModal").style.display = "flex";
+            document.getElementById("deleteModal").style.alignItems = "center";
+            document.getElementById("deleteModal").style.justifyContent = "center";
         }
 
         function closeDeleteModal() {
             document.getElementById("deleteModal").style.display = "none";
         }
 
+        // Zamykanie modala po kliknięciu w tło
+        window.onclick = function (event) {
+            var editModal = document.getElementById("editModal");
+            var deleteModal = document.getElementById("deleteModal");
 
+            if (event.target === editModal) {
+                closeModal();
+            }
+            if (event.target === deleteModal) {
+                closeDeleteModal();
+            }
+        }
     </script>
 }

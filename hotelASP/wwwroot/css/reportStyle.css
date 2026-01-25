@@ -116,12 +116,18 @@
 /* Clean Report Styles */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f8f9fa !important;
+    background-color: #faf8f3 !important;
     min-height: 100vh;
 }
 
 main {
     min-height: calc(100vh - 120px);
+}
+
+/* Navbar for Reports */
+.navbar-dark {
+    background: linear-gradient(135deg, #4e342e 0%, #6d4c41 100%) !important;
+    border-bottom: 3px solid #d4af37;
 }
 
 /* Print Styles */
@@ -143,25 +149,107 @@ main {
 /* Card Enhancements */
 .card {
     transition: all 0.3s ease;
+    border: 1px solid rgba(212, 175, 55, 0.2);
 }
 
 .card:hover {
-    box-shadow: 0 8px 16px rgba(0,0,0,0.1) !important;
+    box-shadow: 0 8px 16px rgba(62, 39, 35, 0.15) !important;
+}
+
+.card-header {
+    background: linear-gradient(135deg, #4e342e 0%, #6d4c41 100%) !important;
+    color: white !important;
+    border-bottom: 3px solid #d4af37 !important;
 }
 
 /* Progress Bar Animations */
+.progress {
+    background-color: #deb887 !important;
+}
+
 .progress-bar {
     transition: width 0.6s ease;
+    background-color: #d4af37 !important;
+}
+
+.progress-bar.bg-success {
+    background-color: #7cb342 !important;
+}
+
+.progress-bar.bg-primary {
+    background-color: #4e342e !important;
 }
 
 /* Table Styles */
 .table-hover tbody tr:hover {
-    background-color: rgba(0,0,0,0.02);
+    background-color: #f5f5dc;
+}
+
+.table thead {
+    background-color: #4e342e !important;
+    color: white !important;
 }
 
 /* Button Group Spacing */
 .btn-group .btn {
     margin: 0 !important;
+}
+
+/* Stat Cards for Reports */
+.stat-card {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(62, 39, 35, 0.15);
+}
+
+/* Border Colors */
+.border-success {
+    border-color: #7cb342 !important;
+}
+
+.border-primary {
+    border-color: #4e342e !important;
+}
+
+.border-warning {
+    border-color: #d4af37 !important;
+}
+
+.border-info {
+    border-color: #cd853f !important;
+}
+
+/* Background Opacity Colors */
+.bg-success.bg-opacity-10 {
+    background-color: rgba(124, 179, 66, 0.1) !important;
+}
+
+.bg-primary.bg-opacity-10 {
+    background-color: rgba(78, 52, 46, 0.1) !important;
+}
+
+.bg-warning.bg-opacity-10 {
+    background-color: rgba(212, 175, 55, 0.1) !important;
+}
+
+.bg-info.bg-opacity-10 {
+    background-color: rgba(205, 133, 63, 0.1) !important;
+}
+
+/* Text Colors */
+.text-success {
+    color: #7cb342 !important;
+}
+
+.text-primary {
+    color: #4e342e !important;
+}
+
+.text-warning {
+    color: #d4af37 !important;
+}
+
+.text-info {
+    color: #cd853f !important;
 }
 
 /* Responsive adjustments */

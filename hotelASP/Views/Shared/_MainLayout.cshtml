@@ -43,20 +43,17 @@
             const navDropdown = document.querySelector('.nav-dropdown');
             
             if (dropdownToggle && dropdownMenu) {
-                // Toggle on click
                 dropdownToggle.addEventListener('click', function(e) {
                     e.stopPropagation();
                     navDropdown.classList.toggle('active');
                 });
                 
-                // Close when clicking outside
                 document.addEventListener('click', function(e) {
                     if (!navDropdown.contains(e.target)) {
                         navDropdown.classList.remove('active');
                     }
                 });
                 
-                // Prevent closing when clicking inside menu
                 dropdownMenu.addEventListener('click', function(e) {
                     e.stopPropagation();
                 });

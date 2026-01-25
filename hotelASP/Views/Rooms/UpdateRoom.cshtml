@@ -1,13 +1,17 @@
 ﻿@using hotelASP.Views.Rooms.Helpers
 @model hotelASP.Entities.Room
 
+@{
+    ViewData["Title"] = "Edytowanie pokoju";
+}
+
 <div class="create-room-container">
 
     <div class="headerMain">
         <h2>Edytuj pokój nr @Model.FloorNumber</h2>
-        <div class="headerMain-actions">
-            <a asp-action="Index" class="btnMain">Powrót</a>
-        </div>
+        <a asp-action="Index" class="btn btnMainSecondary">
+            <i class="bi bi-arrow-left me-2"></i> Powrót
+        </a>
     </div>
 
     <div class="cardMain">
@@ -54,12 +58,12 @@
             </div>
 
             <div class="roomDescriptionBox">
-                <label>Opcje pokoju</label>
+                <label class="control-label">Opcje pokoju</label>
                 <div class="options-grid">
                     @foreach (var opt in ViewBag.Options)
                     {
                         var isChecked = Model.RoomDescriptions.Any(rd => rd.IdOption == opt.ID);
-                        <div>
+                        <div class="descriptionOption">
                             <input type="checkbox" name="SelectedOptions" value="@opt.ID" @(isChecked ? "checked" : "") />
                             <label>@opt.Name</label>
                         </div>
