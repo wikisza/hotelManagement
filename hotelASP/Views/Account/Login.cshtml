@@ -1,34 +1,38 @@
 ﻿@model hotelASP.Models.LoginViewModel
 
 @{
-	ViewData["Title"] = "Login";
+    ViewData["Title"] = "Login";
+    Layout = "~/Views/Shared/_LoginLayout.cshtml";
 }
+
 <div class="container">
-	<img src="~/assets/graphics/logo-no-background.png" />
-	<section>
+    <img src="~/assets/graphics/logo-no-background.png" alt="Hotel Tropical Logo" />
+    <section>
+        <h1>Logowanie do systemu</h1>
+        <form asp-action="Login" asp-controller="Account">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+            <div>
+                <label asp-for="UsernameOrEmail" class="control-label">Username lub email</label>
+                <input asp-for="UsernameOrEmail" class="form-control" placeholder="Wprowadź login lub email" />
+                <span asp-validation-for="UsernameOrEmail" class="text-danger"></span>
+            </div>
+            
+            <div>
+                <label class="control-label">Hasło</label>
+                <input asp-for="Password" class="form-control" type="password" placeholder="Wprowadź hasło" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
 
-		<h1>Logowanie do systemu</h1>
-				<form asp-action="Login" asp-controller="Account">
-						<div asp-validation-summary="ModelOnly" class="text-danger"></div>
-					
-						<label asp-for="UsernameOrEmail" class="control-label"></label>
-						<input asp-for="UsernameOrEmail" class="form-control" />
-						<span asp-validation-for="UsernameOrEmail" class="text-danger"></span>
-					
-					
-						<label class="control-label">Hasło</label>
-						<input asp-for="Password" class="form-control" />
-						<span asp-validation-for="Password" class="text-danger"></span>
-
-
-						<p><button type="submit" class="loginBtn">Zaloguj</button> </p>
-					
-				</form>
-
-	</section>
+            <p>
+                <button type="submit" class="loginBtn">Zaloguj</button>
+            </p>
+        </form>
+    </section>
 </div>
+
 @section Scripts {
-	@{
-		await Html.RenderPartialAsync("_ValidationScriptsPartial");
-	}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

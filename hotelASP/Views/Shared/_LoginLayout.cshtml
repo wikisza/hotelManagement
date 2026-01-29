@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>@ViewData["Title"] - Hotel Tropical</title>
+    <link href="~/css/style.css" rel="stylesheet" />
+    <link href="~/css/login.css" rel="stylesheet" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+<body class="login-body">
+    @RenderBody()
+    
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    @RenderSection("Scripts", required: false)
+</body>
+</html>
